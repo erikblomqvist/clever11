@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
+	import { toast } from 'svelte-sonner';
 	import {
 		game,
 		gameQueries,
@@ -11,6 +12,7 @@
 		startNextRound,
 		undoLastMove,
 	} from '../lib/game.svelte.js';
+	import * as engine from '../lib/gameEngine.js';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
 	import GamePlayingSurface from './game/GamePlayingSurface.svelte';
 	import GameRoundReviewSurface from './game/GameRoundReviewSurface.svelte';
@@ -60,6 +62,51 @@
 	let streakBurstKey = $state(0);
 	let streakCelebrationTimerId =
 		/** @type {ReturnType<typeof setTimeout>|null} */ (null);
+
+	let timerRemaining = $state(game.turnTimerSeconds ?? 0);
+
+	const timerEnabled = $derived(game.turnTimerSeconds !== null && game.status === 'playing');
+	const timerPaused = $derived(
+		dialogOpen ||
+		undoDialogOpen ||
+		streakCelebrationActive ||
+		pendingBlobIndex !== null,
+	);
+
+	function resetTimer() {
+		if (game.turnTimerSeconds !== null) {
+			timerRemaining = game.turnTimerSeconds;
+		}
+	}
+
+	function handleTimerExpiry() {
+		const playerName = gameQueries.currentPlayer?.name ?? '';
+		passCurrentPlayer();
+		toast($_('game.times_up', { values: { name: playerName } }), { duration: 3000 });
+		if (engine.checkRoundOver(game)) {
+			endRound();
+		}
+	}
+
+	$effect(() => {
+		game.currentPlayerId;
+		resetTimer();
+	});
+
+	$effect(() => {
+		if (!timerEnabled || timerPaused) return;
+
+		const interval = setInterval(() => {
+			timerRemaining -= 1;
+			if (timerRemaining <= 0) {
+				timerRemaining = 0;
+				clearInterval(interval);
+				handleTimerExpiry();
+			}
+		}, 1000);
+
+		return () => clearInterval(interval);
+	});
 
 	const roundIntro = useRoundIntro();
 	const springDrag = useSpringDrag({ canStart: canStartSpringDrag });
@@ -252,6 +299,8 @@
 				deferAdvance: shouldDeferAdvance,
 			});
 
+			if (isCorrect) resetTimer();
+
 			if (
 				result?.isCorrect &&
 				result.previousRoundScore === STREAK_THRESHOLD - 1 &&
@@ -268,6 +317,7 @@
 		if (streakCelebrationActive) return;
 		undoDialogOpen = false;
 		undoLastMove();
+		resetTimer();
 	}
 
 	function handlePassOrEnd() {
@@ -282,6 +332,7 @@
 	function handleUndo() {
 		if (streakCelebrationActive) return;
 		undoLastMove();
+		resetTimer();
 	}
 
 	function handleSave() {
@@ -318,6 +369,9 @@
 		{pendingBlobLabel}
 		{pendingBlobAnswer}
 		{undoDialogOpen}
+		turnTimerSeconds={game.turnTimerSeconds}
+		turnTimerRemaining={timerRemaining}
+		turnTimerPaused={timerPaused}
 		onstartover={handleStartOver}
 		onsave={handleSave}
 		onundo={handleUndo}

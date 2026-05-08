@@ -4,6 +4,7 @@
 	import QuestionWheel from '../../components/QuestionWheel.svelte';
 	import AnswerDialog from '../../components/AnswerDialog.svelte';
 	import UndoLastMoveDialog from '../../components/UndoLastMoveDialog.svelte';
+	import TurnTimerBorder from '../../components/TurnTimerBorder.svelte';
 	import GameActionButton from './GameActionButton.svelte';
 
 	/**
@@ -28,6 +29,9 @@
 	 *   pendingBlobLabel: string,
 	 *   pendingBlobAnswer: import('../../data/game.js').CorrectAnswer|null,
 	 *   undoDialogOpen: boolean,
+	 *   turnTimerSeconds: number|null,
+	 *   turnTimerRemaining: number,
+	 *   turnTimerPaused: boolean,
 	 *   onstartover: () => void,
 	 *   onsave: () => void,
 	 *   onundo: () => void,
@@ -63,6 +67,9 @@
 		pendingBlobLabel,
 		pendingBlobAnswer,
 		undoDialogOpen,
+		turnTimerSeconds,
+		turnTimerRemaining,
+		turnTimerPaused,
 		onstartover,
 		onsave,
 		onundo,
@@ -149,6 +156,16 @@
 			open={true}
 			onconfirm={onundoconfirm}
 			oncancel={onundocancel}
+		/>
+	{/if}
+
+	{#if turnTimerSeconds !== null}
+		<TurnTimerBorder
+			durationSeconds={turnTimerSeconds}
+			playerColor={currentPlayer ? `var(--${currentPlayer.color})` : 'var(--orange-700)'}
+			paused={turnTimerPaused}
+			running={true}
+			timeRemaining={turnTimerRemaining}
 		/>
 	{/if}
 </main>
