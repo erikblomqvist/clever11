@@ -6,6 +6,7 @@
 		PLAYER_COLORS,
 		getPlayerIconComponent,
 	} from '../lib/playerIcons.js';
+	import SeatMap from './SeatMap.svelte';
 
 	/**
 	 * @type {{
@@ -189,21 +190,13 @@
 
 				{#if mode === 'add'}
 					<p class="mp-form__label">{$_('manage_players.choose_seat')}</p>
-					<div class="mp-form__seats">
-						{#each Array.from({ length: 8 }, (_, i) => i) as position (position)}
-							{@const taken = usedSeats.includes(position)}
-							<button
-								class="mp-form__seat"
-								class:mp-form__seat--active={formSeat === position}
-								class:mp-form__seat--taken={taken}
-								onclick={() => { if (!taken) formSeat = position; }}
-								type="button"
-								disabled={taken}
-								aria-label="{$_('setup.seat_aria', { values: { n: position + 1 } })}"
-							>
-								{position + 1}
-							</button>
-						{/each}
+					<div class="mp-form__seat-map">
+						<SeatMap
+							players={activePlayers}
+							disabledSeats={usedSeats}
+							selectedSeat={formSeat}
+							onselect={(pos) => { if (!usedSeats.includes(pos)) formSeat = pos; }}
+						/>
 					</div>
 				{/if}
 
@@ -477,40 +470,13 @@
 		color: var(--grayscale-600);
 	}
 
-	.mp-form__seats {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.375rem;
-	}
-
-	.mp-form__seat {
-		display: grid;
-		place-items: center;
-		border: 2px solid var(--grayscale-200);
-		border-radius: 0.375rem;
-		width: 2.25rem;
-		height: 2.25rem;
-		background: var(--grayscale-50);
-		color: var(--grayscale-700);
-		font-family: 'Oswald', sans-serif;
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	.mp-form__seat:not(:disabled):hover {
-		border-color: var(--grayscale-400);
-	}
-
-	.mp-form__seat--active {
-		background-color: var(--orange-600);
-		border-color: var(--orange-700);
-		color: var(--white);
-	}
-
-	.mp-form__seat--taken {
-		opacity: 0.25;
-		cursor: not-allowed;
+	.mp-form__seat-map {
+		width: 10rem;
+		height: 10rem;
+		margin: 0 auto;
+		border-radius: 0.75rem;
+		padding: 1rem;
+		background: linear-gradient(to bottom, var(--orange-500), var(--orange-600));
 	}
 
 	.mp-form__confirm {

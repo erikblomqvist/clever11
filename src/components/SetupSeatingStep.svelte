@@ -1,7 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { ChevronLeft } from 'lucide-svelte';
-	import { getPlayerIconComponent } from '../lib/playerIcons.js';
+	import SeatMap from './SeatMap.svelte';
 
 	/**
 	 * @type {{
@@ -39,35 +39,13 @@
 		</p>
 	</div>
 
-	{#each Array.from({ length: 8 }, (_, i) => i) as position (position)}
-		{@const claimers = players.filter((p) => p.seatPosition === position)}
-		<button
-			class="seat-btn seat-btn--{position}"
-			class:seat-btn--claimed={claimers.length > 0}
-			onclick={() => onclaimseat(position)}
-			type="button"
-			aria-label={claimers.length > 0
-				? claimers.map((p) => p.name).join(', ')
-				: $_('setup.seat_aria', { values: { n: position + 1 } })}
-		>
-			{#if claimers.length > 0}
-				<span class="seat-btn__stack">
-					{#each claimers as claimer (claimer.id)}
-						{@const Icon = getPlayerIconComponent(claimer.icon)}
-						<span class="seat-btn__avatar" style:--player-ring="var(--{claimer.color})">
-							{#if Icon}<Icon size={13} />{/if}
-						</span>
-					{/each}
-				</span>
-			{/if}
-		</button>
-	{/each}
+	<div class="seating-map-wrapper">
+		<SeatMap {players} onselect={onclaimseat} />
+	</div>
 </div>
 
 <style>
 	.seating-screen {
-		--seat-btn-spacing: 3rem;
-
 		position: fixed;
 		inset: 0;
 		background: linear-gradient(
@@ -101,8 +79,10 @@
 	}
 
 	.seating-center {
+		position: absolute;
 		text-align: center;
 		pointer-events: none;
+		z-index: 1;
 	}
 
 	.seating-player-name {
@@ -131,113 +111,8 @@
 		color: hsl(0 0% 100% / 0.6);
 	}
 
-	.seat-btn {
+	.seating-map-wrapper {
 		position: absolute;
-		display: grid;
-		place-items: center;
-		border: 3px solid hsl(0 0% 100% / 0.5);
-		border-radius: 50%;
-		width: 3.25rem;
-		height: 3.25rem;
-		background: hsl(0 0% 100% / 0.15);
-		color: var(--white);
-		cursor: pointer;
-		transition:
-			background-color 0.15s,
-			border-color 0.15s,
-			transform 0.1s;
-	}
-
-	.seat-btn:hover:not(:disabled) {
-		background-color: hsl(0 0% 100% / 0.3);
-		border-color: var(--white);
-		transform: scale(1.1);
-	}
-
-	.seat-btn--claimed {
-		background-color: var(--orange-700);
-		border-color: var(--orange-800);
-		overflow: hidden;
-	}
-
-	.seat-btn__stack {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.seat-btn__avatar {
-		display: grid;
-		place-items: center;
-		width: 1.375rem;
-		height: 1.375rem;
-		border-radius: 50%;
-		background: hsl(0 0% 0% / 0.25);
-		border: 2px solid var(--player-ring, hsl(0 0% 100% / 0.4));
-		flex-shrink: 0;
-	}
-
-	.seat-btn__avatar + .seat-btn__avatar {
-		margin-inline-start: -0.35rem;
-	}
-
-	.seat-btn--0 {
-		top: max(var(--seat-btn-spacing), env(safe-area-inset-top));
-		left: 50%;
-		transform: translateX(-50%);
-	}
-
-	.seat-btn--0:hover:not(:disabled) {
-		transform: translateX(-50%) scale(1.1);
-	}
-
-	.seat-btn--1 {
-		top: max(var(--seat-btn-spacing), env(safe-area-inset-top));
-		right: max(var(--seat-btn-spacing), env(safe-area-inset-right));
-	}
-
-	.seat-btn--2 {
-		top: 50%;
-		right: max(var(--seat-btn-spacing), env(safe-area-inset-right));
-		transform: translateY(-50%);
-	}
-
-	.seat-btn--2:hover:not(:disabled) {
-		transform: translateY(-50%) scale(1.1);
-	}
-
-	.seat-btn--3 {
-		bottom: max(var(--seat-btn-spacing), env(safe-area-inset-bottom));
-		right: max(var(--seat-btn-spacing), env(safe-area-inset-right));
-	}
-
-	.seat-btn--4 {
-		bottom: max(var(--seat-btn-spacing), env(safe-area-inset-bottom));
-		left: 50%;
-		transform: translateX(-50%);
-	}
-
-	.seat-btn--4:hover:not(:disabled) {
-		transform: translateX(-50%) scale(1.1);
-	}
-
-	.seat-btn--5 {
-		bottom: max(var(--seat-btn-spacing), env(safe-area-inset-bottom));
-		left: max(var(--seat-btn-spacing), env(safe-area-inset-left));
-	}
-
-	.seat-btn--6 {
-		top: 50%;
-		left: max(var(--seat-btn-spacing), env(safe-area-inset-left));
-		transform: translateY(-50%);
-	}
-
-	.seat-btn--6:hover:not(:disabled) {
-		transform: translateY(-50%) scale(1.1);
-	}
-
-	.seat-btn--7 {
-		top: max(var(--seat-btn-spacing), env(safe-area-inset-top));
-		left: max(var(--seat-btn-spacing), env(safe-area-inset-left));
+		inset: max(3rem, env(safe-area-inset-top)) max(3rem, env(safe-area-inset-right)) max(3rem, env(safe-area-inset-bottom)) max(3rem, env(safe-area-inset-left));
 	}
 </style>
