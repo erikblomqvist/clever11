@@ -1,50 +1,9 @@
 /**
- * @typedef {'active'|'passed'|'out'|'removed'} PlayerStatus
- *
- * @typedef {{
- *   id: string,
- *   dbId: string|null,
- *   name: string,
- *   icon: string,
- *   color: string,
- *   seatPosition: number,
- *   turnOrder: number,
- *   totalScore: number,
- *   roundScore: number,
- *   status: PlayerStatus,
- * }} GamePlayer
- *
- * @typedef {{
- *   id: string,
- *   type: import('../data/questionTypes.js').QuestionType,
- *   text: string,
- *   deck: string,
- *   deckIcon: string|null,
- *   options: string[],
- *   correctAnswers: import('../data/game.js').CorrectAnswer[],
- *   answerMedia: object[],
- * }} GameQuestion
- *
- * @typedef {{
- *   blobIndex: number,
- *   playerId: string,
- *   previousRoundScore: number,
- *   previousStatus: PlayerStatus,
- *   previousCurrentPlayerId: string|null,
- *   previousLastPlayerId: string|null,
- *   answerId: string|null,
- *   deleteWhenPersisted: boolean,
- * }} LastAnswerMove
- *
- * @typedef {{
- *   roundNumber: number,
- *   question: GameQuestion,
- *   answeredBlobs: number[],
- *   blobResults: Record<number, boolean>,
- *   lastPlayerId: string|null,
- *   dbId: string|null,
- *   lastAnswerMove: LastAnswerMove|null,
- * }} Round
+ * @typedef {import('./gameEngine.js').PlayerStatus} PlayerStatus
+ * @typedef {import('./gameEngine.js').GamePlayer} GamePlayer
+ * @typedef {import('./gameEngine.js').GameQuestion} GameQuestion
+ * @typedef {import('./gameEngine.js').LastAnswerMove} LastAnswerMove
+ * @typedef {import('./gameEngine.js').Round} Round
  *
  * @typedef {{
  *   playerId: string,
@@ -59,6 +18,7 @@
 import { supabase } from './supabase.js';
 import { getForcedFirstQuestionId } from './testingOptions.js';
 import { questionsByType } from '../data/game.js';
+import * as engine from './gameEngine.js';
 
 // Used when Supabase is not configured or decks have no questions yet
 const MOCK_QUESTIONS = /** @type {GameQuestion[]} */ (
@@ -113,21 +73,6 @@ function pickNextQuestion() {
 	const q = pool[Math.floor(Math.random() * pool.length)];
 	game.usedQuestionIds.push(q.id);
 	return q;
-}
-
-/**
- * @param {GamePlayer[]} players
- * @param {string|null} currentPlayerId
- * @returns {string|null}
- */
-function getNextActivePlayerId(players, currentPlayerId) {
-	const sorted = [...players].filter((p) => p.status !== 'removed').sort((a, b) => a.turnOrder - b.turnOrder);
-	const currentIdx = sorted.findIndex((p) => p.id === currentPlayerId);
-	for (let i = 1; i <= sorted.length; i++) {
-		const idx = (currentIdx + i) % sorted.length;
-		if (sorted[idx].status === 'active') return sorted[idx].id;
-	}
-	return null;
 }
 
 // --- DB helpers ---
@@ -228,20 +173,11 @@ async function syncGameState() {
 // --- Exported queries ---
 
 export function checkRoundOver() {
-	if (!game.currentRound) return false;
-	const allAnswered =
-		game.currentRound.answeredBlobs.length >= game.currentRound.question.options.length;
-	const allInactive = game.players.every(
-		(p) => p.status === 'passed' || p.status === 'out' || p.status === 'removed',
-	);
-	return allAnswered || allInactive;
+	return engine.checkRoundOver(game);
 }
 
 export function canUndoLastMove() {
-	const round = game.currentRound;
-	if (!round?.lastAnswerMove) return false;
-	const lastAnsweredBlob = round.answeredBlobs.at(-1);
-	return lastAnsweredBlob === round.lastAnswerMove.blobIndex;
+	return engine.canUndoLastMove(game);
 }
 
 // --- Exported mutations ---
@@ -444,38 +380,19 @@ export function revealBlob(blobIndex, isCorrect, options = {}) {
 	if (playerIdx === -1) return null;
 
 	const actingPlayerDbId = game.players[playerIdx].dbId;
-	const round = game.currentRound;
-	const actingPlayerId = game.currentPlayerId;
 	const previousRoundScore = game.players[playerIdx].roundScore;
-	const lastAnswerMove = {
-		blobIndex,
-		playerId: actingPlayerId,
-		previousRoundScore,
-		previousStatus: game.players[playerIdx].status,
-		previousCurrentPlayerId: actingPlayerId,
-		previousLastPlayerId: round.lastPlayerId,
-		answerId: /** @type {string|null} */ (null),
-		deleteWhenPersisted: false,
-	};
 
-	round.lastAnswerMove = lastAnswerMove;
-	round.answeredBlobs.push(blobIndex);
-	round.blobResults[blobIndex] = isCorrect;
-	round.lastPlayerId = actingPlayerId;
+	const result = engine.revealBlob(game, blobIndex, isCorrect);
+	if (!result) return null;
 
-	if (isCorrect) {
-		game.players[playerIdx].roundScore += 1;
-	} else {
-		game.players[playerIdx].roundScore = 0;
-		game.players[playerIdx].status = 'out';
+	const round = game.currentRound;
+	const lastAnswerMove = round.lastAnswerMove;
+	lastAnswerMove.answerId = /** @type {string|null} */ (null);
+	lastAnswerMove.deleteWhenPersisted = false;
+
+	if (result.nextPlayerId && !options.deferAdvance) {
+		engine.advanceToPlayer(game, result.nextPlayerId);
 	}
-
-	const roundIsOver = checkRoundOver();
-	const nextPlayerId = roundIsOver
-		? null
-		: getNextActivePlayerId(game.players, actingPlayerId);
-
-	if (nextPlayerId && !options.deferAdvance) game.currentPlayerId = nextPlayerId;
 
 	if (supabase && round.dbId && actingPlayerDbId) {
 		supabase
@@ -499,12 +416,12 @@ export function revealBlob(blobIndex, isCorrect, options = {}) {
 	}
 
 	return {
-		playerId: actingPlayerId,
+		playerId: result.playerId,
 		previousRoundScore,
-		newRoundScore: game.players[playerIdx].roundScore,
+		newRoundScore: result.roundScore,
 		isCorrect,
-		nextPlayerId,
-		roundIsOver,
+		nextPlayerId: result.nextPlayerId,
+		roundIsOver: result.roundIsOver,
 	};
 }
 
@@ -516,67 +433,38 @@ export function advanceCurrentPlayer(expectedCurrentPlayerId = game.currentPlaye
 	if (game.status !== 'playing' || checkRoundOver()) return false;
 	if (game.currentPlayerId !== expectedCurrentPlayerId) return false;
 
-	const nextId = getNextActivePlayerId(game.players, expectedCurrentPlayerId);
+	const nextId = engine.getNextActivePlayerId(game, expectedCurrentPlayerId);
 	if (!nextId) return false;
 
-	game.currentPlayerId = nextId;
+	engine.advanceToPlayer(game, nextId);
 	syncGameState().catch(console.error);
 	return true;
 }
 
 export function undoLastMove() {
-	const round = game.currentRound;
-	const move = round?.lastAnswerMove;
-	if (!round || !move || !canUndoLastMove()) return;
+	const move = game.currentRound?.lastAnswerMove;
+	if (!move) return;
 
-	const playerIdx = game.players.findIndex((p) => p.id === move.playerId);
-	if (playerIdx === -1) return;
+	const answerId = move.answerId;
+	const deleteWhenPersisted = move.deleteWhenPersisted;
 
-	round.answeredBlobs.pop();
-	delete round.blobResults[move.blobIndex];
-	round.lastPlayerId = move.previousLastPlayerId;
-	round.lastAnswerMove = null;
+	engine.undoLastMove(game);
 
-	game.players[playerIdx].roundScore = move.previousRoundScore;
-	game.players[playerIdx].status = move.previousStatus;
-	game.currentPlayerId = move.previousCurrentPlayerId;
-
-	if (move.answerId) {
-		deletePersistedAnswer(move).catch(console.error);
-	} else {
+	if (answerId) {
+		deletePersistedAnswer({ answerId }).catch(console.error);
+	} else if (!deleteWhenPersisted) {
 		move.deleteWhenPersisted = true;
 	}
 	syncGameState().catch(console.error);
 }
 
 export function passCurrentPlayer() {
-	const playerIdx = game.players.findIndex((p) => p.id === game.currentPlayerId);
-	if (playerIdx === -1) return;
-
-	game.players[playerIdx].status = 'passed';
-	if (game.currentRound) game.currentRound.lastPlayerId = game.currentPlayerId;
-	if (game.currentRound) game.currentRound.lastAnswerMove = null;
-
-	if (!checkRoundOver()) {
-		const nextId = getNextActivePlayerId(game.players, game.currentPlayerId);
-		if (nextId) game.currentPlayerId = nextId;
-	}
-
+	engine.passCurrentPlayer(game);
 	syncGameState().catch(console.error);
 }
 
 export function endRound() {
-	if (game.currentRound) game.currentRound.lastAnswerMove = null;
-
-	game.players.forEach((_, idx) => {
-		if (game.players[idx].status !== 'removed') {
-			game.players[idx].totalScore += game.players[idx].roundScore;
-		}
-	});
-
-	const winner = game.players.find((p) => p.status !== 'removed' && p.totalScore >= game.winScore);
-	game.status = winner ? 'finished' : 'round_review';
-
+	engine.endRound(game);
 	syncGameState().catch(console.error);
 }
 
@@ -584,43 +472,20 @@ export function endRound() {
  * @param {{ name: string, icon: string, color: string, seatPosition: number }} params
  * @returns {string|false}
  */
-export function addPlayer({ name, icon, color, seatPosition }) {
-	const activeCount = game.players.filter((p) => p.status !== 'removed').length;
-	if (activeCount >= 8) return false;
-
-	const maxIdNum = game.players.reduce((max, p) => {
-		const num = parseInt(p.id.replace('player-', ''), 10);
-		return num > max ? num : max;
-	}, -1);
-	const newId = `player-${maxIdNum + 1}`;
-
-	const maxTurnOrder = game.players.reduce((max, p) => (p.turnOrder > max ? p.turnOrder : max), -1);
-
-	/** @type {GamePlayer} */
-	const newPlayer = {
-		id: newId,
-		dbId: null,
-		name,
-		icon,
-		color,
-		seatPosition,
-		turnOrder: maxTurnOrder + 1,
-		totalScore: 0,
-		roundScore: 0,
-		status: /** @type {PlayerStatus} */ ('active'),
-	};
-
-	game.players.push(newPlayer);
+export function addPlayer(params) {
+	const newId = engine.addPlayer(game, params);
+	if (newId === false) return false;
 
 	if (supabase && game.dbGameId) {
+		const newPlayer = game.players.find((p) => p.id === newId);
 		supabase
 			.from('game_players')
 			.insert({
 				game_id: game.dbGameId,
-				name,
-				icon,
-				color,
-				seat_position: seatPosition,
+				name: params.name,
+				icon: params.icon,
+				color: params.color,
+				seat_position: params.seatPosition,
 				turn_order: newPlayer.turnOrder,
 				total_score: 0,
 				round_score: 0,
@@ -642,28 +507,9 @@ export function addPlayer({ name, icon, color, seatPosition }) {
  * @returns {boolean}
  */
 export function removePlayer(playerId) {
-	const playerIdx = game.players.findIndex((p) => p.id === playerId);
-	if (playerIdx === -1) return false;
-
-	const player = game.players[playerIdx];
-	if (player.status === 'removed') return false;
-
-	const activeCount = game.players.filter((p) => p.status !== 'removed').length;
-	if (activeCount <= 2) return false;
-
-	let nextId = null;
-	if (game.currentPlayerId === playerId) {
-		nextId = getNextActivePlayerId(game.players, playerId);
-	}
-
-	game.players[playerIdx].status = 'removed';
-	game.players[playerIdx].seatPosition = -1;
-	game.players[playerIdx].roundScore = 0;
-
-	if (nextId) game.currentPlayerId = nextId;
-
-	syncGameState().catch(console.error);
-	return true;
+	const result = engine.removePlayer(game, playerId);
+	if (result) syncGameState().catch(console.error);
+	return result;
 }
 
 /**
@@ -671,47 +517,15 @@ export function removePlayer(playerId) {
  * @param {{ name: string, icon: string, color: string }} replacement
  * @returns {boolean}
  */
-export function replacePlayer(playerId, { name, icon, color }) {
-	const player = game.players.find((p) => p.id === playerId);
-	if (!player || player.status === 'removed') return false;
-
-	player.name = name;
-	player.icon = icon;
-	player.color = color;
-
-	syncGameState().catch(console.error);
-	return true;
+export function replacePlayer(playerId, replacement) {
+	const result = engine.replacePlayer(game, playerId, replacement);
+	if (result) syncGameState().catch(console.error);
+	return result;
 }
 
 export function startNextRound() {
-	const activePlayers = game.players.filter((p) => p.status !== 'removed');
-	const allPassed = activePlayers.every((p) => p.status === 'passed');
-
-	game.players.forEach((_, idx) => {
-		if (game.players[idx].status !== 'removed') {
-			game.players[idx].status = 'active';
-			game.players[idx].roundScore = 0;
-		}
-	});
-
-	const sorted = [...activePlayers].sort((a, b) => a.turnOrder - b.turnOrder);
-	if (!allPassed) {
-		game.startingTurnOrderIndex = (game.startingTurnOrderIndex + 1) % sorted.length;
-	}
-	let nextStarter = sorted[game.startingTurnOrderIndex % sorted.length];
-	game.currentPlayerId = nextStarter.id;
-
-	game.currentRound = {
-		roundNumber: (game.currentRound?.roundNumber ?? 0) + 1,
-		question: pickNextQuestion(),
-		answeredBlobs: [],
-		blobResults: {},
-		lastPlayerId: null,
-		dbId: null,
-		lastAnswerMove: null,
-	};
-
-	game.status = 'playing';
+	const question = pickNextQuestion();
+	engine.startNextRound(game, question);
 
 	if (supabase && game.dbGameId) {
 		dbCreateNewRound().catch(console.error);
@@ -746,7 +560,7 @@ async function dbCreateNewRound() {
 	await syncGameState();
 }
 
-/** @param {LastAnswerMove} move */
+/** @param {{ answerId: string|null }} move */
 async function deletePersistedAnswer(move) {
 	if (!supabase || !move.answerId) return;
 	await supabase.from('player_answers').delete().eq('id', move.answerId);
