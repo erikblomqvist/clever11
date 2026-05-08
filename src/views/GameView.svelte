@@ -3,13 +3,12 @@
 	import { _ } from 'svelte-i18n';
 	import {
 		game,
+		gameQueries,
 		revealBlob,
 		advanceCurrentPlayer,
 		passCurrentPlayer,
 		endRound,
 		startNextRound,
-		checkRoundOver,
-		canUndoLastMove,
 		undoLastMove,
 	} from '../lib/game.svelte.js';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
@@ -36,23 +35,10 @@
 	let reviewRevealedBlobIndexes = $state(/** @type {number[]} */ ([]));
 	let reviewRevealRoundKey = /** @type {string|null} */ (null);
 
-	const currentPlayer = $derived(
-		game.players.find((p) => p.id === game.currentPlayerId) ?? null,
-	);
-
 	const question = $derived(game.currentRound?.question ?? null);
 
 	const questionTypeConfig = $derived(
 		question ? (QUESTION_TYPES[question.type] ?? null) : null,
-	);
-
-	const blobStates = $derived(
-		question
-			? question.options.map((_, i) => {
-					const results = game.currentRound?.blobResults ?? {};
-					return i in results ? results[i] : null;
-				})
-			: [],
 	);
 
 	const reviewBlobStates = $derived(
@@ -63,14 +49,6 @@
 					return reviewRevealedBlobIndexes.includes(i) ? true : null;
 				})
 			: [],
-	);
-
-	const roundIsOver = $derived(checkRoundOver());
-	const undoIsAvailable = $derived(canUndoLastMove());
-	const undoableBlobIndex = $derived(
-		undoIsAvailable
-			? (game.currentRound?.lastAnswerMove?.blobIndex ?? null)
-			: null,
 	);
 
 	const STREAK_THRESHOLD = 3;
@@ -90,7 +68,7 @@
 	});
 
 	const seatRotation = $derived(
-		currentPlayer ? getSeatRotationTurns(currentPlayer.seatPosition) : 0,
+		gameQueries.currentPlayer ? getSeatRotationTurns(gameQueries.currentPlayer.seatPosition) : 0,
 	);
 
 	const lastPlayer = $derived(
@@ -109,9 +87,9 @@
 	const streakCelebrationActive = $derived(
 		streakCelebrationPlayerId !== null,
 	);
-	const wheelStreakLevel = $derived(currentPlayer?.roundScore ?? 0);
+	const wheelStreakLevel = $derived(gameQueries.currentPlayer?.roundScore ?? 0);
 	const wheelStreakColor = $derived(
-		currentPlayer ? `var(--${currentPlayer.color})` : 'var(--orange-700)',
+		gameQueries.currentPlayer ? `var(--${gameQueries.currentPlayer.color})` : 'var(--orange-700)',
 	);
 	const wheelRotationDurationMs = $derived(
 		roundIntro.resetIsInstant
@@ -214,7 +192,7 @@
 		roundIntro.syncRound({
 			status: game.status,
 			round: game.currentRound,
-			starter: currentPlayer,
+			starter: gameQueries.currentPlayer,
 			playerCount: game.players.length,
 		});
 	});
@@ -256,7 +234,7 @@
 
 	function handleUndoBlobClick(/** @type {number} */ blobIndex) {
 		if (streakCelebrationActive) return;
-		if (blobIndex !== undoableBlobIndex) return;
+		if (blobIndex !== gameQueries.undoableBlobIndex) return;
 		undoDialogOpen = true;
 	}
 
@@ -269,7 +247,7 @@
 		dialogOpen = false;
 		if (pendingBlobIndex !== null) {
 			const shouldDeferAdvance =
-				isCorrect && currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
+				isCorrect && gameQueries.currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
 			const result = revealBlob(pendingBlobIndex, isCorrect, {
 				deferAdvance: shouldDeferAdvance,
 			});
@@ -294,7 +272,7 @@
 
 	function handlePassOrEnd() {
 		if (streakCelebrationActive) return;
-		if (roundIsOver) {
+		if (gameQueries.roundIsOver) {
 			endRound();
 		} else {
 			passCurrentPlayer();
@@ -322,19 +300,19 @@
 	<GamePlayingSurface
 		bind:surfaceElement={gameSurfaceEl}
 		questionTypeToken={questionTypeConfig?.cssToken}
-		{currentPlayer}
+		currentPlayer={gameQueries.currentPlayer}
 		players={game.players}
 		{question}
-		{blobStates}
+		blobStates={gameQueries.blobStates}
 		seatRotation={interactiveWheelSeatRotation}
 		rotationDurationMs={wheelRotationDurationMs}
 		rotationEasing={wheelRotationEasing}
 		streakLevel={wheelStreakLevel}
 		streakColor={wheelStreakColor}
 		{streakBurstKey}
-		{undoableBlobIndex}
-		{undoIsAvailable}
-		{roundIsOver}
+		undoableBlobIndex={gameQueries.undoableBlobIndex}
+		undoIsAvailable={gameQueries.undoIsAvailable}
+		roundIsOver={gameQueries.roundIsOver}
 		{streakCelebrationActive}
 		{dialogOpen}
 		{pendingBlobLabel}

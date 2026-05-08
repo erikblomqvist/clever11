@@ -62,13 +62,28 @@ function pickNextQuestion() {
 
 // --- Exported queries ---
 
-export function checkRoundOver() {
-	return engine.checkRoundOver(game);
+class GameQueries {
+	currentPlayer = $derived(
+		game.players.find((p) => p.id === game.currentPlayerId) ?? null,
+	);
+
+	blobStates = $derived(
+		game.currentRound?.question
+			? game.currentRound.question.options.map((_, i) => {
+					const results = game.currentRound?.blobResults ?? {};
+					return i in results ? results[i] : null;
+				})
+			: [],
+	);
+
+	roundIsOver = $derived(engine.checkRoundOver(game));
+	undoIsAvailable = $derived(engine.canUndoLastMove(game));
+	undoableBlobIndex = $derived(
+		this.undoIsAvailable ? (game.currentRound?.lastAnswerMove?.blobIndex ?? null) : null,
+	);
 }
 
-export function canUndoLastMove() {
-	return engine.canUndoLastMove(game);
-}
+export const gameQueries = new GameQueries();
 
 // --- Exported mutations ---
 
@@ -224,7 +239,7 @@ export function revealBlob(blobIndex, isCorrect, options = {}) {
  * @returns {boolean}
  */
 export function advanceCurrentPlayer(expectedCurrentPlayerId = game.currentPlayerId) {
-	if (game.status !== 'playing' || checkRoundOver()) return false;
+	if (game.status !== 'playing' || engine.checkRoundOver(game)) return false;
 	if (game.currentPlayerId !== expectedCurrentPlayerId) return false;
 
 	const nextId = engine.getNextActivePlayerId(game, expectedCurrentPlayerId);
