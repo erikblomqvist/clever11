@@ -37,7 +37,7 @@
 			rx="0"
 			ry="0"
 			fill="none"
-			stroke={playerColor}
+			style="--stroke-color: {playerColor};"
 			stroke-width={BORDER_WIDTH}
 			stroke-dasharray={perimeter}
 			stroke-dashoffset={dashOffset}
@@ -58,6 +58,7 @@
 
 	.turn-timer-border rect {
 		transition: stroke-dashoffset 1s linear;
+		stroke: hsl(from var(--stroke-color) h s calc(l - 12));
 	}
 
 	.turn-timer-border.paused rect {

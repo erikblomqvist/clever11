@@ -63,6 +63,8 @@
 	let streakCelebrationTimerId =
 		/** @type {ReturnType<typeof setTimeout>|null} */ (null);
 
+	const roundIntro = useRoundIntro();
+
 	let timerRemaining = $state(game.turnTimerSeconds ?? 0);
 
 	const timerEnabled = $derived(game.turnTimerSeconds !== null && game.status === 'playing');
@@ -70,7 +72,8 @@
 		dialogOpen ||
 		undoDialogOpen ||
 		streakCelebrationActive ||
-		pendingBlobIndex !== null,
+		pendingBlobIndex !== null ||
+		roundIntro.seatRotation !== null,
 	);
 
 	function resetTimer() {
@@ -108,7 +111,6 @@
 		return () => clearInterval(interval);
 	});
 
-	const roundIntro = useRoundIntro();
 	const springDrag = useSpringDrag({ canStart: canStartSpringDrag });
 	const interactionLock = useGameInteractionLock({
 		getSurfaceElement: () => gameSurfaceEl,
