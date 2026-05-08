@@ -63,6 +63,15 @@
     "start_new_game": "Start new game",
     "admin": "Admin"
   },
+  "manage_players": {
+    "title": "Manage Players",
+    "add_player": "Add player",
+    "replace_player": "Replace player",
+    "confirm_replace": "Confirm",
+    "choose_seat": "Choose seat",
+    "remove_aria": "Remove {name}",
+    "replace_aria": "Replace {name}"
+  },
   "blob": {
     "answer_aria": "Answer: {answer}",
     "undo_aria": "Undo last move for answer: {answer}",

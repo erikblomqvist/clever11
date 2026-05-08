@@ -1,6 +1,8 @@
 <script>
 	import QuestionWheel from '../../components/QuestionWheel.svelte';
 	import RoundReviewPanel from '../../components/RoundReviewPanel.svelte';
+	import ManagePlayersOverlay from '../../components/ManagePlayersOverlay.svelte';
+	import { game, removePlayer, replacePlayer, addPlayer } from '../../lib/game.svelte.js';
 
 	/**
 	 * @type {{
@@ -24,6 +26,8 @@
 		onblobclick,
 		onnext,
 	} = $props();
+
+	let showManagePlayers = $state(false);
 </script>
 
 <main class="main--review" data-question-type={questionTypeToken}>
@@ -40,5 +44,15 @@
 		/>
 	{/if}
 
-	<RoundReviewPanel {players} {roundNumber} {onnext} />
+	<RoundReviewPanel {players} {roundNumber} {onnext} onmanageplayers={() => (showManagePlayers = true)} />
+
+	{#if showManagePlayers}
+		<ManagePlayersOverlay
+			players={game.players}
+			onremove={(id) => removePlayer(id)}
+			onreplace={(id, identity) => replacePlayer(id, identity)}
+			onadd={(params) => addPlayer(params)}
+			onclose={() => (showManagePlayers = false)}
+		/>
+	{/if}
 </main>

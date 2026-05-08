@@ -63,6 +63,15 @@
     "start_new_game": "Start nytt spill",
     "admin": "Admin"
   },
+  "manage_players": {
+    "title": "Håndter spillere",
+    "add_player": "Legg til spiller",
+    "replace_player": "Bytt ut spiller",
+    "confirm_replace": "Bekreft",
+    "choose_seat": "Velg plass",
+    "remove_aria": "Fjern {name}",
+    "replace_aria": "Bytt ut {name}"
+  },
   "blob": {
     "answer_aria": "Svar: {answer}",
     "undo_aria": "Angre siste trekk for svar: {answer}",

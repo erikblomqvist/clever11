@@ -201,6 +201,10 @@ async function syncGameState() {
 				supabase
 					.from('game_players')
 					.update({
+						name: p.name,
+						icon: p.icon,
+						color: p.color,
+						seat_position: p.seatPosition,
 						total_score: p.totalScore,
 						round_score: p.roundScore,
 						status: p.status,

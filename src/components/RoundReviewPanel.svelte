@@ -1,5 +1,6 @@
 <script>
 	import { _ } from 'svelte-i18n';
+	import { Users } from 'lucide-svelte';
 	import { getPlayerIconComponent } from '../lib/playerIcons.js';
 
 	/**
@@ -7,12 +8,15 @@
 	 *   players: import('../lib/game.svelte.js').GamePlayer[],
 	 *   roundNumber?: number,
 	 *   onnext: () => void,
+	 *   onmanageplayers: () => void,
 	 * }}
 	 */
-	let { players, roundNumber, onnext } = $props();
+	let { players, roundNumber, onnext, onmanageplayers } = $props();
+
+	const activePlayers = $derived(players.filter((p) => p.status !== 'removed'));
 
 	const rankedPlayers = $derived(
-		[...players].sort((a, b) => b.roundScore - a.roundScore),
+		[...activePlayers].sort((a, b) => b.roundScore - a.roundScore),
 	);
 </script>
 
@@ -37,9 +41,15 @@
 			</li>
 		{/each}
 	</ol>
-	<button class="review-panel__btn" type="button" onclick={onnext}>
-		{$_('game.next_round')}
-	</button>
+	<div class="review-panel__actions">
+		<button class="review-panel__btn" type="button" onclick={onnext}>
+			{$_('game.next_round')}
+		</button>
+		<button class="review-panel__btn review-panel__btn--manage" type="button" onclick={onmanageplayers}>
+			<Users size={14} />
+			{$_('manage_players.title')}
+		</button>
+	</div>
 </div>
 
 <style>
@@ -121,10 +131,17 @@
 		text-align: right;
 	}
 
-	.review-panel__btn {
+	.review-panel__actions {
 		grid-column: 2;
 		grid-row: 2;
 		align-self: center;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		align-items: stretch;
+	}
+
+	.review-panel__btn {
 		border: none;
 		border-radius: 0.5rem;
 		padding: 0.75rem 1.25rem;
@@ -138,9 +155,29 @@
 		cursor: pointer;
 		white-space: nowrap;
 		transition: opacity 0.15s;
+		text-align: center;
 	}
 
 	.review-panel__btn:hover {
 		opacity: 0.85;
+	}
+
+	.review-panel__btn--manage {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4rem;
+		padding: 0.5rem 1rem;
+		background: none;
+		border: 1px solid hsl(0 0% 100% / 0.2);
+		font-size: var(--font-size-sm);
+		font-weight: 400;
+		color: hsl(0 0% 100% / 0.55);
+	}
+
+	.review-panel__btn--manage:hover {
+		color: hsl(0 0% 100% / 0.8);
+		border-color: hsl(0 0% 100% / 0.35);
+		opacity: 1;
 	}
 </style>

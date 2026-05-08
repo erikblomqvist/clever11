@@ -63,6 +63,15 @@
     "start_new_game": "Starta nytt spel",
     "admin": "Admin"
   },
+  "manage_players": {
+    "title": "Hantera spelare",
+    "add_player": "Lägg till spelare",
+    "replace_player": "Byt ut spelare",
+    "confirm_replace": "Bekräfta",
+    "choose_seat": "Välj plats",
+    "remove_aria": "Ta bort {name}",
+    "replace_aria": "Byt ut {name}"
+  },
   "blob": {
     "answer_aria": "Svar: {answer}",
     "undo_aria": "Ångra senaste draget för svar: {answer}",
