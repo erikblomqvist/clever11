@@ -29,7 +29,7 @@ A participant in the game, with a name, icon, color, seat position, and turn ord
 _Avoid_: User (reserved for admin accounts)
 
 **Player Status**:
-A per-round marker indicating whether a player can still act: `active` (can answer), `passed` (chose to skip, keeps round score), or `out` (answered wrong, round score reset to 0). All players reset to `active` at the start of each round.
+A per-round marker indicating whether a player can still act: `active` (can answer), `passed` (chose to skip, keeps round score), `out` (answered wrong, round score reset to 0), or `removed` (soft-deleted from the game, permanently skipped). All non-removed players reset to `active` at the start of each round.
 _Avoid_: State
 
 **Seat Position**:
@@ -43,6 +43,14 @@ _Avoid_: Player order, Seat order
 **Starting Player**:
 The player who goes first in a round. Rotates clockwise by turn order each round, unless every player passed (all-pass), in which case the same player starts again.
 _Avoid_: First player
+
+**Roster Change**:
+A modification to the player list during **Round Review**: adding a new player, replacing an existing player's identity (name, icon, color — keeps seat, turn order, and scores), or removing a player (soft-delete, status becomes `removed`). Not available during any other phase.
+_Avoid_: Player management
+
+**Replace (Player)**:
+Swapping the identity (name, icon, color) of an existing player slot. The new person inherits the seat position, turn order, and all accumulated scores.
+_Avoid_: Substitute, Swap
 
 ### Wheel and blobs
 
@@ -121,7 +129,7 @@ The active game phase where rounds are played. Players reveal blobs and score po
 _Avoid_: In-game, Active
 
 **Round Review**:
-The phase between rounds where all blob answers and media are visible. The wheel rotates to face the last player who answered; free rotation is allowed. Any player can proceed to the next round.
+The phase between rounds where all blob answers and media are visible. The wheel rotates to face the last player who answered; free rotation is allowed. Any player can proceed to the next round. This is also the only phase where roster changes (add, replace, remove players) are allowed.
 _Avoid_: Summary, Results
 
 **Finished**:
@@ -151,7 +159,8 @@ _Avoid_: Animation lock, Debounce
 - Each **Round** has a **Starting Player** determined by rotating **Turn Order**, except on **All-Pass**
 - A **Player** has both a **Seat Position** (visual) and a **Turn Order** (gameplay), which are independent
 - **Round Score** accumulates during a round and is added to **Total Score** when the round ends
-- A **Player**'s **Status** transitions: `active` -> `passed` (by choice) or `active` -> `out` (by busting); all reset to `active` at round start
+- A **Player**'s **Status** transitions: `active` -> `passed` (by choice) or `active` -> `out` (by busting); all reset to `active` at round start. A player can also be `removed` (soft-deleted), which is permanent for the rest of the game
+- **Roster changes** (add, replace, remove) can only happen during **Round Review**. A game must always have at least 2 active (non-removed) players
 
 ## Example dialogue
 
