@@ -108,7 +108,8 @@
     "yes": "Yes",
     "no": "No",
     "correct": "Correct",
-    "wrong": "Wrong"
+    "wrong": "Wrong",
+    "reveal": "Reveal answer"
   },
   "undo_dialog": {
     "prompt": "Undo last move?",

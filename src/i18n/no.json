@@ -108,7 +108,8 @@
     "yes": "Ja",
     "no": "Nei",
     "correct": "Riktig",
-    "wrong": "Feil"
+    "wrong": "Feil",
+    "reveal": "Vis svar"
   },
   "undo_dialog": {
     "prompt": "Angre siste trekk?",

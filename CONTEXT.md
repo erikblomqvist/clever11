@@ -151,7 +151,7 @@ _Avoid_: Game over, Complete
 ### Interaction
 
 **Answer Dialog**:
-A non-dismissable dialog that appears after revealing a blob. Shows the correct answer and forces the group to press Correct or Wrong before continuing. Trust-based — no server validation.
+A non-dismissable two-phase dialog that appears after revealing a blob. First phase hides the correct answer behind a "Reveal" button so the player must commit verbally before anyone taps to reveal. Second phase shows the correct answer and the Correct/Wrong buttons. Trust-based — no server validation.
 _Avoid_: Result dialog, Popup
 
 **Undo**:
@@ -179,7 +179,7 @@ _Avoid_: Animation lock, Debounce
 ## Example dialogue
 
 > **Dev:** "What happens when a player taps a blob?"
-> **Domain expert:** "The blob is revealed and the **Answer Dialog** pops up showing the **Correct Answer**. The group decides together if the player got it right. They press Correct or Wrong — the dialog can't be dismissed any other way."
+> **Domain expert:** "The blob is revealed and the **Answer Dialog** pops up — but the answer is hidden. The player has to say their answer out loud first, then someone taps Reveal. Now the **Correct Answer** appears and the group decides together if they got it right. They press Correct or Wrong — the dialog can't be dismissed any other way."
 
 > **Dev:** "What if they get it right?"
 > **Domain expert:** "Their **Round Score** goes up by 1 and it's still their turn. They can keep going — reveal another blob or **Pass** to bank their score."
@@ -205,5 +205,5 @@ _Avoid_: Animation lock, Debounce
 - **"Turn" vs "Round"** — A **Turn** is one player's action; a **Round** is the full card with all players. The physical board game uses "card" for what we call a round.
 - **Seat Position vs Turn Order** — These are deliberately independent. A player can sit at position 6 but have turn order 0 (goes first). Seat position controls screen rotation; turn order controls who plays when.
 - **"Pass" vs "Skip"** — A **Pass** eliminates the player from the rest of the round (keeping their score). There is no "skip one blob" mechanic. **Skip Round** is a distinct group action that skips the entire round before anyone acts, behaving as an all-pass.
-- **Trust-based validation** — The game has no server-side answer checking. The **Answer Dialog** shows the correct answer and the group collectively decides Correct or Wrong. This is a deliberate design choice matching the physical board game experience.
+- **Trust-based validation** — The game has no server-side answer checking. The **Answer Dialog** hides the correct answer until the group taps Reveal, then they collectively decide Correct or Wrong. This is a deliberate design choice matching the physical board game experience.
 - **Question pool exhaustion** — When all questions from selected decks have been used, the pool resets and questions can repeat. The `usedQuestionIds` list is cleared, not appended to.

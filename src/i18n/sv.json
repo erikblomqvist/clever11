@@ -108,7 +108,8 @@
     "yes": "Ja",
     "no": "Nej",
     "correct": "Rätt",
-    "wrong": "Fel"
+    "wrong": "Fel",
+    "reveal": "Visa svar"
   },
   "undo_dialog": {
     "prompt": "Ångra senaste draget?",

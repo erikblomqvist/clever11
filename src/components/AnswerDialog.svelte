@@ -27,9 +27,14 @@
 
 	/** @type {HTMLDialogElement | null} */
 	let dialogEl = $state(null);
+	let revealed = $state(false);
 
 	$effect(() => {
 		syncDialogOpen(dialogEl, open);
+	});
+
+	$effect(() => {
+		if (!open) revealed = false;
 	});
 
 	const isBoolean = $derived(typeof correctAnswer === 'boolean');
@@ -49,39 +54,49 @@
 <dialog
 	bind:this={dialogEl}
 	class="answer-dialog"
-	class:answer-dialog--boolean={isBoolean}
-	class:answer-dialog--color={isColor}
+	class:answer-dialog--boolean={isBoolean && revealed}
+	class:answer-dialog--color={isColor && revealed}
 	style={`${colorStyle};--seat-rotation:${seatRotation}turn;--rotation-duration-ms:${rotationDurationMs};--rotation-easing:${rotationEasing}`}
 	onkeydown={(e) => e.key === 'Escape' && e.preventDefault()}
 	onclick={(e) => e.stopPropagation()}
 >
 	<p class="answer-dialog__label">{blobLabel}</p>
 
-	{#if isColor}
-		<div class="answer-dialog__color-swatch"></div>
+	{#if revealed}
+		{#if isColor}
+			<div class="answer-dialog__color-swatch"></div>
+		{/if}
+
+		<p
+			class="answer-dialog__answer"
+			class:answer-dialog__answer--yes={isBoolean && correctAnswer === true}
+			class:answer-dialog__answer--no={isBoolean && correctAnswer === false}
+		>
+			{#if correctAnswer !== null}
+				{#if isBoolean}
+					{correctAnswer
+						? $_('answer_dialog.yes')
+						: $_('answer_dialog.no')}
+				{:else if questionType === 'centuryDecade'}
+					{correctAnswer}-talet
+				{:else if isColor}
+					{/** @type {any} */ (correctAnswer).text}
+				{:else}
+					{correctAnswer}
+				{/if}
+			{/if}
+		</p>
+	{:else}
+		<button
+			class="answer-dialog__reveal-btn"
+			type="button"
+			onclick={() => (revealed = true)}
+		>
+			{$_('answer_dialog.reveal')}
+		</button>
 	{/if}
 
-	<p
-		class="answer-dialog__answer"
-		class:answer-dialog__answer--yes={isBoolean && correctAnswer === true}
-		class:answer-dialog__answer--no={isBoolean && correctAnswer === false}
-	>
-		{#if correctAnswer !== null}
-			{#if isBoolean}
-				{correctAnswer
-					? $_('answer_dialog.yes')
-					: $_('answer_dialog.no')}
-			{:else if questionType === 'centuryDecade'}
-				{correctAnswer}-talet
-			{:else if isColor}
-				{/** @type {any} */ (correctAnswer).text}
-			{:else}
-				{correctAnswer}
-			{/if}
-		{/if}
-	</p>
-
-	<div class="answer-dialog__actions">
+	<div class="answer-dialog__actions" class:answer-dialog__actions--visible={revealed}>
 		<button
 			class="answer-dialog__btn answer-dialog__btn--correct"
 			type="button"
@@ -169,10 +184,48 @@
 		color: hsl(0 86% 48%);
 	}
 
+	.answer-dialog__reveal-btn {
+		display: block;
+		width: 100%;
+		border: none;
+		border-radius: 0.5rem;
+		padding: 0.75rem 1rem;
+		margin-bottom: 0;
+		background-color: var(--orange-700);
+		color: var(--white);
+		font-family: 'Oswald', sans-serif;
+		font-size: var(--font-size-md);
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition: background-color 0.15s;
+	}
+
+	.answer-dialog__reveal-btn:hover {
+		background-color: var(--orange-800, hsl(24 90% 35%));
+	}
+
 	.answer-dialog__actions {
-		display: grid;
+		display: none;
 		grid-template-columns: 1fr 1fr;
 		gap: 0.75rem;
+		opacity: 0;
+		transition:
+			opacity 300ms ease,
+			display 300ms ease;
+		transition-behavior: allow-discrete;
+	}
+
+	.answer-dialog__actions--visible {
+		display: grid;
+		opacity: 1;
+	}
+
+	@starting-style {
+		.answer-dialog__actions--visible {
+			opacity: 0;
+		}
 	}
 
 	.answer-dialog__btn {
