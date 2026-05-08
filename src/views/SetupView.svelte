@@ -13,7 +13,7 @@
 
 	/**
 	 * @typedef {{ name: string, icon: string, color: string, seatPosition: number|null, turnOrder: number|null }} SetupPlayer
-	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number }} GameSetup
+	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds: number|null }} GameSetup
 	 */
 
 	// --- Navigation ---
@@ -202,7 +202,7 @@
 	function handleComplete() {
 		const idx =
 			startingPlayerIdx ?? Math.floor(Math.random() * players.length);
-		oncomplete({ players, selectedDeckIds, startingPlayerIndex: idx });
+		oncomplete({ players, selectedDeckIds, startingPlayerIndex: idx, turnTimerSeconds: null });
 	}
 </script>
 

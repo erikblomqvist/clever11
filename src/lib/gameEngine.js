@@ -55,6 +55,7 @@
  *   selectedDeckIds: string[],
  *   usedQuestionIds: string[],
  *   currentRound: Round|null,
+ *   turnTimerSeconds: number|null,
  * }} GameState
  *
  * @typedef {{
@@ -116,6 +117,7 @@ export function createGameState(config = {}) {
 		selectedDeckIds: [],
 		usedQuestionIds: [],
 		currentRound: null,
+		turnTimerSeconds: null,
 		...config,
 	});
 }

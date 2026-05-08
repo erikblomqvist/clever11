@@ -39,7 +39,11 @@
     "no_decks": "No decks available yet.",
     "who_goes_first_title": "Who goes first?",
     "randomize": "Randomize",
-    "start_game": "Start game"
+    "start_game": "Start game",
+    "rules_title": "Rules",
+    "turn_timer_label": "Turn timer",
+    "turn_timer_description": "Limit each turn to a fixed number of seconds. If time runs out, the player automatically passes.",
+    "turn_timer_seconds": "{n} seconds"
   },
   "game": {
     "save_alert": "Game code: {code} (copied to clipboard)\n\nYour game is saved automatically after each move.",
@@ -51,7 +55,8 @@
     "game_over": "Game over",
     "wins": "{name} wins",
     "pts": "{n} pts",
-    "new_game": "New game"
+    "new_game": "New game",
+    "times_up": "Time's up, {name}!"
   },
   "menu": {
     "turn": "{name}'s turn",

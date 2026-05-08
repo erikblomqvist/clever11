@@ -393,6 +393,7 @@ export async function persistBlobReveal(game, round, blobIndex, isCorrect, actin
  * @param {{ roundNumber: number, question: GameQuestion, dbId: string|null }|null} game.currentRound
  * @param {string|null} game.currentPlayerId
  * @param {GamePlayer[]} game.players
+ * @param {number|null} game.turnTimerSeconds
  */
 export async function persistNewGame(game) {
 	if (!supabase) return;
@@ -411,6 +412,7 @@ export async function persistNewGame(game) {
 				used_question_ids: game.usedQuestionIds,
 				current_round: 1,
 				win_score: 50,
+				turn_timer_seconds: game.turnTimerSeconds ?? null,
 			})
 			.select('id')
 			.single();
@@ -527,6 +529,7 @@ export async function persistNewPlayer(game, player) {
  *   selectedDeckIds: string[],
  *   usedQuestionIds: string[],
  *   currentRound: Round|null,
+ *   turnTimerSeconds: number|null,
  *   questionPool: GameQuestion[],
  * }>}
  */
@@ -622,6 +625,7 @@ export async function loadGame(code) {
 		selectedDeckIds: /** @type {string[]} */ (gameRow.selected_decks ?? []),
 		usedQuestionIds: /** @type {string[]} */ (gameRow.used_question_ids ?? []),
 		currentRound,
+		turnTimerSeconds: gameRow.turn_timer_seconds ?? null,
 		questionPool,
 	};
 }

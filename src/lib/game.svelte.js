@@ -41,6 +41,8 @@ export const game = $state({
 	usedQuestionIds: [],
 	/** @type {Round|null} */
 	currentRound: null,
+	/** @type {number|null} */
+	turnTimerSeconds: null,
 });
 
 // --- Pure helpers ---
@@ -98,6 +100,7 @@ export const gameQueries = new GameQueries();
  *   selectedDeckIds?: string[],
  *   usedQuestionIds?: string[],
  *   currentRound: Round|null,
+ *   turnTimerSeconds?: number|null,
  * }} DemoGameSnapshot
  */
 
@@ -124,6 +127,8 @@ export function loadDemoGame(snapshot) {
 	game.selectedDeckIds = demoGame.selectedDeckIds ?? [];
 	game.usedQuestionIds =
 		demoGame.usedQuestionIds ?? (demoQuestion ? [demoQuestion.id] : []);
+	game.turnTimerSeconds = demoGame.turnTimerSeconds ?? null;
+
 	game.currentRound = demoGame.currentRound
 		? {
 				...demoGame.currentRound,
@@ -147,7 +152,7 @@ export function loadDemoGame(snapshot) {
 }
 
 /**
- * @param {{ players: import('../views/SetupView.svelte').SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number }} setup
+ * @param {{ players: import('../views/SetupView.svelte').SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds?: number|null }} setup
  */
 export async function initGame(setup) {
 	questionPool = await gamePersist.fetchQuestionsForDecks(setup.selectedDeckIds);
@@ -180,6 +185,7 @@ export async function initGame(setup) {
 	game.startingTurnOrderIndex = startingPlayer.turnOrder;
 	game.selectedDeckIds = setup.selectedDeckIds;
 	game.usedQuestionIds = [firstQuestion.id];
+	game.turnTimerSeconds = setup.turnTimerSeconds ?? null;
 	game.currentRound = {
 		roundNumber: 1,
 		question: firstQuestion,
@@ -334,6 +340,7 @@ export async function loadGame(code) {
 	game.startingTurnOrderIndex = state.startingTurnOrderIndex;
 	game.selectedDeckIds = state.selectedDeckIds;
 	game.usedQuestionIds = state.usedQuestionIds;
+	game.turnTimerSeconds = state.turnTimerSeconds ?? null;
 	game.currentRound = state.currentRound;
 
 	questionPool = state.questionPool;

@@ -39,7 +39,11 @@
     "no_decks": "Ingen kortstokker tilgjengelig ennå.",
     "who_goes_first_title": "Hvem starter?",
     "randomize": "Tilfeldig",
-    "start_game": "Start spill"
+    "start_game": "Start spill",
+    "rules_title": "Regler",
+    "turn_timer_label": "Tidsbegrensning per tur",
+    "turn_timer_description": "Begrens hver tur til et fast antall sekunder. Hvis tiden går ut, passer spilleren automatisk.",
+    "turn_timer_seconds": "{n} sekunder"
   },
   "game": {
     "save_alert": "Spillkode: {code} (kopiert til utklippstavlen)\n\nSpillet ditt lagres automatisk etter hvert trekk.",
@@ -51,7 +55,8 @@
     "game_over": "Spillet er over",
     "wins": "{name} vinner",
     "pts": "{n} poeng",
-    "new_game": "Nytt spill"
+    "new_game": "Nytt spill",
+    "times_up": "Tiden er ute, {name}!"
   },
   "menu": {
     "turn": "{name}s tur",

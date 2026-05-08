@@ -15,8 +15,12 @@ One question card on the wheel. Players take turns revealing blobs until all are
 _Avoid_: Turn (a turn is one player's action within a round)
 
 **Turn**:
-A single player's opportunity to act within a round — they can reveal a blob or pass.
+A single player's opportunity to act within a round — they can reveal a blob or pass. When a **Turn Timer** is enabled, each turn has its own countdown; the timer resets after every reveal.
 _Avoid_: Round (which is the full card)
+
+**Turn Timer**:
+An optional game-wide setting that limits each **Turn** to a fixed number of seconds (10–600, default 60). Configured during **Setup**; off by default. When enabled, the timer starts when a player becomes active and resets after each **Reveal**. If the timer expires before the player acts, the game automatically **Passes** for them.
+_Avoid_: Clock, Countdown, Time limit
 
 **Win Score**:
 The point threshold to win the game (fixed at 50). First player to reach it after a round ends wins.
@@ -121,7 +125,7 @@ _Avoid_: Attachment, Media
 ### Game phases
 
 **Setup**:
-The 4-step flow before a game begins: players, seating, deck selection, starting player. Uses view transitions between steps.
+The 5-step flow before a game begins: players, seating, deck selection, game rules, starting player. Uses view transitions between steps.
 _Avoid_: Configuration, Lobby
 
 **Playing**:

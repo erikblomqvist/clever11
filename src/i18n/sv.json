@@ -39,7 +39,11 @@
     "no_decks": "Inga kortlekar tillgängliga ännu.",
     "who_goes_first_title": "Vem börjar?",
     "randomize": "Slumpa",
-    "start_game": "Starta spel"
+    "start_game": "Starta spel",
+    "rules_title": "Regler",
+    "turn_timer_label": "Tidsgräns per tur",
+    "turn_timer_description": "Begränsa varje tur till ett fast antal sekunder. Om tiden tar slut passar spelaren automatiskt.",
+    "turn_timer_seconds": "{n} sekunder"
   },
   "game": {
     "save_alert": "Spelkod: {code} (kopierad till urklipp)\n\nDitt spel sparas automatiskt efter varje drag.",
@@ -51,7 +55,8 @@
     "game_over": "Spelet slut",
     "wins": "{name} vinner",
     "pts": "{n} poäng",
-    "new_game": "Nytt spel"
+    "new_game": "Nytt spel",
+    "times_up": "Tiden är ute, {name}!"
   },
   "menu": {
     "turn": "{name}s tur",
