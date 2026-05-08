@@ -148,7 +148,7 @@
 					{/if}
 				</div>
 				<div class="admin-icon-picker">
-					{#each filteredDeckIcons as item (item.name)}
+					{#each filteredDeckIcons as item (item.id)}
 						<button
 							type="button"
 							class="admin-icon-btn"
