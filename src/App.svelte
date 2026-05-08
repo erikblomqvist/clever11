@@ -7,6 +7,7 @@
 	import PreviousGamesView from './views/PreviousGamesView.svelte';
 	import DemoView from './views/DemoView.svelte';
 	import { initGame, loadGame } from './lib/game.svelte.js';
+	import GameToaster from './components/GameToaster.svelte';
 
 	/** @typedef {'landing'|'setup'|'game'|'previousGames'|'demo'} AppView */
 
@@ -68,6 +69,8 @@
 		}
 	}
 </script>
+
+<GameToaster />
 
 {#if loading}
 	<div class="loading-overlay" aria-label={$_('app.loading_aria')} aria-busy="true">

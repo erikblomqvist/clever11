@@ -29,6 +29,7 @@
     "lucide-static": "^1.11.0",
     "lucide-svelte": "^0.487.0",
     "sharp": "^0.34.5",
-    "svelte-i18n": "^4.0.1"
+    "svelte-i18n": "^4.0.1",
+    "svelte-sonner": "^1.1.1"
   }
 }
