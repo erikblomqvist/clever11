@@ -113,7 +113,14 @@
 		return () => clearInterval(interval);
 	});
 
-	const springDrag = useSpringDrag({ canStart: canStartSpringDrag });
+	const springDrag = useSpringDrag({
+		canStart: canStartSpringDrag,
+		getCenter: () => {
+			if (!gameSurfaceEl) return null;
+			const rect = gameSurfaceEl.getBoundingClientRect();
+			return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+		},
+	});
 	const interactionLock = useGameInteractionLock({
 		getSurfaceElement: () => gameSurfaceEl,
 	});

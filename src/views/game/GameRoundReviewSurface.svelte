@@ -38,6 +38,8 @@
 	const SPRING_DRAG_IGNORE_SELECTOR =
 		'button, a, input, select, textarea, [role="button"], [popover], [data-game-scroll-lock-allow]';
 
+	let surfaceEl = $state(/** @type {HTMLElement | null} */ (null));
+
 	const springDrag = useSpringDrag({
 		canStart: (/** @type {PointerEvent} */ event) =>
 			event.isPrimary &&
@@ -45,6 +47,11 @@
 			!showManagePlayers &&
 			!(event.target instanceof Element &&
 				event.target.closest(SPRING_DRAG_IGNORE_SELECTOR) !== null),
+		getCenter: () => {
+			if (!surfaceEl) return null;
+			const rect = surfaceEl.getBoundingClientRect();
+			return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+		},
 	});
 
 	const interactiveSeatRotation = $derived(
@@ -64,6 +71,7 @@
 </script>
 
 <main
+	bind:this={surfaceEl}
 	class="main--review"
 	data-question-type={questionTypeToken}
 	onpointerdown={springDrag.handlePointerDown}

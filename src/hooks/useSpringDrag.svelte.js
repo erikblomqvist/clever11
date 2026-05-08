@@ -1,5 +1,4 @@
 const SPRING_DRAG_MAX_ROTATION = 1;
-const SPRING_DRAG_ROTATION_PER_PX = 0.24 / 360;
 export const SPRING_DRAG_RETURN_DURATION_MS = 620;
 
 function clamp(
@@ -11,18 +10,23 @@ function clamp(
 }
 
 /**
- * @param {{ canStart: (event: PointerEvent) => boolean }} options
+ * @param {{
+ *   canStart: (event: PointerEvent) => boolean,
+ *   getCenter: () => { x: number, y: number } | null,
+ * }} options
  */
-export function useSpringDrag({ canStart }) {
+export function useSpringDrag({ canStart, getCenter }) {
 	let pointerId = $state(/** @type {number|null} */ (null));
-	let startY = 0;
+	let startAngle = 0;
 	let rotationOffset = $state(0);
 	let isActive = $state(false);
+	let center = /** @type {{ x: number, y: number } | null} */ (null);
 
 	function reset() {
 		pointerId = null;
 		isActive = false;
 		rotationOffset = 0;
+		center = null;
 	}
 
 	function handlePointerDown(
@@ -30,8 +34,11 @@ export function useSpringDrag({ canStart }) {
 	) {
 		if (!canStart(event)) return;
 
+		center = getCenter();
+		if (!center) return;
+
 		pointerId = event.pointerId;
-		startY = event.clientY;
+		startAngle = Math.atan2(event.clientY - center.y, event.clientX - center.x);
 		rotationOffset = 0;
 		isActive = true;
 		event.currentTarget.setPointerCapture(event.pointerId);
@@ -39,11 +46,16 @@ export function useSpringDrag({ canStart }) {
 	}
 
 	function handlePointerMove(/** @type {PointerEvent} */ event) {
-		if (pointerId !== event.pointerId) return;
+		if (pointerId !== event.pointerId || !center) return;
 
-		const deltaY = event.clientY - startY;
+		const currentAngle = Math.atan2(event.clientY - center.y, event.clientX - center.x);
+		let angleDelta = currentAngle - startAngle;
+
+		if (angleDelta > Math.PI) angleDelta -= 2 * Math.PI;
+		if (angleDelta < -Math.PI) angleDelta += 2 * Math.PI;
+
 		rotationOffset = clamp(
-			deltaY * SPRING_DRAG_ROTATION_PER_PX,
+			angleDelta / (2 * Math.PI),
 			-SPRING_DRAG_MAX_ROTATION,
 			SPRING_DRAG_MAX_ROTATION,
 		);
