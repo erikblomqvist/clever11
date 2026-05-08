@@ -576,6 +576,109 @@ export function endRound() {
 	syncGameState().catch(console.error);
 }
 
+/**
+ * @param {{ name: string, icon: string, color: string, seatPosition: number }} params
+ * @returns {string|false}
+ */
+export function addPlayer({ name, icon, color, seatPosition }) {
+	const activeCount = game.players.filter((p) => p.status !== 'removed').length;
+	if (activeCount >= 8) return false;
+
+	const maxIdNum = game.players.reduce((max, p) => {
+		const num = parseInt(p.id.replace('player-', ''), 10);
+		return num > max ? num : max;
+	}, -1);
+	const newId = `player-${maxIdNum + 1}`;
+
+	const maxTurnOrder = game.players.reduce((max, p) => (p.turnOrder > max ? p.turnOrder : max), -1);
+
+	/** @type {GamePlayer} */
+	const newPlayer = {
+		id: newId,
+		dbId: null,
+		name,
+		icon,
+		color,
+		seatPosition,
+		turnOrder: maxTurnOrder + 1,
+		totalScore: 0,
+		roundScore: 0,
+		status: /** @type {PlayerStatus} */ ('active'),
+	};
+
+	game.players.push(newPlayer);
+
+	if (supabase && game.dbGameId) {
+		supabase
+			.from('game_players')
+			.insert({
+				game_id: game.dbGameId,
+				name,
+				icon,
+				color,
+				seat_position: seatPosition,
+				turn_order: newPlayer.turnOrder,
+				total_score: 0,
+				round_score: 0,
+				status: 'active',
+			})
+			.select('id')
+			.single()
+			.then(({ data }) => {
+				if (data) newPlayer.dbId = data.id;
+			})
+			.catch(console.error);
+	}
+
+	return newId;
+}
+
+/**
+ * @param {string} playerId
+ * @returns {boolean}
+ */
+export function removePlayer(playerId) {
+	const playerIdx = game.players.findIndex((p) => p.id === playerId);
+	if (playerIdx === -1) return false;
+
+	const player = game.players[playerIdx];
+	if (player.status === 'removed') return false;
+
+	const activeCount = game.players.filter((p) => p.status !== 'removed').length;
+	if (activeCount <= 2) return false;
+
+	let nextId = null;
+	if (game.currentPlayerId === playerId) {
+		nextId = getNextActivePlayerId(game.players, playerId);
+	}
+
+	game.players[playerIdx].status = 'removed';
+	game.players[playerIdx].seatPosition = -1;
+	game.players[playerIdx].roundScore = 0;
+
+	if (nextId) game.currentPlayerId = nextId;
+
+	syncGameState().catch(console.error);
+	return true;
+}
+
+/**
+ * @param {string} playerId
+ * @param {{ name: string, icon: string, color: string }} replacement
+ * @returns {boolean}
+ */
+export function replacePlayer(playerId, { name, icon, color }) {
+	const player = game.players.find((p) => p.id === playerId);
+	if (!player || player.status === 'removed') return false;
+
+	player.name = name;
+	player.icon = icon;
+	player.color = color;
+
+	syncGameState().catch(console.error);
+	return true;
+}
+
 export function startNextRound() {
 	const activePlayers = game.players.filter((p) => p.status !== 'removed');
 	const allPassed = activePlayers.every((p) => p.status === 'passed');
