@@ -93,7 +93,7 @@
 
 {#if players.length > 0}
 	<ul class="player-list" role="list">
-		{#each players as player (player.id)}
+		{#each players as player (player.name)}
 			{@const Icon = getPlayerIconComponent(player.icon)}
 			<li class="player-list-item">
 				<span class="player-list-icon" style:--player-ring="var(--{player.color})" aria-hidden="true">
