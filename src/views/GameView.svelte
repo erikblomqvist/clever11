@@ -48,8 +48,8 @@
 	const reviewBlobStates = $derived(
 		question
 			? question.options.map((_, i) => {
-					const results = game.currentRound?.blobResults ?? {};
-					if (i in results) return results[i];
+					const result = game.currentRound?.blobResults?.[i];
+					if (result !== undefined) return result;
 					return reviewRevealedBlobIndexes.includes(i) ? true : null;
 				})
 			: [],

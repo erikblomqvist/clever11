@@ -74,8 +74,7 @@ class GameQueries {
 	blobStates = $derived(
 		game.currentRound?.question
 			? game.currentRound.question.options.map((_, i) => {
-					const results = game.currentRound?.blobResults ?? {};
-					return i in results ? results[i] : null;
+					return game.currentRound?.blobResults?.[i] ?? null;
 				})
 			: [],
 	);
