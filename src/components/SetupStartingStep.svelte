@@ -20,7 +20,7 @@
 </script>
 
 <ul class="starting-list" role="list">
-	{#each sortedPlayers as player (player.id)}
+	{#each sortedPlayers as player (player.name)}
 		{@const idx = players.findIndex((p) => p.name === player.name)}
 		{@const Icon = getPlayerIconComponent(player.icon)}
 		<li>
