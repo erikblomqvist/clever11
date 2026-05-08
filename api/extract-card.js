@@ -50,7 +50,7 @@ const schema = {
 		type: {
 			type: 'string',
 			enum: QUESTION_TYPES,
-			description: 'Detected Smart10 question type.',
+			description: 'Detected Clever 11 question type.',
 		},
 		question_text: {
 			type: 'string',
@@ -351,7 +351,7 @@ async function extractCard(apiKey, image, model) {
 
 function buildPrompt() {
 	return [
-		'Extract one Smart10-style physical card into the exact JSON schema.',
+		'Extract one Clever 11-style physical card into the exact JSON schema.',
 		'The app stores every card as one question with exactly 10 option labels and exactly 10 corresponding correct answers.',
 		'Many cards use a radial "hub" layout: a central bubble with question_text; around it two rings of labels joined by radial lines (spokes) from center outward.',
 		'Spatial rule for that layout: labels on the INNER band (closer to the center question) are options_json. Labels on the OUTER band (toward the card edge) are correct_answers_json. Each spoke pairs one inner label with one outer label—never swap an inner and outer label between the two arrays.',

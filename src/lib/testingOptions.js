@@ -1,4 +1,4 @@
-const FORCED_FIRST_QUESTION_ID_KEY = 'smart10:forced-first-question-id';
+const FORCED_FIRST_QUESTION_ID_KEY = 'clever11:forced-first-question-id';
 
 export function getForcedFirstQuestionId() {
 	if (typeof localStorage === 'undefined') return null;

@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-Issues are tracked in GitHub Issues on this repo (erikblomqvist/smart10-prototype). See `docs/agents/issue-tracker.md`.
+Issues are tracked in GitHub Issues on this repo (erikblomqvist/clever11). See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

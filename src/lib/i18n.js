@@ -1,7 +1,7 @@
 import { register, init, getLocaleFromNavigator } from 'svelte-i18n';
 
 const LOCALES = ['en', 'sv', 'no'];
-const STORAGE_KEY = 'smart10_locale';
+const STORAGE_KEY = 'clever11_locale';
 
 register('en', () => import('../i18n/en.json'));
 register('sv', () => import('../i18n/sv.json'));

@@ -37,7 +37,7 @@
 	<main class="main--demo-selector">
 		<section class="demo-selector" aria-labelledby="demo-selector-title">
 			<div class="demo-selector__header">
-				<p class="demo-selector__eyebrow">Smart 10 Demo</p>
+				<p class="demo-selector__eyebrow">Clever 11 Demo</p>
 				<h1 id="demo-selector-title" class="demo-selector__title">
 					Pick a game state
 				</h1>

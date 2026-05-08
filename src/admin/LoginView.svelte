@@ -39,7 +39,7 @@
 
 <div class="admin-login">
 	<form class="admin-login__form" onsubmit={handleSubmit}>
-		<h1 class="admin-login__title">Smart 10 Admin</h1>
+		<h1 class="admin-login__title">Clever 11 Admin</h1>
 		{#if error}
 			<p class="admin-form-error">{error}</p>
 		{/if}

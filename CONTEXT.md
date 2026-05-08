@@ -1,6 +1,6 @@
-# Smart 10
+# Clever 11
 
-A digital adaptation of the Smart 10 board game — a trivia game where players take turns answering questions from a 10-option wheel, building streaks for points until they bust or pass.
+A digital adaptation of a trivia board game where players take turns answering questions from a 10-option wheel, building streaks for points until they bust or pass.
 
 ## Language
 

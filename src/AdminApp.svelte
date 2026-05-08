@@ -79,7 +79,7 @@
 {:else}
 	<div class="admin-shell">
 		<nav class="admin-nav">
-			<a class="admin-nav__brand" href="#/">Smart 10</a>
+			<a class="admin-nav__brand" href="#/">Clever 11</a>
 			<a class="admin-nav__link" href="#/decks" class:admin-nav__link--active={route.view === 'decks' || route.view === 'deck-form'}>Decks</a>
 			<a class="admin-nav__link" href="#/questions" class:admin-nav__link--active={route.view === 'questions' || route.view === 'question-form'}>Questions</a>
 			<a class="admin-nav__link" href="#/users" class:admin-nav__link--active={route.view === 'users'}>Users</a>

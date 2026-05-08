@@ -1,4 +1,4 @@
-<h1 class="home-title" aria-label="Smart 10">Smart<span>10</span></h1>
+<h1 class="home-title" aria-label="Clever 11">Clever<span>11</span></h1>
 
 <style>
 	.home-title {

@@ -1,5 +1,5 @@
 {
-  "name": "smart10-v2",
+  "name": "clever11",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -9,9 +9,7 @@
     "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{js,svelte,css}\" index.html",
-    "migrate": "bun run scripts/migrate.js",
-    "migrate:env": "bun --env-file=.env.migrate run scripts/migrate.js"
+    "format": "prettier --write \"src/**/*.{js,svelte,css}\" index.html"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
