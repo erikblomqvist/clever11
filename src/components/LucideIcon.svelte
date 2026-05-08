@@ -27,7 +27,7 @@
 	stroke-linejoin="round"
 	class={classes}
 >
-	{#each iconNode as [tag, attrs]}
+	{#each iconNode as [tag, attrs], i (i)}
 		<svelte:element this={tag} {...attrs} />
 	{/each}
 </svg>

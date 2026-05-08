@@ -11,7 +11,7 @@
 </script>
 
 <ol class="score-list">
-	{#each players as player}
+	{#each players as player (player.id)}
 		{@const Icon = getPlayerIconComponent(player.icon)}
 		<li class="score-list__item" data-player-state={player.status}>
 			{#if Icon}

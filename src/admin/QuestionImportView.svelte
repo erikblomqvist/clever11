@@ -484,7 +484,7 @@
 						Target deck *
 						<select class="admin-select" bind:value={deckId} disabled={saving}>
 							<option value="">Choose a deck</option>
-							{#each decks as deck}
+							{#each decks as deck (deck.id)}
 								<option value={deck.id}>{deck.name}</option>
 							{/each}
 						</select>
@@ -512,7 +512,7 @@
 				<p class="admin-hint">No card photos selected yet.</p>
 			{:else}
 				<div class="admin-import-list">
-					{#each items as item}
+					{#each items as item (item.id)}
 						<article class="admin-import-card" class:admin-import-card--collapsed={item.status === 'saved' && item.collapsed}>
 							<div class="admin-import-card__media">
 								<img src={item.previewUrl} alt={`Preview of ${item.fileName}`} />
@@ -546,7 +546,7 @@
 										<label class="admin-label">
 											Type *
 											<select class="admin-select" value={item.draft.type} onchange={(event) => changeType(item.id, /** @type {import('../data/questionTypes.js').QuestionType} */ (/** @type {HTMLSelectElement} */ (event.currentTarget).value))} disabled={item.status === 'saved' || saving}>
-												{#each typeOptions as [key, config]}
+												{#each typeOptions as [key, config] (key)}
 													<option value={key}>{config.label}</option>
 												{/each}
 											</select>
@@ -586,7 +586,7 @@
 
 									{#if item.draft.warnings.length > 0}
 										<ul class="admin-import-warnings">
-											{#each item.draft.warnings as warning}
+											{#each item.draft.warnings as warning, i (i)}
 												<li>{warning}</li>
 											{/each}
 										</ul>
@@ -595,7 +595,7 @@
 									<div class="admin-label">
 										Options &amp; correct answers
 										<div class="admin-options">
-											{#each item.draft.options_json as option, i}
+											{#each item.draft.options_json as option, i (i)}
 												<div class="admin-option-row">
 													<span class="admin-option-num">{i + 1}</span>
 													<input class="admin-input admin-option-label" type="text" value={option} placeholder="Option {i + 1}" oninput={(event) => updateDraft(item.id, (draft) => { draft.options_json[i] = /** @type {HTMLInputElement} */ (event.currentTarget).value; })} disabled={item.status === 'saved' || saving} />
@@ -644,7 +644,7 @@
 
 									{#if item.errors.length > 0}
 										<ul class="admin-import-errors">
-											{#each item.errors as validationError}
+											{#each item.errors as validationError, i (i)}
 												<li>{validationError}</li>
 											{/each}
 										</ul>

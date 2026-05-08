@@ -50,7 +50,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each users as user}
+				{#each users as user (user.id)}
 					<tr>
 						<td>{user.email}</td>
 						<td>{user.name}</td>

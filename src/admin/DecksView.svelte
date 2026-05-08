@@ -50,7 +50,7 @@
 		<p class="admin-hint">No decks yet.</p>
 	{:else}
 		<ul class="admin-list">
-			{#each decks as deck}
+			{#each decks as deck (deck.id)}
 				{@const iconNode = getDeckIconNode(deck.icon)}
 				<li class="admin-list__item">
 					<span class="admin-list__icon">

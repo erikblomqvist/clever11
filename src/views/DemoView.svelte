@@ -48,7 +48,7 @@
 			</div>
 
 			<div class="demo-selector__actions">
-				{#each DEMO_SCENARIOS as scenario}
+				{#each DEMO_SCENARIOS as scenario (scenario.title)}
 					<button
 						class="demo-card"
 						type="button"

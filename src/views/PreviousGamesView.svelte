@@ -92,7 +92,7 @@
 			<p class="previous-games__hint">{$_('previous_games.empty')}</p>
 		{:else}
 			<ul class="previous-games__list" role="list">
-				{#each games as previousGame}
+				{#each games as previousGame (previousGame.code)}
 					<li>
 						<button
 							class="previous-game-card"

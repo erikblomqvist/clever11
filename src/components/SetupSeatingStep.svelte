@@ -39,7 +39,7 @@
 		</p>
 	</div>
 
-	{#each Array.from({ length: 8 }, (_, i) => i) as position}
+	{#each Array.from({ length: 8 }, (_, i) => i) as position (position)}
 		{@const claimers = players.filter((p) => p.seatPosition === position)}
 		<button
 			class="seat-btn seat-btn--{position}"
@@ -52,7 +52,7 @@
 		>
 			{#if claimers.length > 0}
 				<span class="seat-btn__stack">
-					{#each claimers as claimer}
+					{#each claimers as claimer (claimer.id)}
 						{@const Icon = getPlayerIconComponent(claimer.icon)}
 						<span class="seat-btn__avatar" style:--player-ring="var(--{claimer.color})">
 							{#if Icon}<Icon size={13} />{/if}

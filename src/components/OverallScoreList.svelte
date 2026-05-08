@@ -13,7 +13,7 @@
 </script>
 
 <ol class="overall-score-list">
-	{#each rankedPlayers as player, index}
+	{#each rankedPlayers as player, index (player.id)}
 		{@const Icon = getPlayerIconComponent(player.icon)}
 		<li class="overall-score-list__item">
 			<span class="overall-score-list__rank">{index + 1}</span>

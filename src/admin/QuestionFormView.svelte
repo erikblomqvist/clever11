@@ -398,7 +398,7 @@
 					Deck *
 					<select class="admin-select" bind:value={deckId} required disabled={saving}>
 						<option value="">Choose a deck</option>
-						{#each decks as deck}
+						{#each decks as deck (deck.id)}
 							<option value={deck.id}>{deck.name}</option>
 						{/each}
 					</select>
@@ -406,7 +406,7 @@
 				<label class="admin-label">
 					Type *
 					<select class="admin-select" bind:value={type} disabled={saving}>
-						{#each TYPE_OPTIONS as opt}
+						{#each TYPE_OPTIONS as opt (opt.value)}
 							<option value={opt.value}>{opt.label}</option>
 						{/each}
 					</select>
@@ -437,7 +437,7 @@
 					</label>
 				</div>
 				<div class="admin-options">
-					{#each options as _, i}
+					{#each options as _, i (i)}
 						<div class="admin-option-row">
 							<span class="admin-option-num">{i + 1}</span>
 							<div class="admin-option-reorder">

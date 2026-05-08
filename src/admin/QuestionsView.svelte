@@ -76,13 +76,13 @@
 	<div class="admin-filters">
 		<select class="admin-select" bind:value={filterDeckId} onchange={applyDeckFilter}>
 			<option value="">All decks</option>
-			{#each decks as deck}
+			{#each decks as deck (deck.id)}
 				<option value={deck.id}>{deck.name}</option>
 			{/each}
 		</select>
 		<select class="admin-select" bind:value={filterType} onchange={applyDeckFilter}>
 			<option value="">All types</option>
-			{#each Object.entries(QUESTION_TYPES) as [key, config]}
+			{#each Object.entries(QUESTION_TYPES) as [key, config] (key)}
 				<option value={key}>{config.label}</option>
 			{/each}
 		</select>
@@ -102,7 +102,7 @@
 		<p class="admin-hint">No questions found.</p>
 	{:else}
 		<ul class="admin-list">
-			{#each filtered as q}
+			{#each filtered as q (q.id)}
 				{@const typeConfig = QUESTION_TYPES[q.type]}
 				<li class="admin-list__item">
 					{#if q.question_number}

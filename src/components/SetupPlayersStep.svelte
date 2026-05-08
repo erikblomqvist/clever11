@@ -34,7 +34,7 @@
 </script>
 
 <div class="icon-picker" role="group" aria-label="Choose icon">
-	{#each PLAYER_ICONS as { id, component: IconComp }}
+	{#each PLAYER_ICONS as { id, component: IconComp } (id)}
 		<button
 			class="icon-option"
 			class:icon-option--active={newIcon === id}
@@ -53,7 +53,7 @@
 </div>
 
 <div class="color-picker" role="group" aria-label="Choose color">
-	{#each PLAYER_COLORS as { id }}
+	{#each PLAYER_COLORS as { id } (id)}
 		<button
 			class="color-option"
 			class:color-option--active={newColor === id}
@@ -93,7 +93,7 @@
 
 {#if players.length > 0}
 	<ul class="player-list" role="list">
-		{#each players as player}
+		{#each players as player (player.id)}
 			{@const Icon = getPlayerIconComponent(player.icon)}
 			<li class="player-list-item">
 				<span class="player-list-icon" style:--player-ring="var(--{player.color})" aria-hidden="true">

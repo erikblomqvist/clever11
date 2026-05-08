@@ -28,7 +28,7 @@
 	<p class="setup-hint">{$_('setup.no_decks')}</p>
 {:else}
 	<ul class="deck-list" role="list">
-		{#each decks as deck}
+		{#each decks as deck (deck.id)}
 			{@const isSelected = selectedDeckIds.includes(deck.id)}
 			{@const iconNode = getDeckIconNode?.(deck.icon)}
 			<li>

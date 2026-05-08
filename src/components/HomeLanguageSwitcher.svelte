@@ -10,7 +10,7 @@
 </script>
 
 <nav class="home-language" aria-label="Language">
-	{#each LANGUAGES as lang}
+	{#each LANGUAGES as lang (lang.code)}
 		<button
 			class="home-lang-btn"
 			class:home-lang-btn--active={$locale === lang.code}

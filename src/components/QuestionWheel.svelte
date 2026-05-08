@@ -161,7 +161,7 @@
 	</div>
 
 	<div class="blobs">
-		{#each answerBlobs as blob, i}
+		{#each answerBlobs as blob, i (i)}
 			<AnswerBlob
 				answered={blob}
 				correctAnswer={correctAnswers[i]}
@@ -177,7 +177,7 @@
 	</div>
 
 	<div class="answers">
-		{#each answers as answer, i}
+		{#each answers as answer, i (i)}
 			<button
 				class="answer"
 				class:answer--image={usesImageOptions}
@@ -195,7 +195,7 @@
 		{/each}
 	</div>
 
-	{#each answers as answer, i}
+	{#each answers as answer, i (i)}
 		<AnswerTextPopover id={getAnswerPopoverId(i)} text={answer} />
 	{/each}
 </div>

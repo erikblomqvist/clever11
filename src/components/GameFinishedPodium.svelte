@@ -34,7 +34,7 @@
 	{/if}
 
 	<ol class="podium__list">
-		{#each podiumPlayers as player, i}
+		{#each podiumPlayers as player, i (player.id)}
 			{@const Icon = getPlayerIconComponent(player.icon)}
 			<li class="podium__list-item">
 				<span class="podium__rank">#{i + 1}</span>

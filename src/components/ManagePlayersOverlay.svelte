@@ -110,7 +110,7 @@
 
 		{#if mode === 'list'}
 			<ul class="mp-list">
-				{#each activePlayers as player}
+				{#each activePlayers as player (player.id)}
 					{@const Icon = getPlayerIconComponent(player.icon)}
 					<li class="mp-list__item">
 						<span class="mp-list__icon" style:--player-ring="var(--{player.color})" aria-hidden="true">
@@ -156,7 +156,7 @@
 				/>
 
 				<div class="mp-form__picker" role="group" aria-label="Choose icon">
-					{#each PLAYER_ICONS as { id, component: IconComp }}
+					{#each PLAYER_ICONS as { id, component: IconComp } (id)}
 						<button
 							class="mp-form__icon-opt"
 							class:mp-form__icon-opt--active={formIcon === id}
@@ -172,7 +172,7 @@
 				</div>
 
 				<div class="mp-form__picker" role="group" aria-label="Choose color">
-					{#each PLAYER_COLORS as { id }}
+					{#each PLAYER_COLORS as { id } (id)}
 						<button
 							class="mp-form__color-opt"
 							class:mp-form__color-opt--active={formColor === id}
@@ -190,7 +190,7 @@
 				{#if mode === 'add'}
 					<p class="mp-form__label">{$_('manage_players.choose_seat')}</p>
 					<div class="mp-form__seats">
-						{#each Array.from({ length: 8 }, (_, i) => i) as position}
+						{#each Array.from({ length: 8 }, (_, i) => i) as position (position)}
 							{@const taken = usedSeats.includes(position)}
 							<button
 								class="mp-form__seat"

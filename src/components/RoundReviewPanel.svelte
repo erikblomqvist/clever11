@@ -25,7 +25,7 @@
 		{$_('game.round_heading', { values: { n: roundNumber } })}
 	</h2>
 	<ol class="review-panel__scores">
-		{#each rankedPlayers as player}
+		{#each rankedPlayers as player (player.id)}
 			{@const PlayerIcon = getPlayerIconComponent(player.icon)}
 			<li class="review-panel__score-item">
 				<span class="review-panel__player-icon" aria-hidden="true">

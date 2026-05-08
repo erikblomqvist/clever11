@@ -14,7 +14,8 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(bun add *)",
-      "Bash(bunx vitest *)"
+      "Bash(bunx vitest *)",
+      "Bash(bunx eslint *)"
     ]
   }
 }
