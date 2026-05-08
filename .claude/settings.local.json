@@ -8,7 +8,13 @@
       "WebSearch",
       "Bash(xargs ls *)",
       "Bash(grep *)",
-      "Bash(find *)"
+      "Bash(find *)",
+      "Bash(gh repo *)",
+      "Bash(gh issue *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(bun add *)",
+      "Bash(bunx vitest *)"
     ]
   }
 }
