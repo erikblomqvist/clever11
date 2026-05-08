@@ -6,6 +6,7 @@
 	import SetupPlayersStep from '../components/SetupPlayersStep.svelte';
 	import SetupSeatingStep from '../components/SetupSeatingStep.svelte';
 	import SetupDecksStep from '../components/SetupDecksStep.svelte';
+	import SetupRulesStep from '../components/SetupRulesStep.svelte';
 	import SetupStartingStep from '../components/SetupStartingStep.svelte';
 
 	/** @type {{ oncomplete: (setup: GameSetup) => void, onback: () => void }} */
@@ -18,11 +19,11 @@
 
 	// --- Navigation ---
 	let step = $state(
-		/** @type {'players'|'seating'|'decks'|'starting'} */ ('players'),
+		/** @type {'players'|'seating'|'decks'|'rules'|'starting'} */ ('players'),
 	);
 
 	function navigateStep(
-		/** @type {'players'|'seating'|'decks'|'starting'} */ newStep,
+		/** @type {'players'|'seating'|'decks'|'rules'|'starting'} */ newStep,
 	) {
 		if (document.startViewTransition) {
 			document.startViewTransition(() => {
@@ -52,8 +53,10 @@
 			}));
 			currentSeatingIdx = 0;
 			navigateStep('seating');
-		} else if (step === 'starting') {
+		} else if (step === 'rules') {
 			navigateStep('decks');
+		} else if (step === 'starting') {
+			navigateStep('rules');
 		}
 	}
 
@@ -189,6 +192,10 @@
 			: [...selectedDeckIds, id];
 	}
 
+	// --- Rules step ---
+	let timerEnabled = $state(false);
+	let timerSeconds = $state(60);
+
 	// --- Starting player step ---
 	let startingPlayerIdx = $state(/** @type {number|null} */ (null));
 	const sortedPlayers = $derived(
@@ -202,7 +209,7 @@
 	function handleComplete() {
 		const idx =
 			startingPlayerIdx ?? Math.floor(Math.random() * players.length);
-		oncomplete({ players, selectedDeckIds, startingPlayerIndex: idx, turnTimerSeconds: null });
+		oncomplete({ players, selectedDeckIds, startingPlayerIndex: idx, turnTimerSeconds: timerEnabled ? timerSeconds : null });
 	}
 </script>
 
@@ -239,7 +246,7 @@
 		title={$_('setup.choose_decks_title')}
 		onback={goBack}
 		primaryLabel={$_('setup.continue')}
-		onprimary={() => navigateStep('starting')}
+		onprimary={() => navigateStep('rules')}
 		primaryDisabled={selectedDeckIds.length === 0}
 	>
 		<SetupDecksStep
@@ -247,6 +254,19 @@
 			{decksLoading}
 			{selectedDeckIds}
 			ontoggledeck={toggleDeck}
+		/>
+	</SetupStepShell>
+{:else if step === 'rules'}
+	<SetupStepShell
+		title={$_('setup.rules_title')}
+		onback={goBack}
+		primaryLabel={$_('setup.continue')}
+		onprimary={() => navigateStep('starting')}
+		primaryDisabled={timerEnabled && (!timerSeconds || timerSeconds < 10 || timerSeconds > 600)}
+	>
+		<SetupRulesStep
+			bind:timerEnabled
+			bind:timerSeconds
 		/>
 	</SetupStepShell>
 {:else if step === 'starting'}
