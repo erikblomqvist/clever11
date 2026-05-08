@@ -353,6 +353,9 @@
 	<GamePlayingSurface
 		bind:surfaceElement={gameSurfaceEl}
 		questionTypeToken={questionTypeConfig?.cssToken}
+		questionType={question?.type}
+		deck={question?.deck}
+		deckIcon={question?.deckIcon}
 		currentPlayer={gameQueries.currentPlayer}
 		players={game.players}
 		{question}

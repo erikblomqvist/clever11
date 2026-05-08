@@ -1,172 +1,229 @@
 <script>
+	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-	import { Menu, X, RotateCcw, Shield, Save, Undo2 } from 'lucide-svelte';
-	import { getPlayerIconComponent } from '../lib/playerIcons.js';
+	import { Menu, X, RotateCcw, Shield, Save, Undo2, CircleDot } from 'lucide-svelte';
+	import { QUESTION_TYPES } from '../data/questionTypes.js';
+	import LucideIcon from './LucideIcon.svelte';
 	import OverallScoreList from './OverallScoreList.svelte';
 	import ScoreList from './ScoreList.svelte';
 
 	/**
 	 * @type {{
-	 *   currentPlayer: import('../lib/game.svelte.js').GamePlayer | null,
 	 *   players: import('../lib/game.svelte.js').GamePlayer[],
+	 *   questionType?: import('../data/questionTypes.js').QuestionType | null,
+	 *   deck?: string | null,
+	 *   deckIcon?: string | null,
 	 *   onstartover: () => void,
 	 *   onsave: () => void,
- *   onundo: () => void,
- *   canundo: boolean,
+	 *   onundo: () => void,
+	 *   canundo: boolean,
 	 * }}
 	 */
-	let { currentPlayer, players, onstartover, onsave, onundo, canundo } =
-		$props();
+	let {
+		players,
+		questionType = null,
+		deck = null,
+		deckIcon = null,
+		onstartover,
+		onsave,
+		onundo,
+		canundo,
+	} = $props();
 
 	let open = $state(false);
 
-	const CurrentPlayerIcon = $derived(
-		currentPlayer ? getPlayerIconComponent(currentPlayer.icon) : null,
+	const typeConfig = $derived(
+		questionType ? (QUESTION_TYPES[questionType] ?? QUESTION_TYPES.standard) : null,
 	);
+
+	/** @type {((id: string|null|undefined) => Array<[string, Record<string, string>]>)|null} */
+	let getDeckIconNode = $state(null);
+	const deckIconNode = $derived(deckIcon ? getDeckIconNode?.(deckIcon) : null);
+
+	onMount(async () => {
+		const icons = await import('../lib/deckIcons.js');
+		getDeckIconNode = icons.getDeckIconNode;
+	});
+
+	function handleBackdropClick() {
+		open = false;
+	}
 </script>
 
-<details class="game-menu" bind:open>
-	<summary class="game-menu__toggle">
+<div class="game-menu" class:game-menu--open={open}>
+	{#if open}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div class="game-menu__backdrop" onclick={handleBackdropClick}></div>
+	{/if}
+
+	<button
+		class="game-menu__trigger"
+		type="button"
+		onclick={() => (open = !open)}
+		aria-expanded={open}
+		aria-label={open ? 'Close menu' : 'Open menu'}
+	>
 		{#if open}
-			<X class="game-menu__icon" />
+			<X size={20} />
 		{:else}
-			<Menu class="game-menu__icon" />
+			<Menu size={20} />
 		{/if}
-		{#if CurrentPlayerIcon && currentPlayer}
-			<span
-				class="game-menu__player-icon"
-				style:--player-ring="var(--{currentPlayer.color})"
-				aria-hidden="true"
-			>
-				<CurrentPlayerIcon size={16} />
-			</span>
-		{/if}
-		<span
-			>{$_('menu.turn', {
-				values: { name: currentPlayer?.name ?? '—' },
-			})}</span
-		>
-	</summary>
+	</button>
 
-	<div class="game-menu__panel" data-game-scroll-lock-allow>
-		<section class="game-menu__section">
-			<h2 class="game-menu__heading">{$_('menu.current_round')}</h2>
-			<ScoreList {players} />
-		</section>
-
-		<section class="game-menu__section">
-			<h2 class="game-menu__heading">{$_('menu.overall_score')}</h2>
-			<OverallScoreList {players} />
-		</section>
-
-		<section class="game-menu__section game-menu__section--actions">
-			<h2 class="game-menu__heading">{$_('menu.general_actions')}</h2>
-			{#if canundo}
-				<button class="game-menu__action" type="button" onclick={onundo}>
-					<Undo2 />
-					<span>{$_('menu.undo_last_move')}</span>
-				</button>
+	{#if open}
+		<div class="game-menu__panel" data-game-scroll-lock-allow>
+			{#if typeConfig && questionType && deck}
+				<div class="game-menu__question-info">
+					<span class="game-menu__question-type" style:--qc="var(--question-color)">
+						<typeConfig.icon size={16} />
+						<span>{$_(`question_types.${questionType}`)}</span>
+					</span>
+					<span class="game-menu__question-deck">
+						{#if deckIconNode}
+							<LucideIcon name={deckIcon} iconNode={deckIconNode} size={16} />
+						{:else}
+							<CircleDot size={16} />
+						{/if}
+						<span>{deck}</span>
+					</span>
+				</div>
 			{/if}
-			<button class="game-menu__action" type="button" onclick={onsave}>
-				<Save />
-				<span>{$_('menu.save_game')}</span>
-			</button>
-			<button
-				class="game-menu__action"
-				type="button"
-				onclick={onstartover}
-			>
-				<RotateCcw />
-				<span>{$_('menu.start_new_game')}</span>
-			</button>
-			<a class="game-menu__action" href="/admin" target="_blank">
-				<Shield />
-				<span>{$_('menu.admin')}</span>
-			</a>
-		</section>
-	</div>
-</details>
+
+			<section class="game-menu__section">
+				<h2 class="game-menu__heading">{$_('menu.current_round')}</h2>
+				<ScoreList {players} />
+			</section>
+
+			<section class="game-menu__section">
+				<h2 class="game-menu__heading">{$_('menu.overall_score')}</h2>
+				<OverallScoreList {players} />
+			</section>
+
+			<section class="game-menu__section game-menu__section--actions">
+				{#if canundo}
+					<button class="game-menu__action" type="button" onclick={onundo}>
+						<Undo2 size={18} />
+						<span>{$_('menu.undo_last_move')}</span>
+					</button>
+				{/if}
+				<button class="game-menu__action" type="button" onclick={onsave}>
+					<Save size={18} />
+					<span>{$_('menu.save_game')}</span>
+				</button>
+				<button class="game-menu__action" type="button" onclick={onstartover}>
+					<RotateCcw size={18} />
+					<span>{$_('menu.start_new_game')}</span>
+				</button>
+				<a class="game-menu__action" href="/admin" target="_blank">
+					<Shield size={18} />
+					<span>{$_('menu.admin')}</span>
+				</a>
+			</section>
+		</div>
+	{/if}
+</div>
 
 <style>
 	.game-menu {
 		position: fixed;
-		top: 0;
-		left: max(1rem, env(safe-area-inset-left));
+		top: max(0.75rem, env(safe-area-inset-top));
+		left: max(0.75rem, env(safe-area-inset-left));
 		z-index: 10;
 		font-size: var(--font-size-md);
 	}
 
-	.game-menu__toggle {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		border-radius: 0.5em;
-		border-top-left-radius: 0;
-		border-top-right-radius: 0;
-		border: 3px solid var(--orange-700);
-		border-top: 0;
-		padding: 0.5em 1em;
-		background-color: hsl(0 0% 100%);
-		color: var(--grayscale-900);
+	.game-menu__backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		background: hsl(0 0% 0% / 0.3);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(2px);
+	}
+
+	.game-menu__trigger {
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border: none;
+		border-radius: 0.75rem;
+		background: hsl(0 0% 100% / 0.92);
+		color: var(--orange-800);
 		cursor: pointer;
-		list-style: none;
-		user-select: none;
+		box-shadow: 0 2px 10px hsl(0 0% 0% / 0.15);
+		transition: background-color 0.15s, box-shadow 0.15s;
 	}
 
-	.game-menu__toggle::-webkit-details-marker {
-		display: none;
+	.game-menu__trigger:hover {
+		background: hsl(0 0% 100%);
+		box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
 	}
 
-	.game-menu__toggle :global(svg) {
-		width: 1.1em;
-		height: 1.1em;
-		color: var(--orange-800);
-	}
-
-	.game-menu__player-icon {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		margin-inline: 0.1em;
-		border: 2px solid var(--player-ring, transparent);
-		border-radius: 50%;
-		width: 1.5em;
-		height: 1.5em;
-		color: var(--orange-800);
+	.game-menu--open .game-menu__trigger {
+		background: hsl(0 0% 100%);
+		box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
 	}
 
 	.game-menu__panel {
 		position: absolute;
-		top: calc(100% + 0.75rem);
+		top: calc(100% + 0.5rem);
 		left: 0;
 		z-index: 1;
 		display: grid;
-		gap: 1rem;
+		gap: 0.75rem;
 		box-sizing: border-box;
 		border: 3px solid var(--orange-700);
 		border-radius: 0.75rem;
-		width: min(22rem, calc(100vw - 6rem));
-		max-height: calc(100svh - 6rem);
-		padding: 1rem;
+		width: min(21rem, calc(100vw - 2rem));
+		max-height: calc(100svh - 5rem);
+		padding: 0.75rem;
 		overflow: auto;
 		overscroll-behavior: none;
 		background-color: hsl(0 0% 100%);
-		box-shadow: 0 1rem 2rem hsl(0 0% 0% / 0.25);
+		box-shadow: 0 1rem 3rem hsl(0 0% 0% / 0.25);
+	}
+
+	.game-menu__question-info {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		border-bottom: 2px solid var(--grayscale-200);
+		padding-bottom: 0.75rem;
+	}
+
+	.game-menu__question-type {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		color: var(--qc, var(--grayscale-700));
+		font-weight: 600;
+	}
+
+	.game-menu__question-deck {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		color: var(--grayscale-700);
+	}
+
+	.game-menu__question-deck :global(svg) {
+		color: var(--grayscale-500);
 	}
 
 	.game-menu__section {
 		display: grid;
-		gap: 0.625rem;
+		gap: 0.5rem;
 	}
 
 	.game-menu__section--actions {
-		border-top: 1px solid var(--grayscale-200);
-		padding-block-start: 1rem;
+		border-top: 2px solid var(--grayscale-200);
+		padding-block-start: 0.5rem;
 	}
 
 	.game-menu__heading {
 		margin: 0;
-		color: var(--grayscale-700);
+		color: var(--grayscale-600);
 		font-family: 'Oswald', sans-serif;
 		font-size: var(--font-size-sm);
 		font-weight: 400;
@@ -180,7 +237,7 @@
 		gap: 0.625rem;
 		border: none;
 		border-radius: 0.5rem;
-		padding: 0.625rem 0.75rem;
+		padding: 0.5rem 0.625rem;
 		background: none;
 		color: var(--grayscale-900);
 		text-decoration: none;
@@ -196,8 +253,7 @@
 	}
 
 	.game-menu__action :global(svg) {
-		width: 1em;
-		height: 1em;
-		color: var(--orange-800);
+		color: var(--orange-700);
+		flex-shrink: 0;
 	}
 </style>

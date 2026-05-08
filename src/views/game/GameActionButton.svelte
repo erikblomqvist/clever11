@@ -26,7 +26,7 @@
 <style>
 	.game-action {
 		position: fixed;
-		bottom: calc(var(--question-meta-space, 4rem) + 0.75rem);
+		bottom: max(1rem, env(safe-area-inset-bottom));
 		right: max(1rem, env(safe-area-inset-right));
 		z-index: 5;
 	}

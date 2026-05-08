@@ -1,6 +1,5 @@
 <script>
 	import GameMenu from '../../components/GameMenu.svelte';
-	import QuestionMeta from '../../components/QuestionMeta.svelte';
 	import QuestionWheel from '../../components/QuestionWheel.svelte';
 	import AnswerDialog from '../../components/AnswerDialog.svelte';
 	import UndoLastMoveDialog from '../../components/UndoLastMoveDialog.svelte';
@@ -14,6 +13,9 @@
 	 *   currentPlayer: import('../../lib/game.svelte.js').GamePlayer|null,
 	 *   players: import('../../lib/game.svelte.js').GamePlayer[],
 	 *   question: import('../../lib/game.svelte.js').GameQuestion|null,
+	 *   questionType?: import('../../data/questionTypes.js').QuestionType|null,
+	 *   deck?: string|null,
+	 *   deckIcon?: string|null,
 	 *   blobStates: (boolean|null)[],
 	 *   seatRotation: number,
 	 *   rotationDurationMs: number,
@@ -52,6 +54,9 @@
 		currentPlayer,
 		players,
 		question,
+		questionType = null,
+		deck = null,
+		deckIcon = null,
 		blobStates,
 		seatRotation,
 		rotationDurationMs,
@@ -99,8 +104,10 @@
 		: null}
 >
 	<GameMenu
-		{currentPlayer}
 		{players}
+		{questionType}
+		{deck}
+		{deckIcon}
 		{onstartover}
 		{onsave}
 		{onundo}
@@ -108,12 +115,6 @@
 	/>
 
 	{#if question}
-		<QuestionMeta
-			questionType={question.type}
-			deck={question.deck}
-			deckIcon={question.deckIcon}
-		/>
-
 		<QuestionWheel
 			questionType={question.type}
 			questionText={question.text}

@@ -124,11 +124,8 @@ main {
 }
 
 main.main--game {
-	--question-meta-space: 4rem;
-
 	container-type: size;
 	container-name: body;
-	padding-block-end: var(--question-meta-space);
 	background: linear-gradient(
 		to bottom,
 		hsl(from var(--current-player-color, var(--orange-500)) h s calc(l + 8)),
