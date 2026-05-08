@@ -3,6 +3,10 @@
 	import RoundReviewPanel from '../../components/RoundReviewPanel.svelte';
 	import ManagePlayersOverlay from '../../components/ManagePlayersOverlay.svelte';
 	import { game, removePlayer, replacePlayer, addPlayer } from '../../lib/game.svelte.js';
+	import {
+		SPRING_DRAG_RETURN_DURATION_MS,
+		useSpringDrag,
+	} from '../../hooks/useSpringDrag.svelte.js';
 
 	/**
 	 * @type {{
@@ -31,10 +35,43 @@
 		onnext,
 	} = $props();
 
+	const SPRING_DRAG_IGNORE_SELECTOR =
+		'button, a, input, select, textarea, [role="button"], [popover], [data-game-scroll-lock-allow]';
+
+	const springDrag = useSpringDrag({
+		canStart: (/** @type {PointerEvent} */ event) =>
+			event.isPrimary &&
+			event.pointerType !== 'mouse' &&
+			!showManagePlayers &&
+			!(event.target instanceof Element &&
+				event.target.closest(SPRING_DRAG_IGNORE_SELECTOR) !== null),
+	});
+
+	const interactiveSeatRotation = $derived(
+		seatRotation + springDrag.rotationOffset,
+	);
+	const rotationDurationMs = $derived(
+		springDrag.isActive ? 0 : SPRING_DRAG_RETURN_DURATION_MS,
+	);
+
 	let showManagePlayers = $state(false);
+
+	$effect(() => {
+		if (showManagePlayers) {
+			springDrag.reset();
+		}
+	});
 </script>
 
-<main class="main--review" data-question-type={questionTypeToken}>
+<main
+	class="main--review"
+	data-question-type={questionTypeToken}
+	onpointerdown={springDrag.handlePointerDown}
+	onpointermove={springDrag.handlePointerMove}
+	onpointerup={springDrag.handlePointerEnd}
+	onpointercancel={springDrag.handlePointerEnd}
+	onlostpointercapture={springDrag.handlePointerEnd}
+>
 	{#if question}
 		<QuestionWheel
 			questionType={question.type}
@@ -43,7 +80,8 @@
 			correctAnswers={question.correctAnswers}
 			answerMedia={question.answerMedia}
 			blobs={reviewBlobStates}
-			{seatRotation}
+			seatRotation={interactiveSeatRotation}
+			{rotationDurationMs}
 			{onblobclick}
 		/>
 	{/if}

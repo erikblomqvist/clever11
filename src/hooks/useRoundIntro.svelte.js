@@ -1,5 +1,5 @@
 import { onMount } from 'svelte';
-import { game } from '../../lib/game.svelte.js';
+import { game } from '../lib/game.svelte.js';
 
 const INTRO_INITIAL_FRAME_MS = 30;
 const INTRO_SLOW_ARC_TURNS = 4 / 360;
@@ -204,7 +204,7 @@ export function useRoundIntro() {
 	function syncRound(
 		/** @type {{
 		 *   status: string,
-		 *   round: import('../../lib/game.svelte.js').Round|null|undefined,
+		 *   round: import('../lib/game.svelte.js').Round|null|undefined,
 		 *   starter: { id: string, seatPosition: number }|null,
 		 *   playerCount: number,
 		 * }} */ options,

@@ -23,12 +23,12 @@
 		DEFAULT_ROTATION_EASING,
 		getSeatRotationTurns,
 		useRoundIntro,
-	} from './game/useRoundIntro.svelte.js';
+	} from '../hooks/useRoundIntro.svelte.js';
 	import {
 		SPRING_DRAG_RETURN_DURATION_MS,
 		useSpringDrag,
-	} from './game/useSpringDrag.svelte.js';
-	import { useGameInteractionLock } from './game/useGameInteractionLock.js';
+	} from '../hooks/useSpringDrag.svelte.js';
+	import { useGameInteractionLock } from '../hooks/useGameInteractionLock.js';
 
 	/** @type {{ onstartover: () => void }} */
 	let { onstartover } = $props();
