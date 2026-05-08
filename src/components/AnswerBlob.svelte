@@ -64,6 +64,7 @@
 		: isColorAnswer
 			? 'color'
 			: 'text'}
+	data-question-type={questionType}
 	style="--index:{index};--total:{total}{answerBackgroundColor
 		? `;--answer-background-color:${answerBackgroundColor}`
 		: ''}"
@@ -195,5 +196,9 @@
 
 	.blob[data-answer-kind='color'] .blob-answer {
 		color: inherit;
+	}
+
+	.blob[data-question-type='rank'] .blob-answer {
+		font-size: calc(1.25 * clamp(0.55rem, 1.75cqmin, 0.875rem));
 	}
 </style>
