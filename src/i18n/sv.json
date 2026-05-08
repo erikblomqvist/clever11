@@ -56,7 +56,10 @@
     "wins": "{name} vinner",
     "pts": "{n} poäng",
     "new_game": "Nytt spel",
-    "times_up": "Tiden är ute, {name}!"
+    "times_up": "Tiden är ute, {name}!",
+    "question_vote_aria": "Betygsätt frågan",
+    "thumbs_up_aria": "Bra fråga",
+    "thumbs_down_aria": "Dålig fråga"
   },
   "menu": {
     "turn": "{name}s tur",
@@ -66,6 +69,7 @@
     "undo_last_move": "Ångra senaste draget",
     "save_game": "Spara spel",
     "start_new_game": "Starta nytt spel",
+    "skip_round": "Hoppa över runda",
     "admin": "Admin"
   },
   "manage_players": {

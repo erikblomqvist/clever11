@@ -8,6 +8,7 @@
 	import QuestionFormView from './admin/QuestionFormView.svelte';
 	import QuestionImportView from './admin/QuestionImportView.svelte';
 	import UsersView from './admin/UsersView.svelte';
+	import QuestionQualityView from './admin/QuestionQualityView.svelte';
 
 	/** @type {import('@supabase/supabase-js').User|null} */
 	let user = $state(null);
@@ -49,6 +50,7 @@
 		const qEdit = h.match(/^\/questions\/([^/]+)$/);
 		if (qEdit) return { view: 'question-form', id: qEdit[1] };
 		if (h === '/users') return { view: 'users' };
+		if (h === '/question-quality') return { view: 'question-quality' };
 		return { view: 'dashboard' };
 	});
 
@@ -82,6 +84,7 @@
 			<a class="admin-nav__brand" href="#/">Clever 11</a>
 			<a class="admin-nav__link" href="#/decks" class:admin-nav__link--active={route.view === 'decks' || route.view === 'deck-form'}>Decks</a>
 			<a class="admin-nav__link" href="#/questions" class:admin-nav__link--active={route.view === 'questions' || route.view === 'question-form'}>Questions</a>
+			<a class="admin-nav__link" href="#/question-quality" class:admin-nav__link--active={route.view === 'question-quality'}>Quality</a>
 			<a class="admin-nav__link" href="#/users" class:admin-nav__link--active={route.view === 'users'}>Users</a>
 			<span class="admin-nav__spacer"></span>
 			<button class="admin-nav__signout" type="button" onclick={handleLogout}>Sign out</button>
@@ -100,6 +103,8 @@
 				<QuestionImportView {navigate} />
 			{:else if route.view === 'question-form'}
 				<QuestionFormView id={route.id} {navigate} />
+			{:else if route.view === 'question-quality'}
+				<QuestionQualityView {navigate} />
 			{:else if route.view === 'users'}
 				<UsersView />
 			{/if}

@@ -43,6 +43,8 @@ export const game = $state({
 	currentRound: null,
 	/** @type {number|null} */
 	turnTimerSeconds: null,
+	/** @type {boolean|null} Vote on current round's question quality: true=up, false=down, null=none */
+	roundVote: null,
 });
 
 // --- Pure helpers ---
@@ -83,6 +85,7 @@ class GameQueries {
 	undoableBlobIndex = $derived(
 		this.undoIsAvailable ? (game.currentRound?.lastAnswerMove?.blobIndex ?? null) : null,
 	);
+	canSkipRound = $derived(engine.canSkipRound(game));
 }
 
 export const gameQueries = new GameQueries();
@@ -128,6 +131,7 @@ export function loadDemoGame(snapshot) {
 	game.usedQuestionIds =
 		demoGame.usedQuestionIds ?? (demoQuestion ? [demoQuestion.id] : []);
 	game.turnTimerSeconds = demoGame.turnTimerSeconds ?? null;
+	game.roundVote = null;
 
 	game.currentRound = demoGame.currentRound
 		? {
@@ -186,6 +190,7 @@ export async function initGame(setup) {
 	game.selectedDeckIds = setup.selectedDeckIds;
 	game.usedQuestionIds = [firstQuestion.id];
 	game.turnTimerSeconds = setup.turnTimerSeconds ?? null;
+	game.roundVote = null;
 	game.currentRound = {
 		roundNumber: 1,
 		question: firstQuestion,
@@ -278,6 +283,12 @@ export function passCurrentPlayer() {
 	gamePersist.syncGameState(game).catch(console.error);
 }
 
+export function skipRound() {
+	engine.skipRound(game);
+	engine.endRound(game);
+	gamePersist.syncGameState(game).catch(console.error);
+}
+
 export function endRound() {
 	engine.endRound(game);
 	gamePersist.syncGameState(game).catch(console.error);
@@ -318,7 +329,17 @@ export function replacePlayer(playerId, replacement) {
 	return result;
 }
 
+/** @param {boolean|null} vote */
+export function setRoundVote(vote) {
+	game.roundVote = vote;
+}
+
 export function startNextRound() {
+	if (game.roundVote !== null) {
+		gamePersist.persistQuestionVote(game).catch(console.error);
+	}
+	game.roundVote = null;
+
 	const question = pickNextQuestion();
 	engine.startNextRound(game, question);
 
@@ -341,6 +362,7 @@ export async function loadGame(code) {
 	game.selectedDeckIds = state.selectedDeckIds;
 	game.usedQuestionIds = state.usedQuestionIds;
 	game.turnTimerSeconds = state.turnTimerSeconds ?? null;
+	game.roundVote = null;
 	game.currentRound = state.currentRound;
 
 	questionPool = state.questionPool;

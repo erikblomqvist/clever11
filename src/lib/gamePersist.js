@@ -514,6 +514,35 @@ export async function persistNewPlayer(game, player) {
 }
 
 /**
+ * Persists a question vote to the question_votes table.
+ * Uses upsert with round_id as the conflict target.
+ *
+ * @param {object} game
+ * @param {string|null} game.dbGameId
+ * @param {{ roundNumber: number, question: GameQuestion, dbId: string|null }|null} game.currentRound
+ * @param {boolean|null} game.roundVote
+ */
+export async function persistQuestionVote(game) {
+	if (!supabase || !game.dbGameId || !game.currentRound?.dbId || game.roundVote === null) return;
+
+	const questionId = game.currentRound.question.id.startsWith('mock-')
+		? null
+		: game.currentRound.question.id;
+
+	await supabase
+		.from('question_votes')
+		.upsert(
+			{
+				question_id: questionId,
+				game_id: game.dbGameId,
+				round_id: game.currentRound.dbId,
+				vote: game.roundVote,
+			},
+			{ onConflict: 'round_id' },
+		);
+}
+
+/**
  * Loads game state from Supabase by code.
  * Returns a plain state object (not a Svelte proxy).
  *

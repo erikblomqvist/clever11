@@ -25,6 +25,7 @@
 	 *   streakBurstKey: number,
 	 *   undoableBlobIndex: number|null,
 	 *   undoIsAvailable: boolean,
+	 *   canSkipRound: boolean,
 	 *   roundIsOver: boolean,
 	 *   streakCelebrationActive: boolean,
 	 *   dialogOpen: boolean,
@@ -37,6 +38,7 @@
 	 *   onstartover: () => void,
 	 *   onsave: () => void,
 	 *   onundo: () => void,
+	 *   onskipround: () => void,
 	 *   onpassorend: () => void,
 	 *   onblobclick: (index: number) => void,
 	 *   onundoblobclick: (index: number) => void,
@@ -66,6 +68,7 @@
 		streakBurstKey,
 		undoableBlobIndex,
 		undoIsAvailable,
+		canSkipRound,
 		roundIsOver,
 		streakCelebrationActive,
 		dialogOpen,
@@ -78,6 +81,7 @@
 		onstartover,
 		onsave,
 		onundo,
+		onskipround,
 		onpassorend,
 		onblobclick,
 		onundoblobclick,
@@ -111,7 +115,9 @@
 		{onstartover}
 		{onsave}
 		{onundo}
+		{onskipround}
 		canundo={undoIsAvailable && !streakCelebrationActive}
+		canskipround={canSkipRound && !streakCelebrationActive}
 	/>
 
 	{#if question}

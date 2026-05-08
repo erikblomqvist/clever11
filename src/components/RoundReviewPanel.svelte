@@ -1,17 +1,23 @@
 <script>
 	import { _ } from 'svelte-i18n';
-	import { Users } from 'lucide-svelte';
+	import { Users, ThumbsUp, ThumbsDown } from 'lucide-svelte';
 	import { getPlayerIconComponent } from '../lib/playerIcons.js';
 
 	/**
 	 * @type {{
 	 *   players: import('../lib/game.svelte.js').GamePlayer[],
 	 *   roundNumber?: number,
+	 *   vote?: boolean|null,
+	 *   onvote?: (vote: boolean|null) => void,
 	 *   onnext: () => void,
 	 *   onmanageplayers: () => void,
 	 * }}
 	 */
-	let { players, roundNumber, onnext, onmanageplayers } = $props();
+	let { players, roundNumber, vote = null, onvote, onnext, onmanageplayers } = $props();
+
+	function handleVote(/** @type {boolean} */ value) {
+		onvote?.(vote === value ? null : value);
+	}
 
 	const activePlayers = $derived(players.filter((p) => p.status !== 'removed'));
 
@@ -42,6 +48,28 @@
 		{/each}
 	</ol>
 	<div class="review-panel__actions">
+		<div class="review-panel__vote" role="group" aria-label={$_('game.question_vote_aria')}>
+			<button
+				class="review-panel__vote-btn"
+				class:review-panel__vote-btn--active={vote === true}
+				type="button"
+				aria-label={$_('game.thumbs_up_aria')}
+				aria-pressed={vote === true}
+				onclick={() => handleVote(true)}
+			>
+				<ThumbsUp size={16} />
+			</button>
+			<button
+				class="review-panel__vote-btn"
+				class:review-panel__vote-btn--active={vote === false}
+				type="button"
+				aria-label={$_('game.thumbs_down_aria')}
+				aria-pressed={vote === false}
+				onclick={() => handleVote(false)}
+			>
+				<ThumbsDown size={16} />
+			</button>
+		</div>
 		<button class="review-panel__btn" type="button" onclick={onnext}>
 			{$_('game.next_round')}
 		</button>
@@ -179,5 +207,40 @@
 		color: hsl(0 0% 100% / 0.8);
 		border-color: hsl(0 0% 100% / 0.35);
 		opacity: 1;
+	}
+
+	.review-panel__vote {
+		display: flex;
+		justify-content: center;
+		gap: 0.5rem;
+	}
+
+	.review-panel__vote-btn {
+		display: grid;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border: 1px solid hsl(0 0% 100% / 0.15);
+		border-radius: 0.5rem;
+		background: none;
+		color: hsl(0 0% 100% / 0.35);
+		cursor: pointer;
+		transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+	}
+
+	.review-panel__vote-btn:hover {
+		color: hsl(0 0% 100% / 0.6);
+		border-color: hsl(0 0% 100% / 0.3);
+	}
+
+	.review-panel__vote-btn--active {
+		color: hsl(0 0% 100% / 0.9);
+		border-color: hsl(0 0% 100% / 0.4);
+		background-color: hsl(0 0% 100% / 0.1);
+	}
+
+	.review-panel__vote-btn--active:hover {
+		color: hsl(0 0% 100% / 0.9);
+		border-color: hsl(0 0% 100% / 0.4);
 	}
 </style>

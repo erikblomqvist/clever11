@@ -1,6 +1,7 @@
 <script>
 	import { supabase } from '../lib/supabase.js';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
+	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
 
 	/** @type {{ navigate: (path: string) => void }} */
 	let { navigate } = $props();
@@ -14,6 +15,8 @@
 	let filterText = $state('');
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
+	/** @type {Map<string, { up: number, down: number }>} */
+	let voteCounts = $state(new Map());
 
 	$effect(() => { init(); });
 
@@ -25,7 +28,24 @@
 		decks = deckData ?? [];
 		if (qErr) { error = qErr.message; }
 		else { questions = qData ?? []; }
+		await loadVoteCounts();
 		loading = false;
+	}
+
+	async function loadVoteCounts() {
+		const { data: votes } = await supabase
+			.from('question_votes')
+			.select('question_id, vote');
+		if (!votes) return;
+		/** @type {Map<string, { up: number, down: number }>} */
+		const counts = new Map();
+		for (const v of votes) {
+			const entry = counts.get(v.question_id) ?? { up: 0, down: 0 };
+			if (v.vote) entry.up++;
+			else entry.down++;
+			counts.set(v.question_id, entry);
+		}
+		voteCounts = counts;
 	}
 
 	const filtered = $derived(
@@ -51,6 +71,7 @@
 		const { data, error: err } = await query;
 		if (err) error = err.message;
 		else questions = data ?? [];
+		await loadVoteCounts();
 		loading = false;
 	}
 
@@ -104,6 +125,7 @@
 		<ul class="admin-list">
 			{#each filtered as q (q.id)}
 				{@const typeConfig = QUESTION_TYPES[q.type]}
+				{@const votes = voteCounts.get(q.id)}
 				<li class="admin-list__item">
 					{#if q.question_number}
 						<span class="admin-list__num">#{q.question_number}</span>
@@ -111,6 +133,20 @@
 					<span class="admin-list__badge" data-type={q.type}>{typeConfig?.label ?? q.type}</span>
 					<span class="admin-list__name">{q.question_text}</span>
 					<span class="admin-list__meta">{q.decks?.name ?? '—'}</span>
+					{#if votes}
+						<span class="admin-list__votes">
+							{#if votes.up}
+								<span class="admin-list__vote admin-list__vote--up" title="Thumbs up">
+									<ThumbsUp size={12} />{votes.up}
+								</span>
+							{/if}
+							{#if votes.down}
+								<span class="admin-list__vote admin-list__vote--down" title="Thumbs down">
+									<ThumbsDown size={12} />{votes.down}
+								</span>
+							{/if}
+						</span>
+					{/if}
 					<div class="admin-list__actions">
 						<a class="admin-btn admin-btn--sm" href={`/admin#/questions/${q.id}`}>Edit</a>
 						<button class="admin-btn admin-btn--sm admin-btn--danger" type="button" onclick={() => deleteQuestion(q.id)}>Delete</button>

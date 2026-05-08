@@ -92,6 +92,10 @@ _Avoid_: Skip (which could imply skipping one blob)
 When every player passes without anyone answering. The starting player does not rotate for the next round — the same player starts again.
 _Avoid_: Full pass, Everyone passed
 
+**Skip Round**:
+A group action available only when no blobs have been revealed and no player has passed (i.e. no actions taken in the round). Behaves identically to an all-pass — all players are set to `passed`, scores are unchanged, and the starting player does not rotate. Transitions to **Round Review** so the group can see the question and optionally vote on it.
+_Avoid_: Skip card, Skip question
+
 ### Questions
 
 **Question**:
@@ -121,6 +125,10 @@ _Avoid_: Solution, Right answer
 **Answer Media**:
 Optional rich media attached to a blob, shown during round review. Can include a generic URL, Spotify embed, YouTube embed, or option image.
 _Avoid_: Attachment, Media
+
+**Question Vote**:
+An optional thumbs-up or thumbs-down group vote on question quality, cast during **Round Review**. One vote per round, attached to the `question_id`. Toggle behavior — the group can change or deselect their vote before advancing. Persisted when leaving review. Stored in a `question_votes` table for admin analysis.
+_Avoid_: Rating, Like
 
 ### Game phases
 
@@ -165,6 +173,8 @@ _Avoid_: Animation lock, Debounce
 - **Round Score** accumulates during a round and is added to **Total Score** when the round ends
 - A **Player**'s **Status** transitions: `active` -> `passed` (by choice) or `active` -> `out` (by busting); all reset to `active` at round start. A player can also be `removed` (soft-deleted), which is permanent for the rest of the game
 - **Roster changes** (add, replace, remove) can only happen during **Round Review**. A game must always have at least 2 active (non-removed) players
+- A **Question Vote** belongs to one **Round** and one **Question**. A question accumulates votes across all games it appears in
+- A **Skip Round** triggers the same state transitions as an **All-Pass** and always leads to **Round Review**
 
 ## Example dialogue
 
@@ -194,6 +204,6 @@ _Avoid_: Animation lock, Debounce
 - **"Score"** — Ambiguous without qualifier. Always specify **Round Score** (per-round accumulator, resets on bust) or **Total Score** (lifetime sum across rounds, never decreases). The UI shows both.
 - **"Turn" vs "Round"** — A **Turn** is one player's action; a **Round** is the full card with all players. The physical board game uses "card" for what we call a round.
 - **Seat Position vs Turn Order** — These are deliberately independent. A player can sit at position 6 but have turn order 0 (goes first). Seat position controls screen rotation; turn order controls who plays when.
-- **"Pass" vs "Skip"** — A **Pass** eliminates the player from the rest of the round (keeping their score). There is no "skip one blob" mechanic. If a player doesn't want to answer, they pass entirely.
+- **"Pass" vs "Skip"** — A **Pass** eliminates the player from the rest of the round (keeping their score). There is no "skip one blob" mechanic. **Skip Round** is a distinct group action that skips the entire round before anyone acts, behaving as an all-pass.
 - **Trust-based validation** — The game has no server-side answer checking. The **Answer Dialog** shows the correct answer and the group collectively decides Correct or Wrong. This is a deliberate design choice matching the physical board game experience.
 - **Question pool exhaustion** — When all questions from selected decks have been used, the pool resets and questions can repeat. The `usedQuestionIds` list is cleared, not appended to.

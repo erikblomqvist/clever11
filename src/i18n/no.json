@@ -56,7 +56,10 @@
     "wins": "{name} vinner",
     "pts": "{n} poeng",
     "new_game": "Nytt spill",
-    "times_up": "Tiden er ute, {name}!"
+    "times_up": "Tiden er ute, {name}!",
+    "question_vote_aria": "Vurder spørsmålet",
+    "thumbs_up_aria": "Godt spørsmål",
+    "thumbs_down_aria": "Dårlig spørsmål"
   },
   "menu": {
     "turn": "{name}s tur",
@@ -66,6 +69,7 @@
     "undo_last_move": "Angre siste trekk",
     "save_game": "Lagre spill",
     "start_new_game": "Start nytt spill",
+    "skip_round": "Hopp over runde",
     "admin": "Admin"
   },
   "manage_players": {

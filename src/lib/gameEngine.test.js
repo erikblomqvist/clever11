@@ -9,6 +9,8 @@ import {
 	getNextActivePlayerId,
 	checkRoundOver,
 	canUndoLastMove,
+	canSkipRound,
+	skipRound,
 	addPlayer,
 	removePlayer,
 	replacePlayer,
@@ -976,6 +978,120 @@ describe('removePlayer', () => {
 			playerOverrides: [{}, { status: 'removed', seatPosition: -1 }, {}],
 		});
 		expect(removePlayer(state, 'player-2')).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// canSkipRound
+// ---------------------------------------------------------------------------
+
+describe('canSkipRound', () => {
+	it('returns true when no blobs answered and all active players are active', () => {
+		const state = makePlayingState({ playerCount: 3 });
+		expect(canSkipRound(state)).toBe(true);
+	});
+
+	it('returns false when currentRound is null', () => {
+		const state = createGameState({ players: [makePlayer('player-0', 0)] });
+		expect(canSkipRound(state)).toBe(false);
+	});
+
+	it('returns false when answeredBlobs is non-empty', () => {
+		const state = makePlayingState({ playerCount: 2 });
+		state.currentRound.answeredBlobs = [0];
+		expect(canSkipRound(state)).toBe(false);
+	});
+
+	it('returns false when any active player has status "passed"', () => {
+		const state = makePlayingState({
+			playerCount: 3,
+			playerOverrides: [{}, { status: 'passed' }, {}],
+		});
+		expect(canSkipRound(state)).toBe(false);
+	});
+
+	it('returns false when any active player has status "out"', () => {
+		const state = makePlayingState({
+			playerCount: 3,
+			playerOverrides: [{}, { status: 'out' }, {}],
+		});
+		expect(canSkipRound(state)).toBe(false);
+	});
+
+	it('ignores removed players', () => {
+		const state = makePlayingState({
+			playerCount: 3,
+			playerOverrides: [{}, {}, { status: 'removed' }],
+		});
+		expect(canSkipRound(state)).toBe(true);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// skipRound
+// ---------------------------------------------------------------------------
+
+describe('skipRound', () => {
+	it('sets all active players to passed', () => {
+		const state = makePlayingState({ playerCount: 3 });
+		skipRound(state);
+		state.players.forEach((p) => {
+			expect(p.status).toBe('passed');
+		});
+	});
+
+	it('does not modify removed players', () => {
+		const state = makePlayingState({
+			playerCount: 3,
+			playerOverrides: [{}, {}, { status: 'removed' }],
+		});
+		skipRound(state);
+		expect(state.players[0].status).toBe('passed');
+		expect(state.players[1].status).toBe('passed');
+		expect(state.players[2].status).toBe('removed');
+	});
+
+	it('does not modify any scores', () => {
+		const state = makePlayingState({ playerCount: 2 });
+		state.players[0].roundScore = 0;
+		state.players[0].totalScore = 10;
+		state.players[1].roundScore = 0;
+		state.players[1].totalScore = 5;
+		skipRound(state);
+		expect(state.players[0].roundScore).toBe(0);
+		expect(state.players[0].totalScore).toBe(10);
+		expect(state.players[1].roundScore).toBe(0);
+		expect(state.players[1].totalScore).toBe(5);
+	});
+
+	it('clears lastAnswerMove', () => {
+		const state = makePlayingState({ playerCount: 2 });
+		state.currentRound.lastAnswerMove = {
+			blobIndex: 0,
+			playerId: 'player-0',
+			previousRoundScore: 0,
+			previousStatus: 'active',
+			previousCurrentPlayerId: 'player-0',
+			previousLastPlayerId: null,
+		};
+		skipRound(state);
+		expect(state.currentRound.lastAnswerMove).toBeNull();
+	});
+
+	it('makes checkRoundOver return true', () => {
+		const state = makePlayingState({ playerCount: 3 });
+		skipRound(state);
+		expect(checkRoundOver(state)).toBe(true);
+	});
+
+	it('triggers all-pass path in startNextRound (startingTurnOrderIndex unchanged)', () => {
+		const state = makePlayingState({ playerCount: 2 });
+		state.startingTurnOrderIndex = 1;
+		skipRound(state);
+		endRound(state);
+		startNextRound(state, makeQuestion());
+		// All-pass means startingTurnOrderIndex does NOT advance
+		expect(state.startingTurnOrderIndex).toBe(1);
 	});
 });
 

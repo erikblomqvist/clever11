@@ -56,7 +56,10 @@
     "wins": "{name} wins",
     "pts": "{n} pts",
     "new_game": "New game",
-    "times_up": "Time's up, {name}!"
+    "times_up": "Time's up, {name}!",
+    "question_vote_aria": "Rate this question",
+    "thumbs_up_aria": "Good question",
+    "thumbs_down_aria": "Bad question"
   },
   "menu": {
     "turn": "{name}'s turn",
@@ -66,6 +69,7 @@
     "undo_last_move": "Undo last move",
     "save_game": "Save game",
     "start_new_game": "Start new game",
+    "skip_round": "Skip round",
     "admin": "Admin"
   },
   "manage_players": {

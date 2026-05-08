@@ -10,7 +10,9 @@
 		passCurrentPlayer,
 		endRound,
 		startNextRound,
+		setRoundVote,
 		undoLastMove,
+		skipRound,
 	} from '../lib/game.svelte.js';
 	import * as engine from '../lib/gameEngine.js';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
@@ -342,6 +344,10 @@
 		alert($_('game.save_alert', { values: { code: game.code } }));
 	}
 
+	function handleSkipRound() {
+		skipRound();
+	}
+
 	function handleStartOver() {
 		if (confirm($_('game.new_game_confirm'))) {
 			onstartover();
@@ -368,6 +374,7 @@
 		{streakBurstKey}
 		undoableBlobIndex={gameQueries.undoableBlobIndex}
 		undoIsAvailable={gameQueries.undoIsAvailable}
+		canSkipRound={gameQueries.canSkipRound}
 		roundIsOver={gameQueries.roundIsOver}
 		{streakCelebrationActive}
 		{dialogOpen}
@@ -380,6 +387,7 @@
 		onstartover={handleStartOver}
 		onsave={handleSave}
 		onundo={handleUndo}
+		onskipround={handleSkipRound}
 		onpassorend={handlePassOrEnd}
 		onblobclick={handleBlobClick}
 		onundoblobclick={handleUndoBlobClick}
@@ -396,9 +404,11 @@
 		{question}
 		players={game.players}
 		roundNumber={game.currentRound?.roundNumber}
+		vote={game.roundVote}
 		{reviewBlobStates}
 		seatRotation={reviewSeatRotation}
 		onblobclick={handleReviewBlobClick}
+		onvote={setRoundVote}
 		onnext={startNextRound}
 	/>
 {:else if game.status === 'finished'}

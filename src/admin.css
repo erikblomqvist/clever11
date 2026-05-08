@@ -420,6 +420,29 @@ body {
 	white-space: nowrap;
 }
 
+.admin-list__votes {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.admin-list__vote {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.admin-list__vote--up {
+	color: #4ade80;
+}
+
+.admin-list__vote--down {
+	color: #f87171;
+}
+
 .admin-list__actions {
 	display: flex;
 	gap: 6px;

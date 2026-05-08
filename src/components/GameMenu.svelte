@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-	import { Menu, X, RotateCcw, Shield, Save, Undo2, CircleDot } from 'lucide-svelte';
+	import { Menu, X, RotateCcw, Shield, Save, Undo2, CircleDot, SkipForward } from 'lucide-svelte';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
 	import LucideIcon from './LucideIcon.svelte';
 	import OverallScoreList from './OverallScoreList.svelte';
@@ -16,7 +16,9 @@
 	 *   onstartover: () => void,
 	 *   onsave: () => void,
 	 *   onundo: () => void,
+	 *   onskipround: () => void,
 	 *   canundo: boolean,
+	 *   canskipround: boolean,
 	 * }}
 	 */
 	let {
@@ -27,7 +29,9 @@
 		onstartover,
 		onsave,
 		onundo,
+		onskipround,
 		canundo,
+		canskipround,
 	} = $props();
 
 	let open = $state(false);
@@ -104,6 +108,12 @@
 					<button class="game-menu__action" type="button" onclick={onundo}>
 						<Undo2 size={18} />
 						<span>{$_('menu.undo_last_move')}</span>
+					</button>
+				{/if}
+				{#if canskipround}
+					<button class="game-menu__action" type="button" onclick={() => { onskipround(); open = false; }}>
+						<SkipForward size={18} />
+						<span>{$_('menu.skip_round')}</span>
 					</button>
 				{/if}
 				<button class="game-menu__action" type="button" onclick={onsave}>

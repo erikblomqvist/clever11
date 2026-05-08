@@ -182,6 +182,27 @@ export function advanceToPlayer(state, playerId) {
 }
 
 /** @param {GameState} state */
+export function canSkipRound(state) {
+	if (!state.currentRound) return false;
+	if (state.currentRound.answeredBlobs.length !== 0) return false;
+	return state.players
+		.filter((p) => p.status !== 'removed')
+		.every((p) => p.status === 'active');
+}
+
+/** @param {GameState} state */
+export function skipRound(state) {
+	state.players.forEach((_, idx) => {
+		if (state.players[idx].status === 'active') {
+			state.players[idx].status = /** @type {PlayerStatus} */ ('passed');
+		}
+	});
+	if (state.currentRound) {
+		state.currentRound.lastAnswerMove = null;
+	}
+}
+
+/** @param {GameState} state */
 export function passCurrentPlayer(state) {
 	const playerIdx = state.players.findIndex((p) => p.id === state.currentPlayerId);
 	if (playerIdx === -1) return;

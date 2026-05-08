@@ -10,9 +10,11 @@
 	 *   question: import('../../lib/game.svelte.js').GameQuestion|null,
 	 *   players: import('../../lib/game.svelte.js').GamePlayer[],
 	 *   roundNumber?: number,
+	 *   vote?: boolean|null,
 	 *   reviewBlobStates: (boolean|null)[],
 	 *   seatRotation: number,
 	 *   onblobclick: (index: number) => void,
+	 *   onvote?: (vote: boolean|null) => void,
 	 *   onnext: () => void,
 	 * }}
 	 */
@@ -21,9 +23,11 @@
 		question,
 		players,
 		roundNumber,
+		vote,
 		reviewBlobStates,
 		seatRotation,
 		onblobclick,
+		onvote,
 		onnext,
 	} = $props();
 
@@ -44,7 +48,7 @@
 		/>
 	{/if}
 
-	<RoundReviewPanel {players} {roundNumber} {onnext} onmanageplayers={() => (showManagePlayers = true)} />
+	<RoundReviewPanel {players} {roundNumber} {vote} {onvote} {onnext} onmanageplayers={() => (showManagePlayers = true)} />
 
 	{#if showManagePlayers}
 		<ManagePlayersOverlay
