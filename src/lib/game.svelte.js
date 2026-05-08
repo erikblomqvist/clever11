@@ -1,5 +1,5 @@
 /**
- * @typedef {'active'|'passed'|'out'} PlayerStatus
+ * @typedef {'active'|'passed'|'out'|'removed'} PlayerStatus
  *
  * @typedef {{
  *   id: string,
@@ -121,7 +121,7 @@ function pickNextQuestion() {
  * @returns {string|null}
  */
 function getNextActivePlayerId(players, currentPlayerId) {
-	const sorted = [...players].sort((a, b) => a.turnOrder - b.turnOrder);
+	const sorted = [...players].filter((p) => p.status !== 'removed').sort((a, b) => a.turnOrder - b.turnOrder);
 	const currentIdx = sorted.findIndex((p) => p.id === currentPlayerId);
 	for (let i = 1; i <= sorted.length; i++) {
 		const idx = (currentIdx + i) % sorted.length;
@@ -228,7 +228,7 @@ export function checkRoundOver() {
 	const allAnswered =
 		game.currentRound.answeredBlobs.length >= game.currentRound.question.options.length;
 	const allInactive = game.players.every(
-		(p) => p.status === 'passed' || p.status === 'out',
+		(p) => p.status === 'passed' || p.status === 'out' || p.status === 'removed',
 	);
 	return allAnswered || allInactive;
 }
@@ -565,28 +565,33 @@ export function endRound() {
 	if (game.currentRound) game.currentRound.lastAnswerMove = null;
 
 	game.players.forEach((_, idx) => {
-		game.players[idx].totalScore += game.players[idx].roundScore;
+		if (game.players[idx].status !== 'removed') {
+			game.players[idx].totalScore += game.players[idx].roundScore;
+		}
 	});
 
-	const winner = game.players.find((p) => p.totalScore >= game.winScore);
+	const winner = game.players.find((p) => p.status !== 'removed' && p.totalScore >= game.winScore);
 	game.status = winner ? 'finished' : 'round_review';
 
 	syncGameState().catch(console.error);
 }
 
 export function startNextRound() {
-	const allPassed = game.players.every((p) => p.status === 'passed');
+	const activePlayers = game.players.filter((p) => p.status !== 'removed');
+	const allPassed = activePlayers.every((p) => p.status === 'passed');
 
 	game.players.forEach((_, idx) => {
-		game.players[idx].status = 'active';
-		game.players[idx].roundScore = 0;
+		if (game.players[idx].status !== 'removed') {
+			game.players[idx].status = 'active';
+			game.players[idx].roundScore = 0;
+		}
 	});
 
-	const sorted = [...game.players].sort((a, b) => a.turnOrder - b.turnOrder);
+	const sorted = [...activePlayers].sort((a, b) => a.turnOrder - b.turnOrder);
 	if (!allPassed) {
 		game.startingTurnOrderIndex = (game.startingTurnOrderIndex + 1) % sorted.length;
 	}
-	const nextStarter = sorted[game.startingTurnOrderIndex];
+	let nextStarter = sorted[game.startingTurnOrderIndex % sorted.length];
 	game.currentPlayerId = nextStarter.id;
 
 	game.currentRound = {
