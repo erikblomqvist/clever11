@@ -575,13 +575,17 @@ export function endRound() {
 }
 
 export function startNextRound() {
+	const allPassed = game.players.every((p) => p.status === 'passed');
+
 	game.players.forEach((_, idx) => {
 		game.players[idx].status = 'active';
 		game.players[idx].roundScore = 0;
 	});
 
 	const sorted = [...game.players].sort((a, b) => a.turnOrder - b.turnOrder);
-	game.startingTurnOrderIndex = (game.startingTurnOrderIndex + 1) % sorted.length;
+	if (!allPassed) {
+		game.startingTurnOrderIndex = (game.startingTurnOrderIndex + 1) % sorted.length;
+	}
 	const nextStarter = sorted[game.startingTurnOrderIndex];
 	game.currentPlayerId = nextStarter.id;
 
