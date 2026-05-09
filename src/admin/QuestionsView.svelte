@@ -7,13 +7,14 @@
 	/** @type {{ navigate: (path: string) => void }} */
 	let { navigate } = $props();
 
-	/** @type {{ id: string, question_text: string, type: string, question_number: number|null, decks: { name: string }|null }[]} */
+	/** @type {{ id: string, question_text: string, type: string, question_number: number|null, archived_at: string|null, decks: { name: string }|null }[]} */
 	let questions = $state([]);
 	let loading = $state(true);
 	let error = $state('');
 	let filterDeckId = $state('');
 	let filterType = $state('');
 	let filterText = $state('');
+	let showArchived = $state(false);
 	let sortField = $state('question_text');
 	let sortAsc = $state(true);
 	/** @type {{ id: string, name: string }[]} */
@@ -26,24 +27,28 @@
 	});
 
 	async function init() {
-		const [{ data: deckData }, { data: qData, error: qErr }] =
-			await Promise.all([
-				supabase.from('decks').select('id, name').order('name'),
-				supabase
-					.from('questions')
-					.select(
-						'id, question_text, type, question_number, decks(name)',
-					)
-					.order('created_at', { ascending: false }),
-			]);
+		const [{ data: deckData }] = await Promise.all([
+			supabase.from('decks').select('id, name').order('name'),
+		]);
 		decks = deckData ?? [];
-		if (qErr) {
-			error = qErr.message;
-		} else {
-			questions = qData ?? [];
-		}
+		await fetchQuestions();
 		await loadVoteCounts();
 		loading = false;
+	}
+
+	async function fetchQuestions() {
+		let query = supabase
+			.from('questions')
+			.select(
+				'id, question_text, type, question_number, archived_at, decks(name)',
+			)
+			.order('created_at', { ascending: false });
+		if (!showArchived) query = query.is('archived_at', null);
+		if (filterDeckId) query = query.eq('deck_id', filterDeckId);
+		if (filterType) query = query.eq('type', filterType);
+		const { data, error: err } = await query;
+		if (err) error = err.message;
+		else questions = data ?? [];
 	}
 
 	async function loadVoteCounts() {
@@ -99,17 +104,9 @@
 		}),
 	);
 
-	async function applyDeckFilter() {
+	async function applyFilter() {
 		loading = true;
-		let query = supabase
-			.from('questions')
-			.select('id, question_text, type, question_number, decks(name)')
-			.order('created_at', { ascending: false });
-		if (filterDeckId) query = query.eq('deck_id', filterDeckId);
-		if (filterType) query = query.eq('type', filterType);
-		const { data, error: err } = await query;
-		if (err) error = err.message;
-		else questions = data ?? [];
+		await fetchQuestions();
 		await loadVoteCounts();
 		loading = false;
 	}
@@ -128,11 +125,28 @@
 		return sortAsc ? ' ↑' : ' ↓';
 	}
 
-	async function deleteQuestion(/** @type {string} */ id) {
-		if (!confirm('Delete this question?')) return;
+	async function archiveQuestion(/** @type {string} */ id) {
+		if (
+			!confirm(
+				'Archive this question? It will no longer appear in games.',
+			)
+		)
+			return;
 		const { error: err } = await supabase
 			.from('questions')
-			.delete()
+			.update({ archived_at: new Date().toISOString() })
+			.eq('id', id);
+		if (err) {
+			alert(err.message);
+			return;
+		}
+		questions = questions.filter((q) => q.id !== id);
+	}
+
+	async function restoreQuestion(/** @type {string} */ id) {
+		const { error: err } = await supabase
+			.from('questions')
+			.update({ archived_at: null })
 			.eq('id', id);
 		if (err) {
 			alert(err.message);
@@ -165,7 +179,7 @@
 		<select
 			class="admin-select"
 			bind:value={filterDeckId}
-			onchange={applyDeckFilter}
+			onchange={applyFilter}
 		>
 			<option value="">All decks</option>
 			{#each decks as deck (deck.id)}
@@ -175,7 +189,7 @@
 		<select
 			class="admin-select"
 			bind:value={filterType}
-			onchange={applyDeckFilter}
+			onchange={applyFilter}
 		>
 			<option value="">All types</option>
 			{#each Object.entries(QUESTION_TYPES) as [key, config] (key)}
@@ -188,6 +202,16 @@
 			placeholder="Search questions…"
 			bind:value={filterText}
 		/>
+		<label class="admin-toggle-wrap">
+			<input
+				type="checkbox"
+				bind:checked={showArchived}
+				onchange={applyFilter}
+			/>
+			<span class="admin-toggle" class:admin-toggle--on={showArchived}
+				>Archived</span
+			>
+		</label>
 	</div>
 
 	{#if loading}
@@ -275,11 +299,21 @@
 							class="admin-btn admin-btn--sm"
 							href={`/admin#/questions/${q.id}`}>Edit</a
 						>
-						<button
-							class="admin-btn admin-btn--sm admin-btn--danger"
-							type="button"
-							onclick={() => deleteQuestion(q.id)}>Delete</button
-						>
+						{#if q.archived_at}
+							<button
+								class="admin-btn admin-btn--sm"
+								type="button"
+								onclick={() => restoreQuestion(q.id)}
+								>Restore</button
+							>
+						{:else}
+							<button
+								class="admin-btn admin-btn--sm admin-btn--danger"
+								type="button"
+								onclick={() => archiveQuestion(q.id)}
+								>Archive</button
+							>
+						{/if}
 					</div>
 				</div>
 			{/each}

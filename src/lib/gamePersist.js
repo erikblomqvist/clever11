@@ -226,7 +226,8 @@ export async function fetchQuestionsForDecks(deckIds) {
 	const { data } = await supabase
 		.from('questions')
 		.select('*, decks(name, icon)')
-		.in('deck_id', deckIds);
+		.in('deck_id', deckIds)
+		.is('archived_at', null);
 	const questions = (data ?? []).map(dbRowToQuestion);
 	return questions.length > 0 ? questions : MOCK_QUESTIONS;
 }
@@ -262,7 +263,8 @@ export async function syncGameState(game) {
 		game.players.find((p) => p.id === game.currentPlayerId)?.dbId ?? null;
 	const roundDbId = game.currentRound?.dbId ?? null;
 	const lastPlayerDbId =
-		game.players.find((p) => p.id === game.currentRound?.lastPlayerId)?.dbId ?? null;
+		game.players.find((p) => p.id === game.currentRound?.lastPlayerId)
+			?.dbId ?? null;
 	const isRoundEnded =
 		game.status === 'round_review' || game.status === 'finished';
 
@@ -301,7 +303,9 @@ export async function syncGameState(game) {
 					.update({
 						answered_blobs: game.currentRound?.answeredBlobs ?? [],
 						last_player_id: lastPlayerDbId,
-						...(isRoundEnded ? { ended_at: new Date().toISOString() } : {}),
+						...(isRoundEnded
+							? { ended_at: new Date().toISOString() }
+							: {}),
 					})
 					.eq('id', roundDbId)
 			: Promise.resolve(),
@@ -360,7 +364,14 @@ export async function deletePersistedAnswer(answerId) {
  * @param {string|null} actingPlayerDbId
  * @param {{ answerId: string|null, deleteWhenPersisted: boolean }} lastAnswerMove
  */
-export async function persistBlobReveal(game, round, blobIndex, isCorrect, actingPlayerDbId, lastAnswerMove) {
+export async function persistBlobReveal(
+	game,
+	round,
+	blobIndex,
+	isCorrect,
+	actingPlayerDbId,
+	lastAnswerMove,
+) {
 	if (!supabase || !round.dbId || !actingPlayerDbId) return;
 
 	const { data } = await supabase
@@ -421,7 +432,9 @@ export async function persistNewGame(game) {
 		game.dbGameId = gameRow.id;
 
 		// 2. Insert players (sorted by turn_order so we can match by it)
-		const sortedPlayers = [...game.players].sort((a, b) => a.turnOrder - b.turnOrder);
+		const sortedPlayers = [...game.players].sort(
+			(a, b) => a.turnOrder - b.turnOrder,
+		);
 		const { data: playerRows } = await supabase
 			.from('game_players')
 			.insert(
@@ -441,15 +454,20 @@ export async function persistNewGame(game) {
 
 		if (playerRows) {
 			for (const row of playerRows) {
-				const idx = game.players.findIndex((p) => p.turnOrder === row.turn_order);
+				const idx = game.players.findIndex(
+					(p) => p.turnOrder === row.turn_order,
+				);
 				if (idx !== -1) game.players[idx].dbId = row.id;
 			}
 		}
 
 		const startingDbId =
-			game.players.find((p) => p.id === game.currentPlayerId)?.dbId ?? null;
+			game.players.find((p) => p.id === game.currentPlayerId)?.dbId ??
+			null;
 		const questionId =
-			firstQuestion && !firstQuestion.id.startsWith('mock-') ? firstQuestion.id : null;
+			firstQuestion && !firstQuestion.id.startsWith('mock-')
+				? firstQuestion.id
+				: null;
 
 		// 3. Insert first round
 		const { data: roundRow } = await supabase
@@ -523,23 +541,27 @@ export async function persistNewPlayer(game, player) {
  * @param {boolean|null} game.roundVote
  */
 export async function persistQuestionVote(game) {
-	if (!supabase || !game.dbGameId || !game.currentRound?.dbId || game.roundVote === null) return;
+	if (
+		!supabase ||
+		!game.dbGameId ||
+		!game.currentRound?.dbId ||
+		game.roundVote === null
+	)
+		return;
 
 	const questionId = game.currentRound.question.id.startsWith('mock-')
 		? null
 		: game.currentRound.question.id;
 
-	await supabase
-		.from('question_votes')
-		.upsert(
-			{
-				question_id: questionId,
-				game_id: game.dbGameId,
-				round_id: game.currentRound.dbId,
-				vote: game.roundVote,
-			},
-			{ onConflict: 'round_id' },
-		);
+	await supabase.from('question_votes').upsert(
+		{
+			question_id: questionId,
+			game_id: game.dbGameId,
+			round_id: game.currentRound.dbId,
+			vote: game.roundVote,
+		},
+		{ onConflict: 'round_id' },
+	);
 }
 
 /**
@@ -573,29 +595,28 @@ export async function loadGame(code) {
 		.eq('code', code.toUpperCase().trim())
 		.single();
 
-	if (gameError || !gameRow) throw new Error('Game not found. Check the code and try again.');
-	if (gameRow.status === 'finished') throw new Error('That game has already ended.');
+	if (gameError || !gameRow)
+		throw new Error('Game not found. Check the code and try again.');
+	if (gameRow.status === 'finished')
+		throw new Error('That game has already ended.');
 
-	const [
-		{ data: playerRows },
-		{ data: roundRow },
-		{ data: answerRows },
-	] = await Promise.all([
-		supabase
-			.from('game_players')
-			.select('*')
-			.eq('game_id', gameRow.id)
-			.order('turn_order'),
-		supabase
-			.from('game_rounds')
-			.select('*, questions(*, decks(name, icon))')
-			.eq('id', gameRow.current_round_id)
-			.single(),
-		supabase
-			.from('player_answers')
-			.select('*')
-			.eq('round_id', gameRow.current_round_id),
-	]);
+	const [{ data: playerRows }, { data: roundRow }, { data: answerRows }] =
+		await Promise.all([
+			supabase
+				.from('game_players')
+				.select('*')
+				.eq('game_id', gameRow.id)
+				.order('turn_order'),
+			supabase
+				.from('game_rounds')
+				.select('*, questions(*, decks(name, icon))')
+				.eq('id', gameRow.current_round_id)
+				.single(),
+			supabase
+				.from('player_answers')
+				.select('*')
+				.eq('round_id', gameRow.current_round_id),
+		]);
 
 	if (!playerRows?.length) throw new Error('No players found for that game.');
 
@@ -617,17 +638,24 @@ export async function loadGame(code) {
 	const answeredBlobs = /** @type {number[]} */ ([]);
 	for (const a of answerRows ?? []) {
 		blobResults[a.blob_index] = a.is_correct;
-		if (!answeredBlobs.includes(a.blob_index)) answeredBlobs.push(a.blob_index);
+		if (!answeredBlobs.includes(a.blob_index))
+			answeredBlobs.push(a.blob_index);
 	}
 
 	const questionRow = /** @type {any} */ (roundRow)?.questions;
 	const question = questionRow ? dbRowToQuestion(questionRow) : null;
 
-	const questionPool = await fetchQuestionsForDecks(gameRow.selected_decks ?? []);
+	const questionPool = await fetchQuestionsForDecks(
+		gameRow.selected_decks ?? [],
+	);
 
-	const sortedByTurnOrder = [...gamePlayers].sort((a, b) => a.turnOrder - b.turnOrder);
+	const sortedByTurnOrder = [...gamePlayers].sort(
+		(a, b) => a.turnOrder - b.turnOrder,
+	);
 	const startingIdx = roundRow?.starting_player_id
-		? sortedByTurnOrder.findIndex((p) => p.id === roundRow.starting_player_id)
+		? sortedByTurnOrder.findIndex(
+				(p) => p.id === roundRow.starting_player_id,
+			)
 		: 0;
 
 	/** @type {Round|null} */
@@ -652,7 +680,9 @@ export async function loadGame(code) {
 		currentPlayerId: /** @type {string|null} */ (gameRow.current_player_id),
 		startingTurnOrderIndex: Math.max(0, startingIdx),
 		selectedDeckIds: /** @type {string[]} */ (gameRow.selected_decks ?? []),
-		usedQuestionIds: /** @type {string[]} */ (gameRow.used_question_ids ?? []),
+		usedQuestionIds: /** @type {string[]} */ (
+			gameRow.used_question_ids ?? []
+		),
 		currentRound,
 		turnTimerSeconds: gameRow.turn_timer_seconds ?? null,
 		questionPool,
