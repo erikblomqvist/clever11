@@ -2,9 +2,6 @@
 	import { supabase } from '../lib/supabase.js';
 	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
 
-	/** @type {{ navigate: (path: string) => void }} */
-	let { navigate } = $props();
-
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
 	let filterDeckId = $state('');
@@ -52,6 +49,7 @@
 
 			// Build vote counts map: question_id -> { up, down }
 			/** @type {Map<string, { up: number, down: number }>} */
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const voteMap = new Map();
 			for (const v of votesResult.data ?? []) {
 				const entry = voteMap.get(v.question_id) ?? { up: 0, down: 0 };
@@ -62,6 +60,7 @@
 
 			// Build play counts map: question_id -> count of rounds
 			/** @type {Map<string, number>} */
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const playMap = new Map();
 			for (const r of roundsResult.data ?? []) {
 				if (r.question_id) {

@@ -2,6 +2,7 @@
 	import { supabase } from '../lib/supabase.js';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
 	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	/** @type {{ navigate: (path: string) => void }} */
 	let { navigate } = $props();
@@ -15,8 +16,8 @@
 	let filterText = $state('');
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
-	/** @type {Map<string, { up: number, down: number }>} */
-	let voteCounts = $state(new Map());
+	/** @type {SvelteMap<string, { up: number, down: number }>} */
+	let voteCounts = new SvelteMap();
 
 	$effect(() => { init(); });
 
@@ -37,8 +38,8 @@
 			.from('question_votes')
 			.select('question_id, vote');
 		if (!votes) return;
-		/** @type {Map<string, { up: number, down: number }>} */
-		const counts = new Map();
+		/** @type {SvelteMap<string, { up: number, down: number }>} */
+		const counts = new SvelteMap();
 		for (const v of votes) {
 			const entry = counts.get(v.question_id) ?? { up: 0, down: 0 };
 			if (v.vote) entry.up++;

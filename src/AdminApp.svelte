@@ -104,7 +104,7 @@
 			{:else if route.view === 'question-form'}
 				<QuestionFormView id={route.id} {navigate} />
 			{:else if route.view === 'question-quality'}
-				<QuestionQualityView {navigate} />
+				<QuestionQualityView />
 			{:else if route.view === 'users'}
 				<UsersView />
 			{/if}
