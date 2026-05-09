@@ -3,6 +3,7 @@
 	import { _, locale } from 'svelte-i18n';
 	import { ChevronLeft } from 'lucide-svelte';
 	import { fetchPreviousGamesPage } from '../lib/previousGames.js';
+	import Button from '../components/Button.svelte';
 	import Message from '../components/Message.svelte';
 
 	/**
@@ -73,10 +74,7 @@
 
 <div class="previous-games">
 	<header class="previous-games__header">
-		<button class="previous-games__back" onclick={onback} type="button">
-			<ChevronLeft size={18} />
-			<span>{$_('setup.back')}</span>
-		</button>
+		<Button variant="secondary" size="sm" icon={ChevronLeft} text={$_('setup.back')} onclick={onback} style="--btn-padding: 0.375rem 0.625rem" />
 		<h1 class="previous-games__title">{$_('previous_games.title')}</h1>
 	</header>
 
@@ -142,22 +140,20 @@
 	<footer class="previous-games__footer">
 		<span class="previous-games__page-range">{pageRange}</span>
 		<div class="previous-games__pagination">
-			<button
-				class="previous-games__page-btn"
-				type="button"
+			<Button
+				variant="secondary"
+				size="sm"
+				text={$_('previous_games.previous')}
 				onclick={() => loadPage(page - 1)}
 				disabled={loading || page <= 1}
-			>
-				{$_('previous_games.previous')}
-			</button>
-			<button
-				class="previous-games__page-btn"
-				type="button"
+			/>
+			<Button
+				variant="secondary"
+				size="sm"
+				text={$_('previous_games.next')}
 				onclick={() => loadPage(page + 1)}
 				disabled={loading || page >= totalPages}
-			>
-				{$_('previous_games.next')}
-			</button>
+			/>
 		</div>
 	</footer>
 </div>
@@ -177,27 +173,6 @@
 		gap: 0.75rem;
 		padding: max(1rem, env(safe-area-inset-top)) 1rem 0.75rem;
 		border-bottom: 1px solid hsl(0 0% 100% / 0.2);
-	}
-
-	.previous-games__back {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-		border: none;
-		border-radius: 0.375rem;
-		padding: 0.375rem 0.625rem;
-		background: hsl(0 0% 100% / 0.2);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-sm);
-		font-weight: 500;
-		letter-spacing: 0.04em;
-		cursor: pointer;
-		transition: background-color 0.15s;
-	}
-
-	.previous-games__back:hover {
-		background-color: hsl(0 0% 100% / 0.3);
 	}
 
 	.previous-games__title {
@@ -315,29 +290,6 @@
 	.previous-games__pagination {
 		display: flex;
 		gap: 0.5rem;
-	}
-
-	.previous-games__page-btn {
-		border: none;
-		border-radius: 0.5rem;
-		padding: 0.625rem 1rem;
-		background: hsl(0 0% 100% / 0.2);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.15s;
-	}
-
-	.previous-games__page-btn:hover {
-		background-color: hsl(0 0% 100% / 0.3);
-	}
-
-	.previous-games__page-btn:disabled {
-		opacity: 0.45;
-		cursor: not-allowed;
 	}
 
 	@media (max-width: 520px) {

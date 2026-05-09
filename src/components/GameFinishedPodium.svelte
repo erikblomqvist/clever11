@@ -1,6 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { getPlayerIconComponent } from '../lib/playerIcons.js';
+	import Button from './Button.svelte';
 
 	/**
 	 * @type {{
@@ -49,9 +50,7 @@
 		{/each}
 	</ol>
 
-	<button class="podium__btn" type="button" onclick={onstartover}>
-		{$_('game.new_game')}
-	</button>
+	<Button size="lg" text={$_('game.new_game')} onclick={onstartover} />
 </div>
 
 <style>
@@ -146,20 +145,4 @@
 		font-size: var(--font-size-md);
 	}
 
-	.podium__btn {
-		border: none;
-		border-radius: 0.5rem;
-		padding: 0.875rem 2.5rem;
-		background-color: var(--question-color, var(--orange-600));
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-lg);
-		font-weight: 600;
-		cursor: pointer;
-		transition: opacity 0.15s;
-	}
-
-	.podium__btn:hover {
-		opacity: 0.85;
-	}
 </style>

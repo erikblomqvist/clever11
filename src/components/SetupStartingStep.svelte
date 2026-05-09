@@ -1,6 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { Shuffle } from 'lucide-svelte';
+	import Button from './Button.svelte';
 	import { getPlayerIconComponent } from '../lib/playerIcons.js';
 
 	/**
@@ -41,10 +42,7 @@
 	{/each}
 </ul>
 
-<button class="randomize-btn" onclick={onrandomize} type="button">
-	<Shuffle size={16} />
-	{$_('setup.randomize')}
-</button>
+<Button class="randomize-btn" variant="secondary" size="base" icon={Shuffle} text={$_('setup.randomize')} onclick={onrandomize} />
 
 <style>
 	.starting-list {
@@ -102,25 +100,7 @@
 		font-weight: 700;
 	}
 
-	.randomize-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		border: 2px solid hsl(0 0% 100% / 0.4);
-		border-radius: 0.5rem;
-		padding: 0.625rem 1.25rem;
-		background: hsl(0 0% 100% / 0.15);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-base);
-		font-weight: 500;
-		cursor: pointer;
-		transition: background-color 0.15s;
+	:global(.randomize-btn) {
 		align-self: flex-start;
-	}
-
-	.randomize-btn:hover {
-		background-color: hsl(0 0% 100% / 0.25);
 	}
 </style>

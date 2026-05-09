@@ -1,5 +1,6 @@
 <script>
 	import { _ } from 'svelte-i18n';
+	import Button from './Button.svelte';
 	import Message from './Message.svelte';
 
 	/**
@@ -30,16 +31,8 @@
 		<Message variant="error" description={loaderror} />
 	{/if}
 	<div class="home-load-actions">
-		<button
-			class="home-btn home-btn--primary"
-			type="submit"
-			disabled={code.length !== 5}
-		>
-			{$_('home.load')}
-		</button>
-		<button class="home-btn home-btn--secondary" type="button" onclick={oncancel}>
-			{$_('home.cancel')}
-		</button>
+		<Button text={$_('home.load')} type="submit" disabled={code.length !== 5} />
+		<Button variant="secondary" text={$_('home.cancel')} onclick={oncancel} />
 	</div>
 </form>
 
@@ -79,43 +72,7 @@
 		gap: 0.75rem;
 	}
 
-	.home-load-actions .home-btn {
+	.home-load-actions :global(.btn) {
 		flex: 1;
 	}
-
-	.home-btn {
-		border: none;
-		border-radius: 0.5rem;
-		padding: 0.75rem 2rem;
-		font-family: var(--font-family-display);
-		font-size: 1.125rem;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		cursor: pointer;
-		transition: background-color 0.15s;
-	}
-
-	.home-btn--primary {
-		background-color: var(--orange-700);
-		color: var(--white);
-	
-		&:hover {
-			background-color: var(--orange-800);
-		}
-		
-		&:disabled {
-			background-color: var(--orange-300);
-			cursor: not-allowed;
-		}
-	}
-
-	.home-btn--secondary {
-		background-color: hsl(0 0% 100% / 0.2);
-		color: var(--white);
-		
-		&:hover {
-			background-color: hsl(0 0% 100% / 0.3);
-		}
-	}
-
 </style>

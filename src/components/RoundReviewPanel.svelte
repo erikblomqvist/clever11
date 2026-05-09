@@ -1,6 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { Users, ThumbsUp, ThumbsDown } from 'lucide-svelte';
+	import Button from './Button.svelte';
 	import { getPlayerIconComponent } from '../lib/playerIcons.js';
 
 	/**
@@ -70,13 +71,8 @@
 				<ThumbsDown size={16} />
 			</button>
 		</div>
-		<button class="review-panel__btn" type="button" onclick={onnext}>
-			{$_('game.next_round')}
-		</button>
-		<button class="review-panel__btn review-panel__btn--manage" type="button" onclick={onmanageplayers}>
-			<Users size={14} />
-			{$_('manage_players.title')}
-		</button>
+		<Button text={$_('game.next_round')} onclick={onnext} />
+		<Button variant="secondary" size="sm" icon={Users} text={$_('manage_players.title')} onclick={onmanageplayers} />
 	</div>
 </div>
 
@@ -165,44 +161,6 @@
 		flex-direction: column;
 		gap: 0.4rem;
 		align-items: stretch;
-	}
-
-	.review-panel__btn {
-		border: none;
-		border-radius: 0.5rem;
-		padding: 0.75rem 1.25rem;
-		background-color: var(--orange-600);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-md);
-		font-weight: 600;
-		cursor: pointer;
-		white-space: nowrap;
-		transition: opacity 0.15s;
-		text-align: center;
-	}
-
-	.review-panel__btn:hover {
-		opacity: 0.85;
-	}
-
-	.review-panel__btn--manage {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.4rem;
-		padding: 0.5rem 1rem;
-		background: none;
-		border: 1px solid hsl(0 0% 100% / 0.2);
-		font-size: var(--font-size-sm);
-		font-weight: 400;
-		color: hsl(0 0% 100% / 0.55);
-	}
-
-	.review-panel__btn--manage:hover {
-		color: hsl(0 0% 100% / 0.8);
-		border-color: hsl(0 0% 100% / 0.35);
-		opacity: 1;
 	}
 
 	.review-panel__vote {

@@ -1,6 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { Plus, X } from 'lucide-svelte';
+	import Button from './Button.svelte';
 	import {
 		PLAYER_ICONS,
 		PLAYER_COLORS,
@@ -80,15 +81,13 @@
 		onkeydown={(e) => e.key === 'Enter' && onaddplayer()}
 		autocomplete="off"
 	/>
-	<button
+	<Button
 		class="add-player-btn"
-		type="button"
+		icon={Plus}
 		onclick={onaddplayer}
 		disabled={!canAddPlayer}
 		aria-label={$_('setup.add_player_aria')}
-	>
-		<Plus size={20} />
-	</button>
+	/>
 </div>
 
 {#if players.length > 0}
@@ -211,27 +210,8 @@
 		outline-offset: 2px;
 	}
 
-	.add-player-btn {
-		display: grid;
-		place-items: center;
-		border: none;
-		border-radius: 0.5rem;
-		width: 2.75rem;
-		height: 2.75rem;
-		background-color: var(--orange-700);
-		color: var(--white);
-		cursor: pointer;
+	.player-input-row :global(.add-player-btn) {
 		flex-shrink: 0;
-		transition: background-color 0.15s;
-	}
-
-	.add-player-btn:hover {
-		background-color: var(--orange-800);
-	}
-
-	.add-player-btn:disabled {
-		background-color: var(--orange-300);
-		cursor: not-allowed;
 	}
 
 	.player-list {

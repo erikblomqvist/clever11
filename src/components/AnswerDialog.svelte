@@ -1,6 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { syncDialogOpen } from '../../utilities/dialog.js';
+	import Button from './Button.svelte';
 
 	/**
 	 * @type {{
@@ -87,13 +88,11 @@
 			{/if}
 		</p>
 	{:else}
-		<button
+		<Button
 			class="answer-dialog__reveal-btn"
-			type="button"
+			text={$_('answer_dialog.reveal')}
 			onclick={() => (revealed = true)}
-		>
-			{$_('answer_dialog.reveal')}
-		</button>
+		/>
 	{/if}
 
 	<div class="answer-dialog__actions" class:answer-dialog__actions--visible={revealed}>
@@ -182,25 +181,8 @@
 		color: hsl(0 86% 48%);
 	}
 
-	.answer-dialog__reveal-btn {
-		display: block;
+	.answer-dialog :global(.answer-dialog__reveal-btn) {
 		width: 100%;
-		border: none;
-		border-radius: 0.5rem;
-		padding: 0.75rem 1rem;
-		margin-bottom: 0;
-		background-color: var(--orange-700);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-md);
-		font-weight: 600;
-		letter-spacing: 0.05em;
-		cursor: pointer;
-		transition: background-color 0.15s;
-	}
-
-	.answer-dialog__reveal-btn:hover {
-		background-color: var(--orange-800, hsl(24 90% 35%));
 	}
 
 	.answer-dialog__actions {

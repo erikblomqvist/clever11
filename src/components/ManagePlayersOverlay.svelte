@@ -1,6 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { X, UserMinus, UserPen, UserPlus } from 'lucide-svelte';
+	import Button from './Button.svelte';
 	import {
 		PLAYER_ICONS,
 		PLAYER_COLORS,
@@ -200,14 +201,11 @@
 					</div>
 				{/if}
 
-				<button
-					class="mp-form__confirm"
-					type="button"
+				<Button
+					text={mode === 'add' ? $_('manage_players.add_player') : $_('manage_players.confirm_replace')}
 					onclick={mode === 'add' ? confirmAdd : confirmReplace}
 					disabled={!formValid}
-				>
-					{mode === 'add' ? $_('manage_players.add_player') : $_('manage_players.confirm_replace')}
-				</button>
+				/>
 			</div>
 		{/if}
 	</div>
@@ -477,24 +475,4 @@
 		background: linear-gradient(to bottom, var(--orange-500), var(--orange-600));
 	}
 
-	.mp-form__confirm {
-		border: none;
-		border-radius: 0.5rem;
-		padding: 0.625rem 1rem;
-		background-color: var(--orange-600);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-md);
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	.mp-form__confirm:hover:not(:disabled) {
-		background-color: var(--orange-700);
-	}
-
-	.mp-form__confirm:disabled {
-		background-color: var(--grayscale-300);
-		cursor: not-allowed;
-	}
 </style>
