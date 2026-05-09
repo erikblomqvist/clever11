@@ -25,8 +25,16 @@
 
 <div class="setup-step">
 	<header class="setup-header">
-		<Button variant="secondary" size="sm" icon={ChevronLeft} text={$_('setup.back')} onclick={onback} style="--btn-padding: 0.375rem 0.625rem" />
 		<h1 class="setup-title">{title}</h1>
+		<Button
+			class="setup-back-btn"
+			variant="secondary"
+			size="sm"
+			icon={ChevronLeft}
+			text={$_('setup.back')}
+			onclick={onback}
+			style="--btn-padding: 0.375rem 0.625rem"
+		/>
 	</header>
 
 	<div class="setup-content">
@@ -54,6 +62,7 @@
 	.setup-header {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		gap: 0.75rem;
 		padding: max(1rem, env(safe-area-inset-top)) 1rem 0.75rem;
 		border-bottom: 1px solid hsl(0 0% 100% / 0.2);

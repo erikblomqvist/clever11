@@ -9,7 +9,7 @@
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 		text-shadow: 0 2px 8px hsl(0 0% 0% / 0.2);
-		color: var(--black);
+		color: var(--palette-white);
 	}
 
 	.home-title span {
@@ -40,6 +40,5 @@
 				hsl(var(--hue) 10% 20%) 46%,
 				hsl(var(--hue) 10% 20% / 0) 50%
 			);
-		color: var(--white);
 	}
 </style>

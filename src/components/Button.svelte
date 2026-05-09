@@ -1,7 +1,7 @@
 <script>
 	/**
 	 * @type {{
-	 *   variant?: 'primary' | 'secondary',
+	 *   variant?: 'primary' | 'secondary' | 'cta',
 	 *   size?: 'sm' | 'base' | 'md' | 'lg',
 	 *   icon?: import('svelte').Component,
 	 *   text?: string,
@@ -39,34 +39,48 @@
 		padding: var(--btn-padding, 0.875rem 2rem);
 
 		font-family: var(--font-family-display);
-		font-weight: 600;
-		letter-spacing: 0.06em;
+		color: var(--palette-white);
 
 		cursor: pointer;
-		transition: background-color 0.15s;
-	}
+		transition:
+			background-color 0s,
+			scale var(--transition-default-duration) ease-out;
 
-	.btn:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
+		&:active {
+			scale: 0.98;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
 	}
 
 	.btn--primary {
-		background-color: var(--orange-700);
-		color: var(--white);
-	}
+		background: linear-gradient(
+			to right,
+			var(--palette-purple-light),
+			var(--palette-purple-mid)
+		);
 
-	.btn--primary:hover:not(:disabled) {
-		background-color: var(--orange-800);
+		&:disabled {
+			background: var(--palette-gray-dimmed);
+		}
 	}
 
 	.btn--secondary {
-		background-color: hsl(0 0% 100% / 0.2);
-		color: var(--white);
+		background-color: var(--palette-purple-neutral);
+		&:hover:not(:disabled) {
+			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+		}
 	}
 
-	.btn--secondary:hover:not(:disabled) {
-		background-color: hsl(0 0% 100% / 0.3);
+	.btn--cta {
+		background-color: var(--palette-purple-start);
+
+		&:hover:not(:disabled) {
+			background-color: lch(from var(--palette-purple-start) calc(l + 5) c h);
+		}
 	}
 
 	.btn--sm { font-size: var(--font-size-sm); }

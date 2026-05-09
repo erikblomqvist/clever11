@@ -48,11 +48,6 @@
 	.seating-screen {
 		position: fixed;
 		inset: 0;
-		background: linear-gradient(
-			to bottom,
-			var(--orange-500),
-			var(--orange-600)
-		);
 		display: grid;
 		place-items: center;
 	}

@@ -50,9 +50,9 @@
 
 <style>
 	.rule-card {
-		border: 2px solid var(--orange-500);
+		border: 2px solid var(--palette-purple-start);
 		border-radius: 0.625rem;
-		background-color: var(--orange-600);
+		background-color: var(--palette-purple-dark);
 		overflow: hidden;
 	}
 
@@ -91,13 +91,13 @@
 		height: 1.75rem;
 		border: none;
 		border-radius: 999px;
-		background: hsl(0 0% 100% / 0.3);
+		background: var(--palette-gray-muted);
 		cursor: pointer;
 		transition: background-color 0.2s;
 	}
 
 	.toggle--on {
-		background-color: var(--orange-700);
+		background-color: var(--palette-purple-start);
 	}
 
 	.toggle__thumb {
@@ -107,7 +107,7 @@
 		width: 1.25rem;
 		height: 1.25rem;
 		border-radius: 50%;
-		background: var(--white);
+		background: var(--palette-white);
 		transition: transform 0.2s;
 	}
 
@@ -128,10 +128,10 @@
 
 	.seconds-field__input {
 		width: 5rem;
-		border: 2px solid hsl(0 0% 100% / 0.3);
+		border: 2px solid var(--palette-gray-muted);
 		border-radius: 0.5rem;
 		padding: 0.5rem 0.75rem;
-		background: hsl(0 0% 100% / 0.1);
+		background: var(--palette-gray-dimmed);
 		color: var(--white);
 		font-family: var(--font-family-body);
 		font-size: var(--font-size-md);
@@ -148,7 +148,7 @@
 
 	.seconds-field__input:focus {
 		outline: none;
-		border-color: var(--orange-500);
+		border-color: var(--palette-purple-more);
 	}
 
 	.seconds-field__unit {
