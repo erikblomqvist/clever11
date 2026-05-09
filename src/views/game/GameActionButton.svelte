@@ -6,12 +6,13 @@
 	 *   roundIsOver: boolean,
 	 *   disabled?: boolean,
 	 *   onclick: () => void,
+	 *   seatRotation?: number,
 	 * }}
 	 */
-	let { roundIsOver, disabled = false, onclick } = $props();
+	let { roundIsOver, disabled = false, onclick, seatRotation = 0 } = $props();
 </script>
 
-<div class="game-action">
+<div class="game-action" style="--seat-rotation:{seatRotation}turn">
 	<button
 		class="game-action__btn"
 		class:game-action__btn--end-round={roundIsOver}
@@ -29,9 +30,15 @@
 		bottom: max(1rem, env(safe-area-inset-bottom));
 		right: max(1rem, env(safe-area-inset-right));
 		z-index: 5;
+		display: grid;
+		place-items: center;
+
+		width: 6rem;
+		height: 6rem;
 	}
 
 	.game-action__btn {
+		pointer-events: auto;
 		border: none;
 		border-radius: 0.5rem;
 		padding: 0.625rem 1.25rem;
@@ -41,6 +48,8 @@
 		font-size: var(--font-size-base);
 		font-weight: 600;
 		cursor: pointer;
+		rotate: var(--seat-rotation, 0turn);
+		transform-origin: center;
 		transition: background-color 0.15s;
 		box-shadow: 0 2px 8px hsl(0 0% 0% / 0.25);
 	}
@@ -55,10 +64,10 @@
 	}
 
 	.game-action__btn--end-round {
-		background-color: var(--orange-700);
-	}
-
-	.game-action__btn--end-round:hover {
-		background-color: var(--orange-800);
+		background-color: var(--palette-purple-start);
+		
+		&:hover {
+			background-color: var(--palette-purple-mid);
+		}
 	}
 </style>

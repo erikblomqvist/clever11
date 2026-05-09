@@ -18,6 +18,7 @@
 	 *   deckIcon?: string|null,
 	 *   blobStates: (boolean|null)[],
 	 *   seatRotation: number,
+	 *   actionButtonSeatRotation: number,
 	 *   rotationDurationMs: number,
 	 *   rotationEasing: string,
 	 *   streakLevel: number,
@@ -61,6 +62,7 @@
 		deckIcon = null,
 		blobStates,
 		seatRotation,
+		actionButtonSeatRotation,
 		rotationDurationMs,
 		rotationEasing,
 		streakLevel,
@@ -146,6 +148,7 @@
 		{roundIsOver}
 		disabled={streakCelebrationActive}
 		onclick={onpassorend}
+		seatRotation={actionButtonSeatRotation}
 	/>
 
 	<AnswerDialog
@@ -169,7 +172,9 @@
 	{#if turnTimerSeconds !== null}
 		<TurnTimerBorder
 			durationSeconds={turnTimerSeconds}
-			playerColor={currentPlayer ? `var(--${currentPlayer.color})` : 'var(--orange-700)'}
+			playerColor={currentPlayer
+				? `var(--${currentPlayer.color})`
+				: 'var(--orange-700)'}
 			paused={turnTimerPaused}
 			running={true}
 			timeRemaining={turnTimerRemaining}

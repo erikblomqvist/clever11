@@ -69,13 +69,15 @@
 
 	let timerRemaining = $state(game.turnTimerSeconds ?? 0);
 
-	const timerEnabled = $derived(game.turnTimerSeconds !== null && game.status === 'playing');
+	const timerEnabled = $derived(
+		game.turnTimerSeconds !== null && game.status === 'playing',
+	);
 	const timerPaused = $derived(
 		dialogOpen ||
-		undoDialogOpen ||
-		streakCelebrationActive ||
-		pendingBlobIndex !== null ||
-		roundIntro.seatRotation !== null,
+			undoDialogOpen ||
+			streakCelebrationActive ||
+			pendingBlobIndex !== null ||
+			roundIntro.seatRotation !== null,
 	);
 
 	function resetTimer() {
@@ -87,7 +89,9 @@
 	function handleTimerExpiry() {
 		const playerName = gameQueries.currentPlayer?.name ?? '';
 		passCurrentPlayer();
-		toast($_('game.times_up', { values: { name: playerName } }), { duration: 3000 });
+		toast($_('game.times_up', { values: { name: playerName } }), {
+			duration: 3000,
+		});
 		if (engine.checkRoundOver(game)) {
 			endRound();
 		}
@@ -118,7 +122,10 @@
 		getCenter: () => {
 			if (!gameSurfaceEl) return null;
 			const rect = gameSurfaceEl.getBoundingClientRect();
-			return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+			return {
+				x: rect.left + rect.width / 2,
+				y: rect.top + rect.height / 2,
+			};
 		},
 	});
 	const interactionLock = useGameInteractionLock({
@@ -126,7 +133,9 @@
 	});
 
 	const seatRotation = $derived(
-		gameQueries.currentPlayer ? getSeatRotationTurns(gameQueries.currentPlayer.seatPosition) : 0,
+		gameQueries.currentPlayer
+			? getSeatRotationTurns(gameQueries.currentPlayer.seatPosition)
+			: 0,
 	);
 
 	const lastPlayer = $derived(
@@ -142,12 +151,20 @@
 	const interactiveWheelSeatRotation = $derived(
 		wheelSeatRotation + springDrag.rotationOffset,
 	);
+	/** Seat rotation for fixed UI (e.g. pass button): not driven by round intro animation. */
+	const actionButtonSeatRotation = $derived(
+		seatRotation + springDrag.rotationOffset,
+	);
 	const streakCelebrationActive = $derived(
 		streakCelebrationPlayerId !== null,
 	);
-	const wheelStreakLevel = $derived(gameQueries.currentPlayer?.roundScore ?? 0);
+	const wheelStreakLevel = $derived(
+		gameQueries.currentPlayer?.roundScore ?? 0,
+	);
 	const wheelStreakColor = $derived(
-		gameQueries.currentPlayer ? `var(--${gameQueries.currentPlayer.color})` : 'var(--orange-700)',
+		gameQueries.currentPlayer
+			? `var(--${gameQueries.currentPlayer.color})`
+			: 'var(--orange-700)',
 	);
 	const wheelRotationDurationMs = $derived(
 		roundIntro.resetIsInstant
@@ -305,7 +322,8 @@
 		dialogOpen = false;
 		if (pendingBlobIndex !== null) {
 			const shouldDeferAdvance =
-				isCorrect && gameQueries.currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
+				isCorrect &&
+				gameQueries.currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
 			const result = revealBlob(pendingBlobIndex, isCorrect, {
 				deferAdvance: shouldDeferAdvance,
 			});
@@ -374,6 +392,7 @@
 		{question}
 		blobStates={gameQueries.blobStates}
 		seatRotation={interactiveWheelSeatRotation}
+		{actionButtonSeatRotation}
 		rotationDurationMs={wheelRotationDurationMs}
 		rotationEasing={wheelRotationEasing}
 		streakLevel={wheelStreakLevel}
