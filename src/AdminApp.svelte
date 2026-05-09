@@ -9,6 +9,7 @@
 	import QuestionImportView from './admin/QuestionImportView.svelte';
 	import UsersView from './admin/UsersView.svelte';
 	import QuestionQualityView from './admin/QuestionQualityView.svelte';
+	import { QUESTIONS_LIST_SCROLL_RESTORE_PENDING } from './lib/adminQuestionsListScroll.js';
 
 	/** @type {import('@supabase/supabase-js').User|null} */
 	let user = $state(null);
@@ -24,9 +25,11 @@
 			user = data.user ?? null;
 			authChecked = true;
 		});
-		const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
-			user = session?.user ?? null;
-		});
+		const { data: listener } = supabase.auth.onAuthStateChange(
+			(_, session) => {
+				user = session?.user ?? null;
+			},
+		);
 		const onHash = () => {
 			hash = window.location.hash || '#/';
 		};
@@ -52,6 +55,31 @@
 		if (h === '/users') return { view: 'users' };
 		if (h === '/question-quality') return { view: 'question-quality' };
 		return { view: 'dashboard' };
+	});
+
+	/** @type {string|null} */
+	let previousRouteView = $state(null);
+
+	$effect(() => {
+		if (!user) {
+			previousRouteView = null;
+			return;
+		}
+		const view = route.view;
+		const prev = previousRouteView;
+
+		if (prev === 'question-form' && view === 'questions') {
+			try {
+				sessionStorage.setItem(
+					QUESTIONS_LIST_SCROLL_RESTORE_PENDING,
+					'1',
+				);
+			} catch {
+				/* quota / private mode */
+			}
+		}
+
+		previousRouteView = view;
 	});
 
 	function navigate(/** @type {string} */ path) {
@@ -82,12 +110,35 @@
 	<div class="admin-shell">
 		<nav class="admin-nav">
 			<a class="admin-nav__brand" href="#/">Clever 11</a>
-			<a class="admin-nav__link" href="#/decks" class:admin-nav__link--active={route.view === 'decks' || route.view === 'deck-form'}>Decks</a>
-			<a class="admin-nav__link" href="#/questions" class:admin-nav__link--active={route.view === 'questions' || route.view === 'question-form'}>Questions</a>
-			<a class="admin-nav__link" href="#/question-quality" class:admin-nav__link--active={route.view === 'question-quality'}>Quality</a>
-			<a class="admin-nav__link" href="#/users" class:admin-nav__link--active={route.view === 'users'}>Users</a>
+			<a
+				class="admin-nav__link"
+				href="#/decks"
+				class:admin-nav__link--active={route.view === 'decks' ||
+					route.view === 'deck-form'}>Decks</a
+			>
+			<a
+				class="admin-nav__link"
+				href="#/questions"
+				class:admin-nav__link--active={route.view === 'questions' ||
+					route.view === 'question-form'}>Questions</a
+			>
+			<a
+				class="admin-nav__link"
+				href="#/question-quality"
+				class:admin-nav__link--active={route.view ===
+					'question-quality'}>Quality</a
+			>
+			<a
+				class="admin-nav__link"
+				href="#/users"
+				class:admin-nav__link--active={route.view === 'users'}>Users</a
+			>
 			<span class="admin-nav__spacer"></span>
-			<button class="admin-nav__signout" type="button" onclick={handleLogout}>Sign out</button>
+			<button
+				class="admin-nav__signout"
+				type="button"
+				onclick={handleLogout}>Sign out</button
+			>
 		</nav>
 
 		<main class="admin-content">

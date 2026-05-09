@@ -16,12 +16,18 @@ body {
 	min-height: 100dvh;
 }
 
+#app {
+	min-height: 100dvh;
+}
+
 /* ─── Shell ──────────────────────────────────────────────────────────────── */
 
 .admin-shell {
 	display: flex;
 	flex-direction: column;
+	height: 100dvh;
 	min-height: 100dvh;
+	overflow: hidden;
 }
 
 .admin-nav {
@@ -84,6 +90,7 @@ body {
 
 .admin-content {
 	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
 	padding: 32px 24px;
 	max-width: 960px;
@@ -517,6 +524,16 @@ body {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	min-width: 0;
+}
+
+a.admin-list__name:link,
+a.admin-list__name:visited {
+	color: #e8e8e8;
+	text-decoration: none;
+}
+
+a.admin-list__name:hover {
+	text-decoration: underline;
 }
 
 .admin-list__meta {

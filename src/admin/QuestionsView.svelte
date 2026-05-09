@@ -1,5 +1,10 @@
 <script>
+	import { tick } from 'svelte';
 	import { supabase } from '../lib/supabase.js';
+	import {
+		QUESTIONS_LIST_SCROLL_RESTORE_PENDING,
+		QUESTIONS_LIST_SCROLL_Y_KEY,
+	} from '../lib/adminQuestionsListScroll.js';
 	import { QUESTION_TYPES } from '../data/questionTypes.js';
 	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
 	import { SvelteMap } from 'svelte/reactivity';
@@ -68,6 +73,40 @@
 	/** @type {SvelteMap<string, { up: number, down: number }>} */
 	let voteCounts = new SvelteMap();
 
+	/** @type {number} */
+	let listScrollSaveRaf = 0;
+
+	function persistQuestionsListScrollY() {
+		cancelAnimationFrame(listScrollSaveRaf);
+		listScrollSaveRaf = requestAnimationFrame(() => {
+			const el = document.querySelector('.admin-content');
+			if (!el) return;
+			try {
+				sessionStorage.setItem(
+					QUESTIONS_LIST_SCROLL_Y_KEY,
+					String(el.scrollTop),
+				);
+			} catch {
+				/* quota / private mode */
+			}
+		});
+	}
+
+	$effect(() => {
+		const el = document.querySelector('.admin-content');
+		if (!el) return;
+
+		/* Do not persist on mount: scrollTop is 0 while loading and would wipe the
+		   saved Y before the restore effect runs (session has PENDING + correct Y). */
+		el.addEventListener('scroll', persistQuestionsListScrollY, {
+			passive: true,
+		});
+		return () => {
+			el.removeEventListener('scroll', persistQuestionsListScrollY);
+			cancelAnimationFrame(listScrollSaveRaf);
+		};
+	});
+
 	$effect(() => {
 		writePersistedFilters({
 			filterDeckId,
@@ -81,6 +120,60 @@
 
 	$effect(() => {
 		init();
+	});
+
+	$effect(() => {
+		if (loading) return;
+
+		const pending = sessionStorage.getItem(
+			QUESTIONS_LIST_SCROLL_RESTORE_PENDING,
+		);
+		if (pending !== '1') return;
+
+		const raw = sessionStorage.getItem(QUESTIONS_LIST_SCROLL_Y_KEY);
+		const y = raw != null ? Number(raw) : NaN;
+
+		sessionStorage.removeItem(QUESTIONS_LIST_SCROLL_RESTORE_PENDING);
+		sessionStorage.removeItem(QUESTIONS_LIST_SCROLL_Y_KEY);
+
+		if (Number.isNaN(y)) return;
+
+		let cancelled = false;
+
+		(async () => {
+			await tick();
+			if (cancelled) return;
+			const el = document.querySelector('.admin-content');
+			if (!el) return;
+
+			const deadline = performance.now() + 3000;
+			let lastScrollHeight = 0;
+			let stableFrames = 0;
+
+			while (!cancelled && performance.now() < deadline) {
+				el.scrollTop = y;
+				if (Math.abs(el.scrollTop - y) <= 1) return;
+
+				const sh = el.scrollHeight;
+				if (sh === lastScrollHeight) {
+					stableFrames++;
+					/* List height stable but target still out of reach — clamped end. */
+					if (stableFrames >= 2) return;
+				} else {
+					stableFrames = 0;
+					lastScrollHeight = sh;
+				}
+
+				await new Promise((r) => requestAnimationFrame(r));
+				if (cancelled) return;
+				await tick();
+			}
+			if (!cancelled) el.scrollTop = y;
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	});
 
 	async function init() {
@@ -327,7 +420,10 @@
 					<span class="admin-list__badge" data-type={q.type}
 						>{typeConfig?.label ?? q.type}</span
 					>
-					<span class="admin-list__name">{q.question_text}</span>
+					<a
+						class="admin-list__name"
+						href={`/admin#/questions/${q.id}`}>{q.question_text}</a
+					>
 					<span class="admin-list__meta">{q.decks?.name ?? '—'}</span>
 					<span class="admin-list__votes">
 						{#if votes?.up}
