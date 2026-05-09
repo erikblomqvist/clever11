@@ -192,7 +192,7 @@
 	.previous-games__hint,
 	.previous-games__error {
 		margin: 0;
-		color: hsl(0 0% 100% / 0.8);
+		color: var(--color-muted);
 		font-size: var(--font-size-base);
 		text-align: center;
 	}
@@ -283,7 +283,7 @@
 	}
 
 	.previous-games__page-range {
-		color: hsl(0 0% 100% / 0.8);
+		color: var(--color-muted);
 		font-size: var(--font-size-sm);
 	}
 

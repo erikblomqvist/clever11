@@ -84,20 +84,20 @@
 		align-items: center;
 		gap: 0.875rem;
 		width: 100%;
-		border: 2px solid hsl(0 0% 100% / 0.3);
+		border: 2px solid var(--orange-500);
 		border-radius: 0.625rem;
 		padding: 0.875rem 1rem;
-		background: hsl(0 0% 100% / 0.15);
+		background-color: var(--orange-600);
 		color: var(--white);
 		text-align: left;
 		cursor: pointer;
 		transition:
 			background-color 0.15s,
 			border-color 0.15s;
-	}
-
-	.deck-card:hover {
-		background-color: hsl(0 0% 100% / 0.22);
+	
+		&:hover {
+			background-color: hsl(0 0% 100% / 0.22);
+		}
 	}
 
 	.deck-card--selected {
@@ -132,6 +132,7 @@
 	.deck-card__desc {
 		font-family: var(--font-family-body);
 		font-size: var(--font-size-sm);
+		color: var(--color-muted);
 	}
 
 	.deck-card__check {

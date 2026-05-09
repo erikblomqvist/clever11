@@ -100,7 +100,7 @@
 		font-family: var(--font-family-display);
 		font-size: var(--font-size-base);
 		font-weight: 400;
-		color: hsl(0 0% 100% / 0.8);
+		color: var(--color-muted);
 	}
 
 	.seating-progress {

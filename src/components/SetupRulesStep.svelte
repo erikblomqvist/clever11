@@ -50,9 +50,9 @@
 
 <style>
 	.rule-card {
-		border: 2px solid hsl(0 0% 100% / 0.3);
+		border: 2px solid var(--orange-500);
 		border-radius: 0.625rem;
-		background: hsl(0 0% 100% / 0.15);
+		background-color: var(--orange-600);
 		overflow: hidden;
 	}
 
@@ -102,8 +102,8 @@
 
 	.toggle__thumb {
 		position: absolute;
-		top: 3px;
-		left: 3px;
+		top: 4px;
+		left: 4px;
 		width: 1.25rem;
 		height: 1.25rem;
 		border-radius: 50%;

@@ -26,6 +26,8 @@
 	--white: hsl(0 0% 100%);
 	--black: hsl(0 0% 0%);
 
+	--color-muted: hsl(0 0% 100% / 0.8);
+
 	--grayscale-100: hsl(0 0% 95%);
 	--grayscale-200: hsl(0 0% 88%);
 	--grayscale-300: hsl(0 0% 76%);

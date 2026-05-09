@@ -13,11 +13,33 @@
 	}
 
 	.home-title span {
+		--hue: 233;
+		
+		box-sizing: border-box;
+		display: inline-block;
+		
+		aspect-ratio: 1;
+		width: 9rem;
 		margin-inline-start: 0.3ch;
-		border-top-right-radius: 12px;
-		border-top-left-radius: 12px;
+		border-radius: 50%;
 		padding-inline: 0.3ch;
-		background-color: var(--black);
+		background-color: hsl(var(--hue) 10% 15%);
+		background-image:
+			radial-gradient(
+				91% 90% at 50% 50%,
+				hsl(var(--hue) 10% 20%) 48%,
+				hsl(var(--hue) 10% 20% / 0) 50%
+			),
+			radial-gradient(
+				88% 88% at 47% 47%,
+				hsl(var(--hue) 10% 85%) 43%,
+				hsl(var(--hue) 10% 85% / 0) 50%
+			),
+			radial-gradient(
+				65% 70% at 40% 60%,
+				hsl(var(--hue) 10% 20%) 46%,
+				hsl(var(--hue) 10% 20% / 0) 50%
+			);
 		color: var(--white);
 	}
 </style>
