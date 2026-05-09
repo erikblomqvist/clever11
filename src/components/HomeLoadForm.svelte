@@ -1,5 +1,6 @@
 <script>
 	import { _ } from 'svelte-i18n';
+	import Message from './Message.svelte';
 
 	/**
 	 * @type {{
@@ -26,7 +27,7 @@
 		aria-label={$_('home.game_code_aria')}
 	/>
 	{#if loaderror}
-		<p class="home-load-error">{loaderror}</p>
+		<Message variant="error" description={loaderror} />
 	{/if}
 	<div class="home-load-actions">
 		<button
@@ -117,14 +118,4 @@
 		}
 	}
 
-	.home-load-error {
-		margin: 0;
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.375rem;
-		background: hsla(0 100% 50%);
-		border: 1px solid hsl(0 100% 66%);
-		color: var(--white);
-		font-size: var(--font-size-sm);
-		text-align: center;
-	}
 </style>

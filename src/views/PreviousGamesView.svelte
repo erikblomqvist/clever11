@@ -3,6 +3,7 @@
 	import { _, locale } from 'svelte-i18n';
 	import { ChevronLeft } from 'lucide-svelte';
 	import { fetchPreviousGamesPage } from '../lib/previousGames.js';
+	import Message from '../components/Message.svelte';
 
 	/**
 	 * @type {{
@@ -81,7 +82,7 @@
 
 	<section class="previous-games__content" aria-busy={loading}>
 		{#if loaderror}
-			<p class="previous-games__error">{loaderror}</p>
+			<Message variant="error" title={$_('previous_games.load_error_title')} description={loaderror} />
 		{/if}
 
 		{#if loading}

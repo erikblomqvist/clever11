@@ -49,6 +49,8 @@
 
 	/** @param {AppView} newView */
 	function navigate(newView) {
+		loadError = null;
+
 		if (document.startViewTransition) {
 			document.startViewTransition(() => {
 				view = newView;
