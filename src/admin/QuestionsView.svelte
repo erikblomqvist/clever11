@@ -14,21 +14,34 @@
 	let filterDeckId = $state('');
 	let filterType = $state('');
 	let filterText = $state('');
+	let sortField = $state('question_text');
+	let sortAsc = $state(true);
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
 	/** @type {SvelteMap<string, { up: number, down: number }>} */
 	let voteCounts = new SvelteMap();
 
-	$effect(() => { init(); });
+	$effect(() => {
+		init();
+	});
 
 	async function init() {
-		const [{ data: deckData }, { data: qData, error: qErr }] = await Promise.all([
-			supabase.from('decks').select('id, name').order('name'),
-			supabase.from('questions').select('id, question_text, type, question_number, decks(name)').order('created_at', { ascending: false }),
-		]);
+		const [{ data: deckData }, { data: qData, error: qErr }] =
+			await Promise.all([
+				supabase.from('decks').select('id, name').order('name'),
+				supabase
+					.from('questions')
+					.select(
+						'id, question_text, type, question_number, decks(name)',
+					)
+					.order('created_at', { ascending: false }),
+			]);
 		decks = deckData ?? [];
-		if (qErr) { error = qErr.message; }
-		else { questions = qData ?? []; }
+		if (qErr) {
+			error = qErr.message;
+		} else {
+			questions = qData ?? [];
+		}
 		await loadVoteCounts();
 		loading = false;
 	}
@@ -56,8 +69,33 @@
 				// We need deck_id — fetch via joined name is approximate; re-filter by deck
 				// Deck filter works by re-querying; for now, filter by deck name
 			}
-			if (filterText && !q.question_text.toLowerCase().includes(filterText.toLowerCase())) return false;
+			if (
+				filterText &&
+				!q.question_text
+					.toLowerCase()
+					.includes(filterText.toLowerCase())
+			)
+				return false;
 			return true;
+		}),
+	);
+
+	function netVotes(/** @type {string} */ id) {
+		const v = voteCounts.get(id);
+		return v ? v.up - v.down : 0;
+	}
+
+	const sorted = $derived(
+		[...filtered].sort((a, b) => {
+			let cmp = 0;
+			if (sortField === 'question_number') {
+				cmp = (a.question_number ?? 0) - (b.question_number ?? 0);
+			} else if (sortField === 'votes') {
+				cmp = netVotes(a.id) - netVotes(b.id);
+			} else {
+				cmp = a.question_text.localeCompare(b.question_text, 'sv');
+			}
+			return sortAsc ? cmp : -cmp;
 		}),
 	);
 
@@ -76,10 +114,30 @@
 		loading = false;
 	}
 
+	function toggleSort(/** @type {string} */ field) {
+		if (sortField === field) {
+			sortAsc = !sortAsc;
+		} else {
+			sortField = field;
+			sortAsc = field === 'question_number';
+		}
+	}
+
+	function sortIndicator(/** @type {string} */ field) {
+		if (sortField !== field) return '';
+		return sortAsc ? ' ↑' : ' ↓';
+	}
+
 	async function deleteQuestion(/** @type {string} */ id) {
 		if (!confirm('Delete this question?')) return;
-		const { error: err } = await supabase.from('questions').delete().eq('id', id);
-		if (err) { alert(err.message); return; }
+		const { error: err } = await supabase
+			.from('questions')
+			.delete()
+			.eq('id', id);
+		if (err) {
+			alert(err.message);
+			return;
+		}
 		questions = questions.filter((q) => q.id !== id);
 	}
 </script>
@@ -87,22 +145,38 @@
 <div class="admin-page">
 	<div class="admin-page__header">
 		<h1 class="admin-page__title">Questions</h1>
-		<button class="admin-btn" type="button" onclick={() => navigate('/questions/import')}>
+		<button
+			class="admin-btn"
+			type="button"
+			onclick={() => navigate('/questions/import')}
+		>
 			Import cards
 		</button>
-		<button class="admin-btn admin-btn--primary" type="button" onclick={() => navigate('/questions/new')}>
+		<button
+			class="admin-btn admin-btn--primary"
+			type="button"
+			onclick={() => navigate('/questions/new')}
+		>
 			New question
 		</button>
 	</div>
 
 	<div class="admin-filters">
-		<select class="admin-select" bind:value={filterDeckId} onchange={applyDeckFilter}>
+		<select
+			class="admin-select"
+			bind:value={filterDeckId}
+			onchange={applyDeckFilter}
+		>
 			<option value="">All decks</option>
 			{#each decks as deck (deck.id)}
 				<option value={deck.id}>{deck.name}</option>
 			{/each}
 		</select>
-		<select class="admin-select" bind:value={filterType} onchange={applyDeckFilter}>
+		<select
+			class="admin-select"
+			bind:value={filterType}
+			onchange={applyDeckFilter}
+		>
 			<option value="">All types</option>
 			{#each Object.entries(QUESTION_TYPES) as [key, config] (key)}
 				<option value={key}>{config.label}</option>
@@ -123,38 +197,95 @@
 	{:else if filtered.length === 0}
 		<p class="admin-hint">No questions found.</p>
 	{:else}
-		<ul class="admin-list">
-			{#each filtered as q (q.id)}
+		<div class="admin-list admin-list--grid">
+			<div class="admin-list__header">
+				<span
+					class="admin-list__col admin-list__col--sortable{sortField ===
+					'question_number'
+						? ' admin-list__col--active'
+						: ''}"
+					role="button"
+					tabindex="0"
+					onclick={() => toggleSort('question_number')}
+					onkeydown={(e) =>
+						e.key === 'Enter' && toggleSort('question_number')}
+					>#{sortIndicator('question_number')}</span
+				>
+				<span class="admin-list__col">Type</span>
+				<span
+					class="admin-list__col admin-list__col--sortable{sortField ===
+					'question_text'
+						? ' admin-list__col--active'
+						: ''}"
+					role="button"
+					tabindex="0"
+					onclick={() => toggleSort('question_text')}
+					onkeydown={(e) =>
+						e.key === 'Enter' && toggleSort('question_text')}
+					>Question{sortIndicator('question_text')}</span
+				>
+				<span class="admin-list__col">Deck</span>
+				<span
+					class="admin-list__col admin-list__col--sortable{sortField ===
+					'votes'
+						? ' admin-list__col--active'
+						: ''}"
+					role="button"
+					tabindex="0"
+					onclick={() => toggleSort('votes')}
+					onkeydown={(e) => e.key === 'Enter' && toggleSort('votes')}
+					>Votes{sortIndicator('votes')}</span
+				>
+				<span class="admin-list__col"></span>
+			</div>
+			{#each sorted as q (q.id)}
 				{@const typeConfig = QUESTION_TYPES[q.type]}
 				{@const votes = voteCounts.get(q.id)}
-				<li class="admin-list__item">
-					{#if q.question_number}
-						<span class="admin-list__num">#{q.question_number}</span>
-					{/if}
-					<span class="admin-list__badge" data-type={q.type}>{typeConfig?.label ?? q.type}</span>
+				<div class="admin-list__item">
+					<span class="admin-list__num"
+						>{q.question_number
+							? `#${q.question_number}`
+							: ''}</span
+					>
+					<span class="admin-list__badge" data-type={q.type}
+						>{typeConfig?.label ?? q.type}</span
+					>
 					<span class="admin-list__name">{q.question_text}</span>
 					<span class="admin-list__meta">{q.decks?.name ?? '—'}</span>
-					{#if votes}
-						<span class="admin-list__votes">
-							{#if votes.up}
-								<span class="admin-list__vote admin-list__vote--up" title="Thumbs up">
-									<ThumbsUp size={12} />{votes.up}
-								</span>
-							{/if}
-							{#if votes.down}
-								<span class="admin-list__vote admin-list__vote--down" title="Thumbs down">
-									<ThumbsDown size={12} />{votes.down}
-								</span>
-							{/if}
-						</span>
-					{/if}
+					<span class="admin-list__votes">
+						{#if votes?.up}
+							<span
+								class="admin-list__vote admin-list__vote--up"
+								title="Thumbs up"
+							>
+								<ThumbsUp size={12} />{votes.up}
+							</span>
+						{/if}
+						{#if votes?.down}
+							<span
+								class="admin-list__vote admin-list__vote--down"
+								title="Thumbs down"
+							>
+								<ThumbsDown size={12} />{votes.down}
+							</span>
+						{/if}
+					</span>
 					<div class="admin-list__actions">
-						<a class="admin-btn admin-btn--sm" href={`/admin#/questions/${q.id}`}>Edit</a>
-						<button class="admin-btn admin-btn--sm admin-btn--danger" type="button" onclick={() => deleteQuestion(q.id)}>Delete</button>
+						<a
+							class="admin-btn admin-btn--sm"
+							href={`/admin#/questions/${q.id}`}>Edit</a
+						>
+						<button
+							class="admin-btn admin-btn--sm admin-btn--danger"
+							type="button"
+							onclick={() => deleteQuestion(q.id)}>Delete</button
+						>
 					</div>
-				</li>
+				</div>
 			{/each}
-		</ul>
-		<p class="admin-hint">{filtered.length} question{filtered.length !== 1 ? 's' : ''}</p>
+		</div>
+		<p class="admin-hint">
+			{filtered.length} question{filtered.length !== 1 ? 's' : ''}
+		</p>
 	{/if}
 </div>
