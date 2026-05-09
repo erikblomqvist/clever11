@@ -6,6 +6,7 @@
 	import LucideIcon from './LucideIcon.svelte';
 	import OverallScoreList from './OverallScoreList.svelte';
 	import ScoreList from './ScoreList.svelte';
+	import Button from './Button.svelte';
 
 	/**
 	 * @type {{
@@ -105,29 +106,45 @@
 
 			<section class="game-menu__section game-menu__section--actions">
 				{#if canundo}
-					<button class="game-menu__action" type="button" onclick={onundo}>
-						<Undo2 size={18} />
-						<span>{$_('menu.undo_last_move')}</span>
-					</button>
+					<Button
+						variant="cta"
+						size="sm"
+						icon={Undo2}
+						text={$_('menu.undo_last_move')}
+						onclick={onundo}
+					/>
 				{/if}
 				{#if canskipround}
-					<button class="game-menu__action" type="button" onclick={() => { onskipround(); open = false; }}>
-						<SkipForward size={18} />
-						<span>{$_('menu.skip_round')}</span>
-					</button>
+					<Button
+						variant="cta"
+						size="sm"
+						icon={SkipForward}
+						text={$_('menu.skip_round')}
+						onclick={() => { onskipround(); open = false; }}
+					/>
 				{/if}
-				<button class="game-menu__action" type="button" onclick={onsave}>
-					<Save size={18} />
-					<span>{$_('menu.save_game')}</span>
-				</button>
-				<button class="game-menu__action" type="button" onclick={onstartover}>
-					<RotateCcw size={18} />
-					<span>{$_('menu.start_new_game')}</span>
-				</button>
-				<a class="game-menu__action" href="/admin" target="_blank">
-					<Shield size={18} />
-					<span>{$_('menu.admin')}</span>
-				</a>
+				<Button
+					variant="cta"
+					size="sm"
+					icon={Save}
+					text={$_('menu.save_game')}
+					onclick={onsave}
+				/>
+				<Button
+					variant="cta"
+					size="sm"
+					icon={RotateCcw}
+					text={$_('menu.start_new_game')}
+					onclick={onstartover}
+				/>
+				<Button
+					variant="cta"
+					size="sm"
+					icon={Shield}
+					text={$_('menu.admin')}
+					href="/admin"
+					target="_blank"
+				/>
 			</section>
 		</div>
 	{/if}
@@ -139,6 +156,7 @@
 		top: max(0.75rem, env(safe-area-inset-top));
 		left: max(0.75rem, env(safe-area-inset-left));
 		z-index: 10;
+
 		font-size: var(--font-size-md);
 	}
 
@@ -146,32 +164,35 @@
 		position: fixed;
 		inset: 0;
 		z-index: -1;
+
 		background: hsl(0 0% 0% / 0.3);
 		backdrop-filter: blur(2px);
-		-webkit-backdrop-filter: blur(2px);
 	}
 
 	.game-menu__trigger {
+		cursor: pointer;
 		display: grid;
 		place-items: center;
-		width: 2.75rem;
-		height: 2.75rem;
+
 		border: none;
 		border-radius: 0.75rem;
-		background: hsl(0 0% 100% / 0.92);
-		color: var(--orange-800);
-		cursor: pointer;
+		width: 2.75rem;
+		height: 2.75rem;
+		background-color: var(--palette-purple-neutral);
 		box-shadow: 0 2px 10px hsl(0 0% 0% / 0.15);
-		transition: background-color 0.15s, box-shadow 0.15s;
-	}
 
-	.game-menu__trigger:hover {
-		background: hsl(0 0% 100%);
-		box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
+		transition: background-color 0.15s, box-shadow 0.15s;
+
+		color: var(--palette-white);
+		
+		&:hover {
+			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+			box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
+		}
 	}
 
 	.game-menu--open .game-menu__trigger {
-		background: hsl(0 0% 100%);
+		background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
 		box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
 	}
 
@@ -183,22 +204,25 @@
 		display: grid;
 		gap: 0.75rem;
 		box-sizing: border-box;
-		border: 3px solid var(--orange-700);
+
+		border: 3px solid var(--palette-purple-end);
 		border-radius: 0.75rem;
 		width: min(21rem, calc(100vw - 2rem));
 		max-height: calc(100svh - 5rem);
 		padding: 0.75rem;
 		overflow: auto;
 		overscroll-behavior: none;
-		background-color: hsl(0 0% 100%);
+		background-color: var(--palette-purple-neutral);
 		box-shadow: 0 1rem 3rem hsl(0 0% 0% / 0.25);
+
+		color: var(--palette-white);
 	}
 
 	.game-menu__question-info {
 		display: flex;
 		align-items: center;
 		gap: 1rem;
-		border-bottom: 2px solid var(--grayscale-200);
+		border-bottom: 2px solid var(--palette-gray-muted);
 		padding-bottom: 0.75rem;
 	}
 
@@ -214,11 +238,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.375rem;
-		color: var(--grayscale-700);
-	}
-
-	.game-menu__question-deck :global(svg) {
-		color: var(--grayscale-500);
+		color: var(--palette-white);
 	}
 
 	.game-menu__section {
@@ -227,41 +247,42 @@
 	}
 
 	.game-menu__section--actions {
-		border-top: 2px solid var(--grayscale-200);
+		border-top: 2px solid var(--palette-gray-muted);
 		padding-block-start: 0.5rem;
 	}
 
 	.game-menu__heading {
 		margin: 0;
-		color: var(--grayscale-600);
+		color: var(--palette-gray-muted);
 		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
 	}
 
 	.game-menu__action {
+		cursor: pointer;
 		display: flex;
 		align-items: center;
 		gap: 0.625rem;
+
 		border: none;
 		border-radius: 0.5rem;
+		width: 100%;
 		padding: 0.5rem 0.625rem;
 		background: none;
+
 		color: var(--grayscale-900);
 		text-decoration: none;
 		font-family: inherit;
 		font-size: var(--font-size-base);
-		cursor: pointer;
-		text-align: left;
-		width: 100%;
-	}
-
-	.game-menu__action:hover {
-		background-color: var(--orange-100);
+		text-align: start;
+		&:hover {
+			background-color: var(--orange-100);
+		}
 	}
 
 	.game-menu__action :global(svg) {
-		color: var(--orange-700);
+		color: var(--palette-purple-start);
 		flex-shrink: 0;
 	}
 </style>

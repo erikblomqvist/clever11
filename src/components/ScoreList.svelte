@@ -60,12 +60,14 @@
 		display: grid;
 		place-items: center;
 		grid-row: span 3;
-		border: 2px solid var(--player-ring, transparent);
+		flex-shrink: 0;
+
 		border-radius: 50%;
 		width: 1.75rem;
 		height: 1.75rem;
-		color: var(--grayscale-700);
-		flex-shrink: 0;
+		background-color: var(--player-ring, transparent);
+		
+		color: var(--palette-white);
 	}
 
 	.score-list__player {
@@ -87,8 +89,8 @@
 	}
 
 	.score-list__item[data-player-state='active'] {
-		border-color: var(--orange-600);
-		background-color: var(--orange-100);
+		border-color: var(--palette-purple-start);
+		background-color: var(--palette-white);
 	}
 
 	.score-list__item[data-player-state='passed'],

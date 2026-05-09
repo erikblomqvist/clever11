@@ -44,43 +44,45 @@
 		grid-template-columns: auto auto 1fr auto;
 		gap: 0.75rem;
 		align-items: center;
-		border: 2px solid var(--grayscale-200);
+
+		border: 2px solid var(--palette-purple-start);
 		border-radius: 0.5rem;
 		padding: 0.625rem 0.75rem;
-		background-color: var(--grayscale-100);
+		background-color: var(--palette-purple-dark);
+
+		color: var(--palette-white);
 	}
 
 	.overall-score-list__rank {
 		display: grid;
 		place-items: center;
-		border-radius: 999px;
-		width: 2rem;
-		height: 2rem;
-		background-color: var(--orange-600);
-		color: hsl(0 0% 100%);
-		font-size: var(--font-size-base);
-		font-weight: 700;
+
+		border-radius: 50%;
+		width: 1.25rem;
+		height: 1.25rem;
+		background-color: var(--palette-purple-start);
+
+		font-size: var(--font-size-sm);
+		font-weight: 600;
 	}
 
 	.overall-score-list__icon {
 		display: grid;
 		place-items: center;
-		border: 2px solid var(--player-ring, transparent);
+		flex-shrink: 0;
+
 		border-radius: 50%;
 		width: 1.75rem;
 		height: 1.75rem;
-		color: var(--grayscale-700);
-		flex-shrink: 0;
+		background-color: var(--player-ring, transparent);
 	}
 
 	.overall-score-list__player {
-		color: var(--grayscale-900);
 		font-size: var(--font-size-lg);
 		font-weight: 700;
 	}
 
 	.overall-score-list__score {
-		color: var(--grayscale-900);
 		font-size: var(--font-size-lg);
 		font-weight: 700;
 	}
