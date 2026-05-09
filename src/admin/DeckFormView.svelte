@@ -2,7 +2,11 @@
 	import LucideIcon from '../components/LucideIcon.svelte';
 	import { supabase } from '../lib/supabase.js';
 	import { DECK_ICONS } from '../lib/deckIcons.js';
-	import { validateImageFile, uploadDeckImage, deleteDeckImage } from '../lib/storage.js';
+	import {
+		validateImageFile,
+		uploadDeckImage,
+		deleteDeckImage,
+	} from '../lib/storage.js';
 
 	/** @type {{ id: string|null, navigate: (path: string) => void }} */
 	let { id, navigate } = $props();
@@ -25,9 +29,15 @@
 	let fileInput = $state(null);
 
 	const filteredDeckIcons = $derived.by(() => {
-		const tokens = iconQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+		const tokens = iconQuery
+			.trim()
+			.toLowerCase()
+			.split(/\s+/)
+			.filter(Boolean);
 		if (tokens.length === 0) return DECK_ICONS;
-		return DECK_ICONS.filter((item) => tokens.every((token) => item.searchText.includes(token)));
+		return DECK_ICONS.filter((item) =>
+			tokens.every((token) => item.searchText.includes(token)),
+		);
 	});
 
 	$effect(() => {
@@ -36,8 +46,16 @@
 
 	async function loadDeck(/** @type {string} */ deckId) {
 		loading = true;
-		const { data, error: err } = await supabase.from('decks').select('*').eq('id', deckId).single();
-		if (err) { error = 'Failed to load deck.'; loading = false; return; }
+		const { data, error: err } = await supabase
+			.from('decks')
+			.select('*')
+			.eq('id', deckId)
+			.single();
+		if (err) {
+			error = 'Failed to load deck.';
+			loading = false;
+			return;
+		}
 		name = data.name;
 		description = data.description ?? '';
 		icon = data.icon ?? null;
@@ -49,11 +67,16 @@
 		const file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
 		if (!file) return;
 		const validation = validateImageFile(file);
-		if (!validation.valid) { error = validation.error ?? 'Invalid file.'; return; }
+		if (!validation.valid) {
+			error = validation.error ?? 'Invalid file.';
+			return;
+		}
 		error = '';
 		imageFile = file;
 		const reader = new FileReader();
-		reader.onloadend = () => { imagePreview = /** @type {string} */ (reader.result); };
+		reader.onloadend = () => {
+			imagePreview = /** @type {string} */ (reader.result);
+		};
 		reader.readAsDataURL(file);
 	}
 
@@ -69,7 +92,10 @@
 
 	async function handleSubmit(/** @type {SubmitEvent} */ e) {
 		e.preventDefault();
-		if (!name.trim()) { error = 'Name is required.'; return; }
+		if (!name.trim()) {
+			error = 'Name is required.';
+			return;
+		}
 		error = '';
 		saving = true;
 
@@ -78,26 +104,39 @@
 
 			if (isEdit && id) {
 				if (imageFile) {
-					if (currentImageUrl) await deleteDeckImage(currentImageUrl).catch(console.warn);
+					if (currentImageUrl)
+						await deleteDeckImage(currentImageUrl).catch(
+							console.warn,
+						);
 					imageUrl = await uploadDeckImage(id, imageFile);
 				}
-				const { error: err } = await supabase.from('decks').update({
-					name: name.trim(),
-					description: description.trim() || null,
-					icon: icon || null,
-					image_url: imageUrl,
-				}).eq('id', id);
+				const { error: err } = await supabase
+					.from('decks')
+					.update({
+						name: name.trim(),
+						description: description.trim() || null,
+						icon: icon || null,
+						image_url: imageUrl,
+					})
+					.eq('id', id);
 				if (err) throw err;
 			} else {
-				const { data: deck, error: insertErr } = await supabase.from('decks').insert({
-					name: name.trim(),
-					description: description.trim() || null,
-					icon: icon || null,
-				}).select('id').single();
+				const { data: deck, error: insertErr } = await supabase
+					.from('decks')
+					.insert({
+						name: name.trim(),
+						description: description.trim() || null,
+						icon: icon || null,
+					})
+					.select('id')
+					.single();
 				if (insertErr) throw insertErr;
 				if (imageFile && deck) {
 					imageUrl = await uploadDeckImage(deck.id, imageFile);
-					await supabase.from('decks').update({ image_url: imageUrl }).eq('id', deck.id);
+					await supabase
+						.from('decks')
+						.update({ image_url: imageUrl })
+						.eq('id', deck.id);
 				}
 			}
 			navigate('/decks');
@@ -110,7 +149,11 @@
 
 <div class="admin-page">
 	<div class="admin-page__header">
-		<button class="admin-back" type="button" onclick={() => navigate('/decks')}>← Decks</button>
+		<button
+			class="admin-back"
+			type="button"
+			onclick={() => navigate('/decks')}>← Decks</button
+		>
 		<h1 class="admin-page__title">{isEdit ? 'Edit deck' : 'New deck'}</h1>
 	</div>
 
@@ -122,12 +165,24 @@
 
 			<label class="admin-label">
 				Name *
-				<input class="admin-input" type="text" bind:value={name} required disabled={saving} />
+				<input
+					class="admin-input"
+					type="text"
+					bind:value={name}
+					required
+					disabled={saving}
+				/>
 			</label>
 
 			<label class="admin-label">
 				Description
-				<input class="admin-input" type="text" bind:value={description} disabled={saving} placeholder="Optional" />
+				<input
+					class="admin-input"
+					type="text"
+					bind:value={description}
+					disabled={saving}
+					placeholder="Optional"
+				/>
 			</label>
 
 			<!-- Icon picker -->
@@ -142,7 +197,12 @@
 						disabled={saving}
 					/>
 					{#if icon}
-						<button class="admin-btn admin-btn--sm" type="button" onclick={() => (icon = null)} disabled={saving}>
+						<button
+							class="admin-btn admin-btn--sm"
+							type="button"
+							onclick={() => (icon = null)}
+							disabled={saving}
+						>
 							Clear
 						</button>
 					{/if}
@@ -153,16 +213,24 @@
 							type="button"
 							class="admin-icon-btn"
 							class:admin-icon-btn--active={icon === item.id}
-							onclick={() => (icon = icon === item.id ? null : item.id)}
+							onclick={() =>
+								(icon = icon === item.id ? null : item.id)}
 							title={item.label}
 							aria-pressed={icon === item.id}
 							disabled={saving}
 						>
-							<LucideIcon name={item.id} iconNode={item.iconNode} size={20} aria-hidden="true" />
+							<LucideIcon
+								name={item.id}
+								iconNode={item.iconNode}
+								size={20}
+								aria-hidden="true"
+							/>
 						</button>
 					{/each}
 					{#if filteredDeckIcons.length === 0}
-						<p class="admin-icon-picker__empty">No icons match "{iconQuery}".</p>
+						<p class="admin-icon-picker__empty">
+							No icons match "{iconQuery}".
+						</p>
 					{/if}
 				</div>
 			</div>
@@ -172,28 +240,64 @@
 				Image
 				{#if currentImageUrl || imagePreview}
 					<div class="admin-image-preview">
-						<img src={imagePreview ?? currentImageUrl ?? ''} alt="Deck preview" />
+						<img
+							src={imagePreview ?? currentImageUrl ?? ''}
+							alt="Deck preview"
+						/>
 						<div class="admin-image-actions">
 							<label class="admin-btn admin-btn--sm">
 								Replace
-								<input bind:this={fileInput} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onchange={handleFileChange} disabled={saving} hidden />
+								<input
+									bind:this={fileInput}
+									type="file"
+									accept="image/jpeg,image/jpg,image/png,image/webp"
+									onchange={handleFileChange}
+									disabled={saving}
+									hidden
+								/>
 							</label>
-							<button class="admin-btn admin-btn--sm admin-btn--danger" type="button" onclick={handleRemoveImage} disabled={saving}>Remove</button>
+							<button
+								class="admin-btn admin-btn--sm admin-btn--danger"
+								type="button"
+								onclick={handleRemoveImage}
+								disabled={saving}>Remove</button
+							>
 						</div>
 					</div>
 				{:else}
 					<label class="admin-file-upload">
-						<input bind:this={fileInput} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onchange={handleFileChange} disabled={saving} hidden />
-						<span>Click to upload (JPEG, PNG, WebP — max 5 MB)</span>
+						<input
+							bind:this={fileInput}
+							type="file"
+							accept="image/jpeg,image/jpg,image/png,image/webp"
+							onchange={handleFileChange}
+							disabled={saving}
+							hidden
+						/>
+						<span>Click to upload (JPEG, PNG, WebP — max 5 MB)</span
+						>
 					</label>
 				{/if}
 			</div>
 
 			<div class="admin-form-actions">
-				<button class="admin-btn admin-btn--primary" type="submit" disabled={saving}>
-					{saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create deck'}
+				<button
+					class="admin-btn admin-btn--primary"
+					type="submit"
+					disabled={saving}
+				>
+					{saving
+						? 'Saving…'
+						: isEdit
+							? 'Save changes'
+							: 'Create deck'}
 				</button>
-				<button class="admin-btn" type="button" onclick={() => navigate('/decks')} disabled={saving}>Cancel</button>
+				<button
+					class="admin-btn"
+					type="button"
+					onclick={() => navigate('/decks')}
+					disabled={saving}>Cancel</button
+				>
 			</div>
 		</form>
 	{/if}

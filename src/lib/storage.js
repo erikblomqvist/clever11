@@ -7,7 +7,10 @@ const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 /** @param {File} file */
 export function validateImageFile(file) {
 	if (!ALLOWED.includes(file.type)) {
-		return { valid: false, error: 'Only JPEG, PNG, or WebP images are allowed.' };
+		return {
+			valid: false,
+			error: 'Only JPEG, PNG, or WebP images are allowed.',
+		};
 	}
 	if (file.size > MAX_SIZE) {
 		return { valid: false, error: 'Image must be under 5 MB.' };
