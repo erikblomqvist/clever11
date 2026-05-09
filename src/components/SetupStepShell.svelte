@@ -72,11 +72,10 @@
 		padding: 0.375rem 0.625rem;
 		background: hsl(0 0% 100% / 0.2);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 500;
 		letter-spacing: 0.04em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}
@@ -91,11 +90,9 @@
 
 	.setup-title {
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-xl);
 		font-weight: 600;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
 		color: var(--white);
 	}
 
@@ -121,11 +118,10 @@
 		padding: 0.875rem 2rem;
 		background-color: var(--orange-700);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}

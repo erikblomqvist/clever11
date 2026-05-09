@@ -183,7 +183,7 @@
 		overflow: hidden;
 		padding: 0.25em;
 		color: var(--grayscale-900);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: clamp(0.55rem, 1.75cqmin, 0.875rem);
 		font-weight: 700;
 		line-height: 1;

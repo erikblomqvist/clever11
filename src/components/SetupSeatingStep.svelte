@@ -87,26 +87,25 @@
 
 	.seating-player-name {
 		margin: 0 0 0.375rem;
-		font-family: 'Erica One', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: clamp(2rem, 8vw, 3.5rem);
-		font-weight: 400;
+		font-weight: 700;
+		text-transform: uppercase;
 		color: var(--white);
 		text-shadow: 0 2px 8px hsl(0 0% 0% / 0.2);
 	}
 
 	.seating-prompt {
 		margin: 0 0 0.5rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-base);
 		font-weight: 400;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		color: hsl(0 0% 100% / 0.8);
 	}
 
 	.seating-progress {
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-sm);
 		color: hsl(0 0% 100% / 0.6);
 	}

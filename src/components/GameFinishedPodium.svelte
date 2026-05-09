@@ -66,10 +66,8 @@
 
 	.podium__label {
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
 		color: hsl(0 0% 100% / 0.4);
 	}
 
@@ -102,7 +100,7 @@
 
 	.podium__winner-score {
 		margin: 0;
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-xl);
 		font-weight: 600;
 		color: var(--question-color, var(--orange-400));
@@ -126,7 +124,7 @@
 		padding: 0.6rem 0.875rem;
 		border-radius: 0.5rem;
 		background: hsl(0 0% 100% / 0.06);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
 		color: var(--white);
@@ -154,11 +152,9 @@
 		padding: 0.875rem 2.5rem;
 		background-color: var(--question-color, var(--orange-600));
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: opacity 0.15s;
 	}

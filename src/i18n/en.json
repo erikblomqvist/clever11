@@ -6,7 +6,7 @@
     "game_code_aria": "5-character game code",
     "load": "Load",
     "cancel": "Cancel",
-    "list_previous_games": "List previous games"
+    "previous_games": "Previous games"
   },
   "previous_games": {
     "title": "Previous games",

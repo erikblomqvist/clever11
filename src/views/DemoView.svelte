@@ -89,11 +89,9 @@
 		border-radius: 999px;
 		background: hsl(0 0% 0% / 0.45);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
@@ -109,7 +107,7 @@
 		padding: 0.45rem 0.75rem;
 		background: hsl(0 0% 0% / 0.3);
 		color: hsl(0 0% 100% / 0.78);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
 		text-overflow: ellipsis;
@@ -145,26 +143,23 @@
 	.demo-selector__eyebrow {
 		margin: 0 0 0.4rem;
 		color: hsl(0 0% 100% / 0.55);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 600;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
 	}
 
 	.demo-selector__title {
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: clamp(2.4rem, 8vw, 4.5rem);
 		line-height: 0.92;
-		text-transform: uppercase;
 	}
 
 	.demo-selector__description {
 		max-width: 32rem;
 		margin: 0.9rem 0 0;
 		color: hsl(0 0% 100% / 0.72);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-xl);
 		line-height: 1.15;
 	}
@@ -198,15 +193,14 @@
 	}
 
 	.demo-card__title {
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-xl);
 		font-weight: 600;
-		text-transform: uppercase;
 	}
 
 	.demo-card__description {
 		color: hsl(0 0% 100% / 0.68);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-lg);
 	}
 

@@ -40,7 +40,7 @@
 		padding: 1.25rem 1.75rem;
 		background-color: hsl(0 0% 100%);
 		color: var(--grayscale-900);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: clamp(2rem, 8vw, 4rem);
 		font-weight: 700;
 		line-height: 1.05;

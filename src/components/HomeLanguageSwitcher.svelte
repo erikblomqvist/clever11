@@ -37,7 +37,7 @@
 		padding: 0.25rem 0.5rem;
 		background: transparent;
 		color: hsl(0 0% 100% / 0.7);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: 0.875rem;
 		font-weight: 600;
 		letter-spacing: 0.05em;

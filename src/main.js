@@ -1,3 +1,9 @@
+import '@fontsource/erica-one/latin-400.css';
+import '@fontsource/bricolage-grotesque/latin.css';
+import '@fontsource/inter/latin.css';
+import '@fontsource/nunito/latin.css';
+import '@fontsource/sometype-mono/latin.css';
+
 import './app.css';
 import App from './App.svelte';
 import { mount } from 'svelte';

@@ -252,7 +252,7 @@
 	.mp-overlay__title {
 		flex: 1;
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
 		color: var(--grayscale-900);
@@ -321,7 +321,7 @@
 
 	.mp-list__name {
 		flex: 1;
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 		color: var(--grayscale-900);
@@ -369,7 +369,7 @@
 		padding: 0.625rem;
 		background: none;
 		color: var(--grayscale-600);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 		cursor: pointer;
@@ -391,7 +391,7 @@
 		border: 2px solid var(--grayscale-300);
 		border-radius: 0.5rem;
 		padding: 0.5rem 0.75rem;
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 		color: var(--grayscale-900);
@@ -462,11 +462,9 @@
 
 	.mp-form__label {
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		color: var(--grayscale-600);
 	}
 
@@ -485,11 +483,9 @@
 		padding: 0.625rem 1rem;
 		background-color: var(--orange-600);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 	}
 

@@ -100,11 +100,9 @@
 	.review-panel__heading {
 		grid-column: 1 / -1;
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
 		color: hsl(0 0% 100% / 0.45);
 	}
 
@@ -126,7 +124,7 @@
 		grid-template-columns: 1.25rem 1fr auto auto;
 		align-items: center;
 		gap: 0.4rem;
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
 		color: var(--white);
@@ -175,11 +173,9 @@
 		padding: 0.75rem 1.25rem;
 		background-color: var(--orange-600);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 		white-space: nowrap;
 		transition: opacity 0.15s;

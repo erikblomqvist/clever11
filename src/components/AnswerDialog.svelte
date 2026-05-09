@@ -143,11 +143,9 @@
 
 	.answer-dialog__label {
 		margin: 0 0 0.75rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
 		color: var(--grayscale-600);
 		border-bottom: 1px solid var(--grayscale-200);
 		padding-bottom: 0.75rem;
@@ -170,7 +168,7 @@
 
 	.answer-dialog__answer {
 		margin: 0 0 1.5rem;
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: clamp(2rem, 10vw, 3.5rem);
 		font-weight: 700;
 		line-height: 1.05;
@@ -193,11 +191,10 @@
 		margin-bottom: 0;
 		background-color: var(--orange-700);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}
@@ -232,11 +229,9 @@
 		border: none;
 		border-radius: 0.5rem;
 		padding: 0.75rem 1rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}

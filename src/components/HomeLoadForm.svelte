@@ -56,20 +56,16 @@
 		padding: 0.75rem 1rem;
 		background-color: var(--white);
 		color: var(--grayscale-900);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-monospace);
 		font-size: 2rem;
 		font-weight: 600;
-		letter-spacing: 0.3em;
 		text-align: center;
-		text-transform: uppercase;
 		width: 100%;
 		box-sizing: border-box;
-	}
-
-	.home-code-input::placeholder {
-		font-size: 1rem;
-		letter-spacing: 0.05em;
-		color: var(--grayscale-400);
+	
+		&::placeholder {
+			color: var(--grayscale-400);
+		}
 	}
 
 	.home-code-input:focus {
@@ -90,11 +86,10 @@
 		border: none;
 		border-radius: 0.5rem;
 		padding: 0.75rem 2rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: 1.125rem;
 		font-weight: 600;
 		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}
@@ -102,32 +97,32 @@
 	.home-btn--primary {
 		background-color: var(--orange-700);
 		color: var(--white);
-	}
-
-	.home-btn--primary:hover {
-		background-color: var(--orange-800);
-	}
-
-	.home-btn--primary:disabled {
-		background-color: var(--orange-300);
-		cursor: not-allowed;
+	
+		&:hover {
+			background-color: var(--orange-800);
+		}
+		
+		&:disabled {
+			background-color: var(--orange-300);
+			cursor: not-allowed;
+		}
 	}
 
 	.home-btn--secondary {
 		background-color: hsl(0 0% 100% / 0.2);
 		color: var(--white);
-	}
-
-	.home-btn--secondary:hover {
-		background-color: hsl(0 0% 100% / 0.3);
+		
+		&:hover {
+			background-color: hsl(0 0% 100% / 0.3);
+		}
 	}
 
 	.home-load-error {
 		margin: 0;
 		padding: 0.5rem 0.75rem;
 		border-radius: 0.375rem;
-		background: hsl(0 86% 58% / 0.2);
-		border: 1px solid hsl(0 86% 58% / 0.4);
+		background: hsla(0 100% 50%);
+		border: 1px solid hsl(0 100% 66%);
 		color: var(--white);
 		font-size: var(--font-size-sm);
 		text-align: center;

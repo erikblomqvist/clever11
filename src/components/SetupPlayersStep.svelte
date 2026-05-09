@@ -201,7 +201,7 @@
 		padding: 0.425rem 0.875rem;
 		background-color: var(--white);
 		color: var(--grayscale-900);
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 	}
@@ -266,7 +266,7 @@
 
 	.player-list-name {
 		flex: 1;
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 	}

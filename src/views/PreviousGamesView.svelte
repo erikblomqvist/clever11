@@ -74,7 +74,7 @@
 	<header class="previous-games__header">
 		<button class="previous-games__back" onclick={onback} type="button">
 			<ChevronLeft size={18} />
-			{$_('setup.back')}
+			<span>{$_('setup.back')}</span>
 		</button>
 		<h1 class="previous-games__title">{$_('previous_games.title')}</h1>
 	</header>
@@ -187,11 +187,10 @@
 		padding: 0.375rem 0.625rem;
 		background: hsl(0 0% 100% / 0.2);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 500;
 		letter-spacing: 0.04em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}
@@ -202,11 +201,10 @@
 
 	.previous-games__title {
 		margin: 0;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-xl);
 		font-weight: 600;
 		letter-spacing: 0.04em;
-		text-transform: uppercase;
 	}
 
 	.previous-games__content {
@@ -251,6 +249,7 @@
 		padding: 0.875rem 1rem;
 		background: hsl(0 0% 100% / 0.15);
 		color: var(--white);
+		font-family: var(--font-family-body);
 		text-align: left;
 		cursor: pointer;
 		transition:
@@ -271,7 +270,7 @@
 	}
 
 	.previous-game-card__code {
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-monospace);
 		font-size: var(--font-size-xl);
 		font-weight: 700;
 		letter-spacing: 0.08em;
@@ -292,11 +291,10 @@
 
 	.previous-game-card__details strong {
 		margin-inline-end: 0.25rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 600;
 		letter-spacing: 0.04em;
-		text-transform: uppercase;
 	}
 
 	.previous-games__footer {
@@ -324,11 +322,10 @@
 		padding: 0.625rem 1rem;
 		background: hsl(0 0% 100% / 0.2);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 600;
 		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}

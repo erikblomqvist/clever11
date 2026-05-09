@@ -71,10 +71,9 @@
 	}
 
 	.rule-card__label {
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
-		letter-spacing: 0.03em;
 		color: var(--white);
 	}
 
@@ -134,7 +133,7 @@
 		padding: 0.5rem 0.75rem;
 		background: hsl(0 0% 100% / 0.1);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-body);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 		text-align: center;

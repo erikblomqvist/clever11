@@ -234,11 +234,9 @@
 	.game-menu__heading {
 		margin: 0;
 		color: var(--grayscale-600);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
 	}
 
 	.game-menu__action {
@@ -252,7 +250,7 @@
 		color: var(--grayscale-900);
 		text-decoration: none;
 		font-family: inherit;
-		font-size: inherit;
+		font-size: var(--font-size-base);
 		cursor: pointer;
 		text-align: left;
 		width: 100%;

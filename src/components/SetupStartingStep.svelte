@@ -97,7 +97,7 @@
 	}
 
 	.starting-card__name {
-		font-family: 'Yanone Kaffeesatz', sans-serif;
+		font-family: var(--font-family-primary);
 		font-size: var(--font-size-lg);
 		font-weight: 700;
 	}
@@ -112,11 +112,9 @@
 		padding: 0.625rem 1.25rem;
 		background: hsl(0 0% 100% / 0.15);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-base);
 		font-weight: 500;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 		align-self: flex-start;

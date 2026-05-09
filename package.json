@@ -27,6 +27,11 @@
     "vitest": "^4.1.5"
   },
   "dependencies": {
+    "@fontsource/bricolage-grotesque": "^5.2.10",
+    "@fontsource/erica-one": "^5.2.7",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/nunito": "^5.2.7",
+    "@fontsource/sometype-mono": "^5.2.7",
     "@supabase/supabase-js": "^2.104.1",
     "lucide-static": "^1.11.0",
     "lucide-svelte": "^0.487.0",

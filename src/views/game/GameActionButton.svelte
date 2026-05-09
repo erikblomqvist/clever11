@@ -37,11 +37,9 @@
 		padding: 0.625rem 1.25rem;
 		background-color: var(--grayscale-800);
 		color: var(--white);
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-base);
 		font-weight: 600;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 		box-shadow: 0 2px 8px hsl(0 0% 0% / 0.25);

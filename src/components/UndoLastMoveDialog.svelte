@@ -65,7 +65,7 @@
 
 	.undo-dialog__prompt {
 		margin: 0 0 1.5rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 500;
 		line-height: 1.2;
@@ -81,11 +81,9 @@
 		border: none;
 		border-radius: 0.5rem;
 		padding: 0.75rem 1rem;
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}

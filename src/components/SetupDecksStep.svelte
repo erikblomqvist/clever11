@@ -124,15 +124,14 @@
 	}
 
 	.deck-card__name {
-		font-family: 'Oswald', sans-serif;
+		font-family: var(--font-family-display);
 		font-size: var(--font-size-md);
 		font-weight: 600;
-		letter-spacing: 0.03em;
 	}
 
 	.deck-card__desc {
-		font-size: var(--font-size-base);
-		opacity: 0.75;
+		font-family: var(--font-family-body);
+		font-size: var(--font-size-sm);
 	}
 
 	.deck-card__check {

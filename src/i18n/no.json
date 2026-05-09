@@ -6,7 +6,7 @@
     "game_code_aria": "5-tegns spillkode",
     "load": "Last inn",
     "cancel": "Avbryt",
-    "list_previous_games": "List tidligere spill"
+    "previous_games": "Tidligere spill"
   },
   "previous_games": {
     "title": "Tidligere spill",

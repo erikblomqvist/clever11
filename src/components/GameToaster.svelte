@@ -6,7 +6,7 @@
 	position="top-center"
 	toastOptions={{
 		style: `
-			font-family: 'Oswald', sans-serif;
+			font-family: var(--font-family-display);
 			font-size: var(--font-size-md);
 			background: var(--grayscale-900);
 			color: var(--white);

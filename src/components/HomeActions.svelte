@@ -19,7 +19,7 @@
 		{$_('home.load_game')}
 	</button>
 	<button class="home-btn home-btn--secondary" type="button" onclick={onpreviousgames}>
-		{$_('home.list_previous_games')}
+		{$_('home.previous_games')}
 	</button>
 </div>
 
@@ -34,12 +34,11 @@
 	.home-btn {
 		border: none;
 		border-radius: 0.5rem;
-		padding: 0.75rem 2rem;
-		font-family: 'Oswald', sans-serif;
+		padding: 1rem 2rem;
+		font-family: var(--font-family-display);
 		font-size: 1.125rem;
 		font-weight: 600;
 		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		cursor: pointer;
 		transition: background-color 0.15s;
 	}

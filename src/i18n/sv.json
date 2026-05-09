@@ -6,7 +6,7 @@
     "game_code_aria": "5-teckens spelkod",
     "load": "Ladda",
     "cancel": "Avbryt",
-    "list_previous_games": "Lista tidigare spel"
+    "previous_games": "Tidigare spel"
   },
   "previous_games": {
     "title": "Tidigare spel",
