@@ -4,6 +4,52 @@
 	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 
+	const QUESTIONS_FILTERS_KEY = 'clever11-admin-questions-filters';
+	const SORT_FIELDS = new Set(['question_text', 'question_number', 'votes']);
+
+	function readPersistedFilters() {
+		if (typeof sessionStorage === 'undefined') return null;
+		try {
+			const raw = sessionStorage.getItem(QUESTIONS_FILTERS_KEY);
+			if (!raw) return null;
+			const o = JSON.parse(raw);
+			if (!o || typeof o !== 'object') return null;
+			const sf =
+				typeof o.sortField === 'string' && SORT_FIELDS.has(o.sortField)
+					? o.sortField
+					: 'question_text';
+			return {
+				filterDeckId:
+					typeof o.filterDeckId === 'string' ? o.filterDeckId : '',
+				filterType:
+					typeof o.filterType === 'string' ? o.filterType : '',
+				filterText:
+					typeof o.filterText === 'string' ? o.filterText : '',
+				showArchived: Boolean(o.showArchived),
+				sortField: sf,
+				sortAsc: typeof o.sortAsc === 'boolean' ? o.sortAsc : true,
+			};
+		} catch {
+			return null;
+		}
+	}
+
+	function writePersistedFilters(
+		/** @type {{ filterDeckId: string, filterType: string, filterText: string, showArchived: boolean, sortField: string, sortAsc: boolean }} */ snapshot,
+	) {
+		if (typeof sessionStorage === 'undefined') return;
+		try {
+			sessionStorage.setItem(
+				QUESTIONS_FILTERS_KEY,
+				JSON.stringify(snapshot),
+			);
+		} catch {
+			/* quota / private mode */
+		}
+	}
+
+	const persisted = readPersistedFilters();
+
 	/** @type {{ navigate: (path: string) => void }} */
 	let { navigate } = $props();
 
@@ -11,16 +57,27 @@
 	let questions = $state([]);
 	let loading = $state(true);
 	let error = $state('');
-	let filterDeckId = $state('');
-	let filterType = $state('');
-	let filterText = $state('');
-	let showArchived = $state(false);
-	let sortField = $state('question_text');
-	let sortAsc = $state(true);
+	let filterDeckId = $state(persisted?.filterDeckId ?? '');
+	let filterType = $state(persisted?.filterType ?? '');
+	let filterText = $state(persisted?.filterText ?? '');
+	let showArchived = $state(persisted?.showArchived ?? false);
+	let sortField = $state(persisted?.sortField ?? 'question_text');
+	let sortAsc = $state(persisted?.sortAsc ?? true);
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
 	/** @type {SvelteMap<string, { up: number, down: number }>} */
 	let voteCounts = new SvelteMap();
+
+	$effect(() => {
+		writePersistedFilters({
+			filterDeckId,
+			filterType,
+			filterText,
+			showArchived,
+			sortField,
+			sortAsc,
+		});
+	});
 
 	$effect(() => {
 		init();
@@ -55,16 +112,14 @@
 		const { data: votes } = await supabase
 			.from('question_votes')
 			.select('question_id, vote');
+		voteCounts.clear();
 		if (!votes) return;
-		/** @type {SvelteMap<string, { up: number, down: number }>} */
-		const counts = new SvelteMap();
 		for (const v of votes) {
-			const entry = counts.get(v.question_id) ?? { up: 0, down: 0 };
+			const entry = voteCounts.get(v.question_id) ?? { up: 0, down: 0 };
 			if (v.vote) entry.up++;
 			else entry.down++;
-			counts.set(v.question_id, entry);
+			voteCounts.set(v.question_id, entry);
 		}
-		voteCounts = counts;
 	}
 
 	const filtered = $derived(
@@ -92,14 +147,12 @@
 
 	const sorted = $derived(
 		[...filtered].sort((a, b) => {
-			let cmp = 0;
-			if (sortField === 'question_number') {
-				cmp = (a.question_number ?? 0) - (b.question_number ?? 0);
-			} else if (sortField === 'votes') {
-				cmp = netVotes(a.id) - netVotes(b.id);
-			} else {
-				cmp = a.question_text.localeCompare(b.question_text, 'sv');
-			}
+			const cmp =
+				sortField === 'question_number'
+					? (a.question_number ?? 0) - (b.question_number ?? 0)
+					: sortField === 'votes'
+						? netVotes(a.id) - netVotes(b.id)
+						: a.question_text.localeCompare(b.question_text, 'sv');
 			return sortAsc ? cmp : -cmp;
 		}),
 	);
