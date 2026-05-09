@@ -167,8 +167,65 @@ function normalizeAnswer(type, value) {
  * @param {unknown} value
  */
 function normalizeBackgroundColor(value) {
+	const DEFAULT = 'hsl(0 80% 50%)';
 	const color = String(value ?? '').trim();
-	return color || 'hsl(0 80% 50%)';
+	if (!color) return DEFAULT;
+	const parsed = parseHsl(color) ?? parseHex(color) ?? parseRgb(color);
+	if (!parsed) return DEFAULT;
+	const h = Math.round(((parsed.h % 360) + 360) % 360);
+	const s = Math.round(Math.max(0, Math.min(100, parsed.s)));
+	const l = Math.round(Math.max(0, Math.min(100, parsed.l)));
+	return `hsl(${h} ${s}% ${l}%)`;
+}
+
+/** @param {string} color */
+function parseHsl(color) {
+	const match = color.match(/^hsla?\(\s*([\d.]+)[\s,]+([\d.]+)%?[\s,]+([\d.]+)%?\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i);
+	if (!match) return null;
+	return { h: Number(match[1]), s: Number(match[2]), l: Number(match[3]) };
+}
+
+/** @param {string} color */
+function parseHex(color) {
+	const match = color.match(/^#([0-9a-f]{3,8})$/i);
+	if (!match) return null;
+	let hex = match[1];
+	if (hex.length === 3 || hex.length === 4) {
+		hex = hex
+			.slice(0, 3)
+			.split('')
+			.map((c) => c + c)
+			.join('');
+	} else if (hex.length === 6 || hex.length === 8) {
+		hex = hex.slice(0, 6);
+	} else {
+		return null;
+	}
+	return rgbToHsl(parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16));
+}
+
+/** @param {string} color */
+function parseRgb(color) {
+	const match = color.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i);
+	if (!match) return null;
+	return rgbToHsl(Number(match[1]), Number(match[2]), Number(match[3]));
+}
+
+function rgbToHsl(r, g, b) {
+	r = Math.max(0, Math.min(255, r)) / 255;
+	g = Math.max(0, Math.min(255, g)) / 255;
+	b = Math.max(0, Math.min(255, b)) / 255;
+	const max = Math.max(r, g, b);
+	const min = Math.min(r, g, b);
+	const l = (max + min) / 2;
+	if (max === min) return { h: 0, s: 0, l: l * 100 };
+	const d = max - min;
+	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+	let h;
+	if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+	else if (max === g) h = ((b - r) / d + 2) / 6;
+	else h = ((r - g) / d + 4) / 6;
+	return { h: h * 360, s: s * 100, l: l * 100 };
 }
 
 /**
