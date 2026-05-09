@@ -84,7 +84,7 @@
 
 	<section class="previous-games__content" aria-busy={loading}>
 		{#if loaderror}
-			<Message variant="error" title={$_('previous_games.load_error_title')} description={loaderror} />
+			<Message variant="error" description={loaderror} />
 		{/if}
 
 		{#if loading}
