@@ -83,6 +83,7 @@
 	/>
 	<Button
 		class="add-player-btn"
+		variant="cta"
 		icon={Plus}
 		onclick={onaddplayer}
 		disabled={!canAddPlayer}
@@ -127,32 +128,37 @@
 	.icon-option {
 		display: grid;
 		place-items: center;
-		border: 2px solid hsl(0 0% 100% / 0.3);
+
+		border: 2px solid var(--palette-gray-muted);
 		border-radius: 0.5rem;
 		width: 2.75rem;
 		height: 2.75rem;
-		background: hsl(0 0% 100% / 0.15);
-		color: var(--white);
+		background-color: var(--palette-gray-dimmed);
+		color: var(--palette-white);
 		cursor: pointer;
 		transition:
-			background-color 0.1s,
-			border-color 0.1s;
-	}
+			background-color,
+			border-color,
+			scale var(--transition-default-duration) ease-out;
 
-	.icon-option:not(:disabled) {
-		&:not(.icon-option--active):hover {
-			background-color: hsl(0 0% 100% / 0.25);
-			border-color: var(--white);
+		&:active {
+			scale: 0.97;
+		}
+	
+		&:not(:disabled) {
+			&:not(.icon-option--active):hover {
+				border-color: var(--palette-white);
+			}
 		}
 	}
 
 	.icon-option--active {
-		background-color: var(--orange-700);
-		border-color: var(--orange-800);
-	}
-
-	.icon-option--active:hover {
-		background-color: var(--orange-800);
+		background-color: var(--palette-purple-mid);
+		border-color: var(--palette-purple-start);
+	
+		&:hover {
+			background-color: lch(from var(--palette-purple-mid) calc(l + 5) c h);
+		}
 	}
 
 	.icon-option--used {
@@ -171,15 +177,15 @@
 			transform 0.1s,
 			border-color 0.1s,
 			box-shadow 0.1s;
-	}
-
-	.color-option:hover:not(:disabled) {
-		border-color: var(--white);
-		transform: scale(1.1);
+	
+		&:hover:not(:disabled) {
+			border-color: var(--palette-white);
+			transform: scale(1.1);
+		}
 	}
 
 	.color-option--active {
-		border-color: var(--white);
+		border-color: var(--palette-white);
 		box-shadow: 0 0 0 2px var(--swatch);
 	}
 
@@ -195,18 +201,18 @@
 
 	.player-name-input {
 		flex: 1;
-		border: 3px solid var(--orange-700);
+		border: 3px solid var(--palette-purple-start);
 		border-radius: 0.5rem;
 		padding: 0.425rem 0.875rem;
-		background-color: var(--white);
-		color: var(--grayscale-900);
+		background-color: var(--palette-white);
+		color: var(--palette-black);
 		font-family: var(--font-family-primary);
 		font-size: var(--font-size-md);
 		font-weight: 600;
 	}
 
 	.player-name-input:focus {
-		outline: 3px solid var(--orange-700);
+		outline: 3px solid var(--palette-purple-start);
 		outline-offset: 2px;
 	}
 
@@ -238,10 +244,10 @@
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
-		border: 2px solid var(--player-ring, transparent);
 		border-radius: 50%;
 		width: 2rem;
 		height: 2rem;
+		background-color: var(--player-ring);
 	}
 
 	.player-list-name {

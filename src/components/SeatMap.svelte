@@ -39,7 +39,7 @@
 					{#each claimers as claimer (claimer.name)}
 						{@const Icon = getPlayerIconComponent(claimer.icon)}
 						<span class="seat-map__avatar" style:--player-ring="var(--{claimer.color})">
-							{#if Icon}<Icon size={13} />{/if}
+							{#if Icon}<Icon size={40} />{/if}
 						</span>
 					{/each}
 				</span>
@@ -80,8 +80,8 @@
 	}
 
 	.seat-map__btn--claimed {
-		background-color: var(--orange-700);
-		border-color: var(--orange-800);
+		background-color: var(--palette-purple-mid);
+		border-color: var(--palette-purple-start);
 		overflow: hidden;
 	}
 
@@ -108,9 +108,12 @@
 		width: 10cqmin;
 		height: 10cqmin;
 		border-radius: 50%;
-		background: hsl(0 0% 0% / 0.25);
-		border: 2px solid var(--player-ring, hsl(0 0% 100% / 0.4));
+		background-color: var(--player-ring, hsl(0 0% 100% / 0.4));
 		flex-shrink: 0;
+
+		svg {
+			height: 5cqi;
+		}
 	}
 
 	.seat-map__avatar + .seat-map__avatar {

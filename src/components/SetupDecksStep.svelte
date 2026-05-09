@@ -80,33 +80,33 @@
 	}
 
 	.deck-card {
+		cursor: pointer;
 		display: flex;
 		align-items: center;
 		gap: 0.875rem;
-		width: 100%;
-		border: 2px solid var(--orange-500);
+
+		border: 2px solid lch(from var(--palette-purple-dark) calc(l + 5) c h);
 		border-radius: 0.625rem;
+		width: 100%;
+		min-height: 5rem;
 		padding: 0.875rem 1rem;
-		background-color: var(--orange-600);
-		color: var(--white);
-		text-align: left;
-		cursor: pointer;
-		transition:
-			background-color 0.15s,
-			border-color 0.15s;
+		background-color: var(--palette-purple-dark);
+
+		text-align: start;
+		color: var(--palette-white);
 	
 		&:hover {
-			background-color: hsl(0 0% 100% / 0.22);
+			background-color: lch(from var(--palette-purple-dark) calc(l + 5) c h);
 		}
 	}
 
 	.deck-card--selected {
-		background-color: var(--orange-700);
-		border-color: var(--orange-800);
-	}
-
-	.deck-card--selected:hover {
-		background-color: var(--orange-800);
+		background-color: var(--palette-purple-mid);
+		border-color: var(--palette-purple-start);
+	
+		&:hover {
+			background-color: lch(from var(--palette-purple-mid) calc(l + 5) c h);
+		}
 	}
 
 	.deck-card__icon {

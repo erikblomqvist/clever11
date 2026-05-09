@@ -61,6 +61,10 @@
 		return names.length ? names.join(', ') : fallback;
 	}
 
+	function formatDecks(/** @type {string[]} */ names, fallback) {
+		return names.length ? names.join('\n') : fallback;
+	}
+
 	const pageRange = $derived.by(() => {
 		if (total === 0) return $_('previous_games.page_empty');
 
@@ -74,13 +78,13 @@
 
 <div class="previous-games">
 	<header class="previous-games__header">
-		<Button variant="secondary" size="sm" icon={ChevronLeft} text={$_('setup.back')} onclick={onback} style="--btn-padding: 0.375rem 0.625rem" />
 		<h1 class="previous-games__title">{$_('previous_games.title')}</h1>
+		<Button variant="secondary" size="sm" icon={ChevronLeft} text={$_('setup.back')} onclick={onback} style="--btn-padding: 0.375rem 0.625rem" />
 	</header>
 
 	<section class="previous-games__content" aria-busy={loading}>
 		{#if loaderror}
-			<Message variant="error" title={$_('previous_games.load_error_title')} description={loaderror} />
+			<Message variant="error" description={loaderror} />
 		{/if}
 
 		{#if loading}
@@ -101,35 +105,34 @@
 								values: { code: previousGame.code },
 							})}
 						>
-							<span class="previous-game-card__topline">
-								<span class="previous-game-card__code">{previousGame.code}</span>
-								<span class="previous-game-card__started">
-									{$_('previous_games.started')}: {formatDate(previousGame.startedAt)}
-								</span>
+							<span class="previous-game-card__participants">
+								{formatNames(
+									previousGame.participantNames,
+									$_('previous_games.no_participants'),
+								)}
 							</span>
 
-							<span class="previous-game-card__details">
-								<span>
-									<strong>{$_('previous_games.decks')}:</strong>
-									{formatNames(
+							<span class="previous-game-card__code">{previousGame.code}</span>
+
+							<dl class="previous-game-card__details">
+								<dt>{$_('previous_games.decks')}</dt>
+								<dd class="previous-game-card__decks">
+									{formatDecks(
 										previousGame.deckNames,
 										$_('previous_games.no_decks'),
 									)}
-								</span>
-								<span>
-									<strong>{$_('previous_games.participants')}:</strong>
-									{formatNames(
-										previousGame.participantNames,
-										$_('previous_games.no_participants'),
-									)}
-								</span>
+								</dd>
+								<dt>{$_('previous_games.started')}</dt>
+								<dd>
+									{formatDate(previousGame.startedAt)}
+								</dd>
 								{#if previousGame.lastMoveAt}
-									<span>
-										<strong>{$_('previous_games.last_move')}:</strong>
+									<dt>{$_('previous_games.last_move')}</dt>
+									<dd>
 										{formatDate(previousGame.lastMoveAt)}
-									</span>
+									</dd>
 								{/if}
-							</span>
+							</dl>
 						</button>
 					</li>
 				{/each}
@@ -162,6 +165,7 @@
 	.previous-games {
 		display: grid;
 		grid-template-rows: auto 1fr auto;
+		width: max(50vw, 30rem);
 		height: 100svh;
 		box-sizing: border-box;
 		color: var(--white);
@@ -170,6 +174,7 @@
 	.previous-games__header {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		gap: 0.75rem;
 		padding: max(1rem, env(safe-area-inset-top)) 1rem 0.75rem;
 		border-bottom: 1px solid hsl(0 0% 100% / 0.2);
@@ -216,61 +221,59 @@
 	}
 
 	.previous-game-card {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		width: 100%;
-		border: 2px solid hsl(0 0% 100% / 0.3);
-		border-radius: 0.625rem;
-		padding: 0.875rem 1rem;
-		background: hsl(0 0% 100% / 0.15);
-		color: var(--white);
-		font-family: var(--font-family-body);
-		text-align: left;
 		cursor: pointer;
-		transition:
-			background-color 0.15s,
-			border-color 0.15s;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 0.75rem;
+		align-items: center;
+
+		border: 2px solid lch(from var(--palette-purple-dark) calc(l + 5) c h);
+		border-radius: 0.625rem;
+		width: 100%;
+		padding: 0.875rem 1rem;
+		background-color: var(--palette-purple-dark);
+
+		font-family: var(--font-family-body);
+		text-align: start;
+		color: var(--white);
+		
+		&:hover {
+			background-color: lch(from var(--palette-purple-dark) calc(l + 5) c h);
+		}
 	}
 
-	.previous-game-card:hover {
-		background-color: hsl(0 0% 100% / 0.22);
-		border-color: hsl(0 0% 100% / 0.42);
-	}
-
-	.previous-game-card__topline {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 1rem;
+	.previous-game-card__participants {
+		font-family: var(--font-family-display);
+		font-size: var(--font-size-md);
 	}
 
 	.previous-game-card__code {
 		font-family: var(--font-family-monospace);
-		font-size: var(--font-size-xl);
+		font-size: var(--font-size-sm);
 		font-weight: 700;
 		letter-spacing: 0.08em;
 	}
 
-	.previous-game-card__started {
-		color: hsl(0 0% 100% / 0.75);
-		font-size: var(--font-size-sm);
-		white-space: nowrap;
-	}
-
 	.previous-game-card__details {
 		display: grid;
-		gap: 0.25rem;
-		font-size: var(--font-size-base);
-		line-height: 1.25;
+		grid-template-columns: 15ch 1fr;
+		gap: 0.5rem 1.5rem;
+		grid-column: 1 / -1;
+
+		font-size: var(--font-size-sm);
+		line-height: 1.5;
+
+		dt {
+			font-weight: 500;
+		}
+
+		dd {
+			margin: 0;
+		}
 	}
 
-	.previous-game-card__details strong {
-		margin-inline-end: 0.25rem;
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-		letter-spacing: 0.04em;
+	.previous-game-card__decks {
+		white-space: pre-line;
 	}
 
 	.previous-games__footer {
@@ -293,8 +296,7 @@
 	}
 
 	@media (max-width: 520px) {
-		.previous-games__footer,
-		.previous-game-card__topline {
+		.previous-games__footer {
 			align-items: stretch;
 			flex-direction: column;
 		}

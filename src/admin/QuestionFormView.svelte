@@ -379,6 +379,53 @@
 		{ value: 'numbers', label: 'Numbers' },
 		{ value: 'centuryDecade', label: 'Century / Decade' },
 	];
+
+	const SHY = '­';
+	const LONG_WORD_THRESHOLD = 11;
+
+	/** @param {string} wordText */
+	function parseWordChars(wordText) {
+		/** @type {string[]} */
+		const chars = [];
+		/** @type {Record<number, true>} */
+		const shyAfter = {};
+		for (const c of wordText) {
+			if (c === SHY) {
+				if (chars.length > 0) shyAfter[chars.length - 1] = true;
+			} else {
+				chars.push(c);
+			}
+		}
+		return { chars, shyAfter };
+	}
+
+	let longWords = $derived.by(() => {
+		if (!questionText) return [];
+		/** @type {{ text: string, offset: number }[]} */
+		const result = [];
+		const regex = /\S+/g;
+		let match;
+		while ((match = regex.exec(questionText)) !== null) {
+			const cleanLen = match[0].replaceAll(SHY, '').length;
+			if (cleanLen >= LONG_WORD_THRESHOLD) {
+				result.push({ text: match[0], offset: match.index });
+			}
+		}
+		return result;
+	});
+
+	/** @param {number} offset @param {string} wordText @param {number} charIndex */
+	function toggleShy(offset, wordText, charIndex) {
+		const { chars, shyAfter } = parseWordChars(wordText);
+		if (shyAfter[charIndex]) delete shyAfter[charIndex];
+		else shyAfter[charIndex] = true;
+		let rebuilt = '';
+		for (let i = 0; i < chars.length; i++) {
+			rebuilt += chars[i];
+			if (shyAfter[i]) rebuilt += SHY;
+		}
+		questionText = questionText.substring(0, offset) + rebuilt + questionText.substring(offset + wordText.length);
+	}
 </script>
 
 <div class="admin-page">
@@ -417,6 +464,32 @@
 				Question text *
 				<input class="admin-input" type="text" bind:value={questionText} required disabled={saving} placeholder="Write the question" />
 			</label>
+
+			{#if longWords.length > 0}
+				<div class="shy-helper">
+					<span class="shy-helper__hint">
+						{longWords.some((w) => !w.text.includes(SHY))
+							? 'Long words found — tap a letter to add a break after it'
+							: 'Break points set'}
+					</span>
+					<div class="shy-helper__words">
+						{#each longWords as word (word.offset)}
+							{@const parsed = parseWordChars(word.text)}
+							<div class="shy-helper__word" class:shy-helper__word--done={word.text.includes(SHY)}>
+								{#each parsed.chars as char, i (i)}
+									<button
+										class="shy-helper__letter"
+										class:shy-helper__letter--break={parsed.shyAfter[i]}
+										type="button"
+										onclick={() => toggleShy(word.offset, word.text, i)}
+										disabled={saving}
+									>{char}</button>
+								{/each}
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 
 			<label class="admin-label" style="max-width:200px">
 				Question number
@@ -587,3 +660,85 @@
 		</form>
 	{/if}
 </div>
+
+<style>
+	.shy-helper {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-top: -2px;
+	}
+
+	.shy-helper__hint {
+		font-size: 12px;
+		color: #d97706;
+	}
+
+	.shy-helper__words {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.shy-helper__word {
+		display: inline-flex;
+		align-items: center;
+		background: #1a1a1a;
+		border: 1px solid #d9770644;
+		border-radius: 6px;
+		padding: 2px 4px;
+	}
+
+	.shy-helper__word--done {
+		border-color: #2a2a2a;
+	}
+
+	.shy-helper__letter {
+		appearance: none;
+		font-size: 15px;
+		font-family: 'Berkeley Mono', ui-monospace, monospace;
+		color: #ccc;
+		line-height: 1;
+		background: none;
+		border: none;
+		padding: 6px 2px;
+		margin: 0;
+		cursor: pointer;
+		position: relative;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.shy-helper__letter::after {
+		content: '';
+		position: absolute;
+		right: -1px;
+		top: 4px;
+		bottom: 4px;
+		width: 2px;
+		border-radius: 1px;
+		background: transparent;
+		transition: background-color 0.15s;
+	}
+
+	.shy-helper__letter:hover::after {
+		background: #ffffff22;
+	}
+
+	.shy-helper__letter--break::after {
+		background: #2563eb;
+	}
+
+	.shy-helper__letter--break:hover::after {
+		background: #3b82f6;
+	}
+
+	.shy-helper__letter:last-child::after {
+		display: none;
+	}
+
+	.shy-helper__letter:disabled {
+		cursor: default;
+		pointer-events: none;
+	}
+</style>

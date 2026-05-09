@@ -59,39 +59,36 @@
 		align-items: center;
 		gap: 0.75rem;
 		width: 100%;
-		border: 2px solid hsl(0 0% 100% / 0.3);
+		border: 2px solid lch(from var(--palette-purple-dark) calc(l + 5) c h);
 		border-radius: 0.5rem;
 		padding: 0.75rem 1rem;
-		background: hsl(0 0% 100% / 0.15);
-		color: var(--white);
+		background-color: var(--palette-purple-dark);
+		color: var(--palette-white);
 		text-align: left;
 		cursor: pointer;
-		transition:
-			background-color 0.15s,
-			border-color 0.15s;
-	}
-
-	.starting-card:hover {
-		background-color: hsl(0 0% 100% / 0.22);
+	
+		&:hover {
+			background-color: lch(from var(--palette-purple-dark) calc(l + 5) c h);
+		}
 	}
 
 	.starting-card--selected {
-		background-color: var(--orange-700);
-		border-color: var(--orange-800);
-	}
+		background-color: var(--palette-purple-mid);
+		border-color: var(--palette-purple-start);
 
-	.starting-card--selected:hover {
-		background-color: var(--orange-800);
+		&:hover {
+			background-color: lch(from var(--palette-purple-mid) calc(l + 5) c h);
+		}
 	}
 
 	.starting-card__icon {
 		display: grid;
 		place-items: center;
 		flex-shrink: 0;
-		border: 2px solid var(--player-ring, transparent);
 		border-radius: 50%;
 		width: 2rem;
 		height: 2rem;
+		background-color: var(--player-ring);
 	}
 
 	.starting-card__name {
