@@ -3,6 +3,13 @@
 	import { waitLocale } from 'svelte-i18n';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/state';
+
+	import '@fontsource/erica-one/latin-400.css';
+	import '@fontsource/bricolage-grotesque/latin.css';
+	import '@fontsource/inter/latin.css';
+	import '@fontsource/nunito/latin.css';
+	import '@fontsource/sometype-mono/latin.css';
+
 	import '../app.css';
 
 	let { data, children } = $props();
