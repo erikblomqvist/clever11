@@ -6,6 +6,7 @@
 	import Button from '../components/Button.svelte';
 	import Message from '../components/Message.svelte';
 	import PlayerIcon from '../components/PlayerIcon.svelte';
+	import SearchInput from '../components/SearchInput.svelte';
 
 	/**
 	 * @type {{
@@ -26,6 +27,8 @@
 	let error = $state(/** @type {string|null} */ (null));
 
 	let sentinel = $state(/** @type {HTMLDivElement|null} */ (null));
+	let searchQuery = $state('');
+	let debouncedSearch = $state('');
 
 	let hasMore = $derived(page < totalPages);
 
@@ -33,7 +36,10 @@
 	const MAX_NAMES = 3;
 	const MAX_DECKS = 3;
 
+	let requestGeneration = 0;
+
 	async function loadNextPage() {
+		const gen = requestGeneration;
 		const nextPage = page + 1;
 		const isInitial = nextPage === 1;
 
@@ -45,11 +51,16 @@
 		error = null;
 
 		try {
-			const result = await fetchPreviousGamesPage(nextPage);
+			const result = await fetchPreviousGamesPage(
+				nextPage,
+				debouncedSearch,
+			);
+			if (gen !== requestGeneration) return;
 			games = [...games, ...result.games];
 			page = result.page;
 			totalPages = result.totalPages;
 		} catch (e) {
+			if (gen !== requestGeneration) return;
 			error = /** @type {Error} */ (e).message;
 			if (isInitial) {
 				games = [];
@@ -62,6 +73,26 @@
 	}
 
 	onMount(() => {
+		loadNextPage();
+	});
+
+	$effect(() => {
+		const q = searchQuery;
+		const timeout = setTimeout(() => {
+			debouncedSearch = q;
+		}, 300);
+		return () => clearTimeout(timeout);
+	});
+
+	let prevSearch = '';
+	$effect(() => {
+		const search = debouncedSearch;
+		if (search === prevSearch) return;
+		prevSearch = search;
+		requestGeneration++;
+		games = [];
+		page = 0;
+		totalPages = 1;
 		loadNextPage();
 	});
 
@@ -212,6 +243,13 @@
 			</p>
 		</div>
 	</header>
+
+	<div class="previous-games__search">
+		<SearchInput
+			placeholder={$_('previous_games.search_placeholder')}
+			bind:value={searchQuery}
+		/>
+	</div>
 
 	<section class="previous-games__content" aria-busy={loading}>
 		{#if loaderror}
@@ -416,7 +454,7 @@
 	.previous-games {
 		box-sizing: border-box;
 		display: grid;
-		grid-template-rows: auto 1fr;
+		grid-template-rows: auto auto 1fr;
 
 		margin-inline: auto;
 		width: max(50vw, 50rem);
@@ -431,6 +469,10 @@
 		gap: 0.75rem;
 		padding: max(1rem, env(safe-area-inset-top)) 1rem 0.75rem;
 		border-bottom: 1px solid hsl(0 0% 100% / 0.2);
+	}
+
+	.previous-games__search {
+		padding: 0.75rem 1rem;
 	}
 
 	.previous-games__header-text {

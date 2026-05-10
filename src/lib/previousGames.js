@@ -49,9 +49,10 @@ function unique(ids) {
 
 /**
  * @param {number} page
+ * @param {string} [search]
  * @returns {Promise<PreviousGamesPage>}
  */
-export async function fetchPreviousGamesPage(page = 1) {
+export async function fetchPreviousGamesPage(page = 1, search = '') {
 	if (!supabase) {
 		throw new Error('Supabase is not configured. Check your .env file.');
 	}
@@ -60,21 +61,39 @@ export async function fetchPreviousGamesPage(page = 1) {
 	const from = (safePage - 1) * PREVIOUS_GAMES_PAGE_SIZE;
 	const to = from + PREVIOUS_GAMES_PAGE_SIZE - 1;
 
+	let searchGameIds = /** @type {string[]} */ ([]);
+	if (search) {
+		const { data: matchingPlayers } = await supabase
+			.from('game_players')
+			.select('game_id')
+			.ilike('name', `%${search}%`);
+
+		searchGameIds = unique((matchingPlayers ?? []).map((r) => r.game_id));
+	}
+
+	let query = supabase
+		.from('games')
+		.select(
+			'id, code, status, selected_decks, created_at, current_round_id',
+			{ count: 'exact' },
+		)
+		.neq('status', 'finished');
+
+	if (search) {
+		if (searchGameIds.length > 0) {
+			query = query.or(
+				`code.ilike.%${search}%,id.in.(${searchGameIds.join(',')})`,
+			);
+		} else {
+			query = query.ilike('code', `%${search}%`);
+		}
+	}
+
 	const {
 		data: gameRows,
 		count,
 		error,
-	} = await supabase
-		.from('games')
-		.select(
-			'id, code, status, selected_decks, created_at, current_round_id',
-			{
-				count: 'exact',
-			},
-		)
-		.neq('status', 'finished')
-		.order('created_at', { ascending: false })
-		.range(from, to);
+	} = await query.order('created_at', { ascending: false }).range(from, to);
 
 	if (error) {
 		throw new Error(error.message);

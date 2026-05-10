@@ -35,7 +35,8 @@
 		"group_today": "I dag",
 		"group_yesterday": "I går",
 		"group_earlier_this_week": "Tidligere denne uken",
-		"group_older": "Eldre"
+		"group_older": "Eldre",
+		"search_placeholder": "Søk etter kode eller spillernavn…"
 	},
 	"setup": {
 		"players_title": "Spillere",

@@ -35,7 +35,8 @@
 		"group_today": "Today",
 		"group_yesterday": "Yesterday",
 		"group_earlier_this_week": "Earlier this week",
-		"group_older": "Older"
+		"group_older": "Older",
+		"search_placeholder": "Search by code or player name…"
 	},
 	"setup": {
 		"players_title": "Players",
