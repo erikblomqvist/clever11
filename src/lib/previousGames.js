@@ -4,13 +4,21 @@ export const PREVIOUS_GAMES_PAGE_SIZE = 10;
 
 /**
  * @typedef {{
+ *   name: string,
+ *   icon: string,
+ *   color: string,
+ *   totalScore: number,
+ * }} PreviousGameParticipant
+ *
+ * @typedef {{
  *   id: string,
  *   code: string,
  *   status: string,
  *   startedAt: string,
  *   deckNames: string[],
- *   participantNames: string[],
+ *   participants: PreviousGameParticipant[],
  *   lastMoveAt: string|null,
+ *   roundNumber: number,
  * }} PreviousGame
  *
  * @typedef {{
@@ -52,9 +60,18 @@ export async function fetchPreviousGamesPage(page = 1) {
 	const from = (safePage - 1) * PREVIOUS_GAMES_PAGE_SIZE;
 	const to = from + PREVIOUS_GAMES_PAGE_SIZE - 1;
 
-	const { data: gameRows, count, error } = await supabase
+	const {
+		data: gameRows,
+		count,
+		error,
+	} = await supabase
 		.from('games')
-		.select('id, code, status, selected_decks, created_at', { count: 'exact' })
+		.select(
+			'id, code, status, selected_decks, created_at, current_round_id',
+			{
+				count: 'exact',
+			},
+		)
 		.neq('status', 'finished')
 		.order('created_at', { ascending: false })
 		.range(from, to);
@@ -74,21 +91,25 @@ export async function fetchPreviousGamesPage(page = 1) {
 		{ data: playerRows, error: playersError },
 		{ data: deckRows, error: decksError },
 		{ data: roundRows, error: roundsError },
-	] =
-		await Promise.all([
-			gameIds.length
-				? supabase
-						.from('game_players')
-						.select('game_id, name, turn_order')
-						.in('game_id', gameIds)
-				: Promise.resolve({ data: [] }),
-			deckIds.length
-				? supabase.from('decks').select('id, name').in('id', deckIds)
-				: Promise.resolve({ data: [] }),
-			gameIds.length
-				? supabase.from('game_rounds').select('id, game_id').in('game_id', gameIds)
-				: Promise.resolve({ data: [] }),
-		]);
+	] = await Promise.all([
+		gameIds.length
+			? supabase
+					.from('game_players')
+					.select(
+						'game_id, name, turn_order, icon, color, total_score',
+					)
+					.in('game_id', gameIds)
+			: Promise.resolve({ data: [] }),
+		deckIds.length
+			? supabase.from('decks').select('id, name').in('id', deckIds)
+			: Promise.resolve({ data: [] }),
+		gameIds.length
+			? supabase
+					.from('game_rounds')
+					.select('id, game_id, round_number')
+					.in('game_id', gameIds)
+			: Promise.resolve({ data: [] }),
+	]);
 
 	const relatedError = playersError ?? decksError ?? roundsError;
 	if (relatedError) {
@@ -102,9 +123,14 @@ export async function fetchPreviousGamesPage(page = 1) {
 		playersByGameId.set(player.game_id, players);
 	}
 
-	const deckNameById = new Map((deckRows ?? []).map((deck) => [deck.id, deck.name]));
+	const deckNameById = new Map(
+		(deckRows ?? []).map((deck) => [deck.id, deck.name]),
+	);
 	const gameIdByRoundId = new Map(
 		(roundRows ?? []).map((round) => [round.id, round.game_id]),
+	);
+	const roundNumberByRoundId = new Map(
+		(roundRows ?? []).map((round) => [round.id, round.round_number]),
 	);
 	const roundIds = [...gameIdByRoundId.keys()];
 
@@ -140,9 +166,18 @@ export async function fetchPreviousGamesPage(page = 1) {
 				code: row.code,
 				status: row.status,
 				startedAt: row.created_at,
-				deckNames: selectedDeckIds.map((id) => deckNameById.get(id) ?? id),
-				participantNames: players.map((player) => player.name),
+				deckNames: selectedDeckIds.map(
+					(id) => deckNameById.get(id) ?? id,
+				),
+				participants: players.map((player) => ({
+					name: player.name,
+					icon: player.icon ?? '',
+					color: player.color ?? 'player-color-1',
+					totalScore: player.total_score ?? 0,
+				})),
 				lastMoveAt: latestMoveByGameId.get(row.id) ?? null,
+				roundNumber:
+					roundNumberByRoundId.get(row.current_round_id) ?? 1,
 			};
 		}),
 		page: safePage,

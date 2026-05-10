@@ -1,125 +1,132 @@
 {
-  "home": {
-    "new_game": "Nytt spel",
-    "load_game": "Ladda spel",
-    "game_code_placeholder": "Spelkod",
-    "game_code_aria": "5-teckens spelkod",
-    "load": "Ladda",
-    "cancel": "Avbryt",
-    "previous_games": "Tidigare spel"
-  },
-  "previous_games": {
-    "title": "Tidigare spel",
-    "loading": "Laddar tidigare spel…",
-    "empty": "Inga oavslutade spel hittades.",
-    "started": "Startat",
-    "decks": "Kortlekar",
-    "participants": "Deltagare",
-    "last_move": "Senaste drag",
-    "no_decks": "Inga kortlekar",
-    "no_participants": "Inga deltagare",
-    "previous": "Föregående",
-    "next": "Nästa",
-    "page_empty": "Inga spel",
-    "page_range": "{start}–{end} av {total}",
-    "load_game_aria": "Ladda spel {code}"
-  },
-  "setup": {
-    "players_title": "Spelare",
-    "back": "Tillbaka",
-    "player_name_placeholder": "Spelarnamn",
-    "add_player_aria": "Lägg till spelare",
-    "min_players_hint": "Lägg till minst 2 spelare för att fortsätta.",
-    "continue": "Fortsätt",
-    "back_to_players_aria": "Tillbaka till spelare",
-    "seated_prompt": "Var sitter du?",
-    "seat_aria": "Plats {n}",
-    "choose_decks_title": "Välj kortlekar",
-    "loading_decks": "Laddar kortlekar…",
-    "no_decks": "Inga kortlekar tillgängliga ännu.",
-    "who_goes_first_title": "Vem börjar?",
-    "randomize": "Slumpa",
-    "start_game": "Starta spel",
-    "rules_title": "Regler",
-    "turn_timer_label": "Tidsgräns per tur",
-    "turn_timer_description": "Begränsa varje tur till ett fast antal sekunder. Om tiden tar slut passar spelaren automatiskt.",
-    "turn_timer_seconds": "{n} sekunder"
-  },
-  "game": {
-    "save_alert": "Spelkod: {code} (kopierad till urklipp)\n\nDitt spel sparas automatiskt efter varje drag.",
-    "new_game_confirm": "Starta ett nytt spel? Se till att spara om du vill fortsätta senare.",
-    "end_round": "Avsluta runda",
-    "pass": "Passa",
-    "round_heading": "Runda {n}",
-    "standings": "Poängställning",
-    "next_round": "Nästa runda",
-    "game_over": "Spelet slut",
-    "wins": "{name} vinner",
-    "pts": "{n} poäng",
-    "pts_short": "p",
-    "new_game": "Nytt spel",
-    "times_up": "Tiden är ute, {name}!",
-    "question_vote_aria": "Betygsätt frågan",
-    "thumbs_up_aria": "Bra fråga",
-    "thumbs_down_aria": "Dålig fråga"
-  },
-  "menu": {
-    "turn": "{name}s tur",
-    "current_round": "Aktuell runda",
-    "overall_score": "Totalpoäng",
-    "general_actions": "Allmänna åtgärder",
-    "undo_last_move": "Ångra senaste draget",
-    "save_game": "Spara spel",
-    "start_new_game": "Starta nytt spel",
-    "skip_round": "Hoppa över runda",
-    "admin": "Admin"
-  },
-  "manage_players": {
-    "title": "Hantera spelare",
-    "add_player": "Lägg till spelare",
-    "replace_player": "Byt ut spelare",
-    "confirm_replace": "Bekräfta",
-    "choose_seat": "Välj plats",
-    "remove_aria": "Ta bort {name}",
-    "replace_aria": "Byt ut {name}"
-  },
-  "blob": {
-    "answer_aria": "Svar: {answer}",
-    "undo_aria": "Ångra senaste draget för svar: {answer}",
-    "reveal_aria": "Avslöja svar {n}"
-  },
-  "question_meta": {
-    "type": "Typ",
-    "deck": "Kortlek"
-  },
-  "question_types": {
-    "boolean": "Ja / Nej",
-    "standard": "Standard",
-    "rank": "1 – 10",
-    "chooseBetween": "Välj mellan",
-    "colors": "Färger",
-    "numbers": "Tal",
-    "centuryDecade": "Århundrade / årtionde"
-  },
-  "score": {
-    "playing": "Spelar",
-    "passed": "Passar",
-    "out": "Ute"
-  },
-  "answer_dialog": {
-    "yes": "Ja",
-    "no": "Nej",
-    "correct": "Rätt",
-    "wrong": "Fel",
-    "reveal": "Visa svar"
-  },
-  "undo_dialog": {
-    "prompt": "Ångra senaste draget?",
-    "yes": "Ja",
-    "no": "Nej"
-  },
-  "app": {
-    "loading_aria": "Laddar",
-    "load_error": "Kunde inte ladda spelet."
-  }
+	"home": {
+		"new_game": "Nytt spel",
+		"load_game": "Ladda spel",
+		"game_code_placeholder": "Spelkod",
+		"game_code_aria": "5-teckens spelkod",
+		"load": "Ladda",
+		"cancel": "Avbryt",
+		"previous_games": "Tidigare spel"
+	},
+	"previous_games": {
+		"title": "Tidigare spel",
+		"loading": "Laddar tidigare spel…",
+		"empty": "Inga oavslutade spel hittades.",
+		"started": "Startat",
+		"decks": "Kortlekar",
+		"participants": "Deltagare",
+		"last_move": "Senaste drag",
+		"no_decks": "Inga kortlekar",
+		"no_participants": "Inga deltagare",
+		"previous": "Föregående",
+		"next": "Nästa",
+		"page_empty": "Inga spel",
+		"page_range": "{start}–{end} av {total}",
+		"load_game_aria": "Ladda spel {code}",
+		"round_leads": "Runda {round} · {name} leder",
+		"started_at": "startade {time}",
+		"today_time": "idag, {time}",
+		"yesterday_time": "igår, {time}",
+		"only_one_round": "bara 1 runda spelad",
+		"resume": "Fortsätt",
+		"just_now": "just nu"
+	},
+	"setup": {
+		"players_title": "Spelare",
+		"back": "Tillbaka",
+		"player_name_placeholder": "Spelarnamn",
+		"add_player_aria": "Lägg till spelare",
+		"min_players_hint": "Lägg till minst 2 spelare för att fortsätta.",
+		"continue": "Fortsätt",
+		"back_to_players_aria": "Tillbaka till spelare",
+		"seated_prompt": "Var sitter du?",
+		"seat_aria": "Plats {n}",
+		"choose_decks_title": "Välj kortlekar",
+		"loading_decks": "Laddar kortlekar…",
+		"no_decks": "Inga kortlekar tillgängliga ännu.",
+		"who_goes_first_title": "Vem börjar?",
+		"randomize": "Slumpa",
+		"start_game": "Starta spel",
+		"rules_title": "Regler",
+		"turn_timer_label": "Tidsgräns per tur",
+		"turn_timer_description": "Begränsa varje tur till ett fast antal sekunder. Om tiden tar slut passar spelaren automatiskt.",
+		"turn_timer_seconds": "{n} sekunder"
+	},
+	"game": {
+		"save_alert": "Spelkod: {code} (kopierad till urklipp)\n\nDitt spel sparas automatiskt efter varje drag.",
+		"new_game_confirm": "Starta ett nytt spel? Se till att spara om du vill fortsätta senare.",
+		"end_round": "Avsluta runda",
+		"pass": "Passa",
+		"round_heading": "Runda {n}",
+		"standings": "Poängställning",
+		"next_round": "Nästa runda",
+		"game_over": "Spelet slut",
+		"wins": "{name} vinner",
+		"pts": "{n} poäng",
+		"pts_short": "p",
+		"new_game": "Nytt spel",
+		"times_up": "Tiden är ute, {name}!",
+		"question_vote_aria": "Betygsätt frågan",
+		"thumbs_up_aria": "Bra fråga",
+		"thumbs_down_aria": "Dålig fråga"
+	},
+	"menu": {
+		"turn": "{name}s tur",
+		"current_round": "Aktuell runda",
+		"overall_score": "Totalpoäng",
+		"general_actions": "Allmänna åtgärder",
+		"undo_last_move": "Ångra senaste draget",
+		"save_game": "Spara spel",
+		"start_new_game": "Starta nytt spel",
+		"skip_round": "Hoppa över runda",
+		"admin": "Admin"
+	},
+	"manage_players": {
+		"title": "Hantera spelare",
+		"add_player": "Lägg till spelare",
+		"replace_player": "Byt ut spelare",
+		"confirm_replace": "Bekräfta",
+		"choose_seat": "Välj plats",
+		"remove_aria": "Ta bort {name}",
+		"replace_aria": "Byt ut {name}"
+	},
+	"blob": {
+		"answer_aria": "Svar: {answer}",
+		"undo_aria": "Ångra senaste draget för svar: {answer}",
+		"reveal_aria": "Avslöja svar {n}"
+	},
+	"question_meta": {
+		"type": "Typ",
+		"deck": "Kortlek"
+	},
+	"question_types": {
+		"boolean": "Ja / Nej",
+		"standard": "Standard",
+		"rank": "1 – 10",
+		"chooseBetween": "Välj mellan",
+		"colors": "Färger",
+		"numbers": "Tal",
+		"centuryDecade": "Århundrade / årtionde"
+	},
+	"score": {
+		"playing": "Spelar",
+		"passed": "Passar",
+		"out": "Ute"
+	},
+	"answer_dialog": {
+		"yes": "Ja",
+		"no": "Nej",
+		"correct": "Rätt",
+		"wrong": "Fel",
+		"reveal": "Visa svar"
+	},
+	"undo_dialog": {
+		"prompt": "Ångra senaste draget?",
+		"yes": "Ja",
+		"no": "Nej"
+	},
+	"app": {
+		"loading_aria": "Laddar",
+		"load_error": "Kunde inte ladda spelet."
+	}
 }

@@ -1,125 +1,132 @@
 {
-  "home": {
-    "new_game": "New game",
-    "load_game": "Load game",
-    "game_code_placeholder": "Game code",
-    "game_code_aria": "5-character game code",
-    "load": "Load",
-    "cancel": "Cancel",
-    "previous_games": "Previous games"
-  },
-  "previous_games": {
-    "title": "Previous games",
-    "loading": "Loading previous games…",
-    "empty": "No unfinished games found.",
-    "started": "Started",
-    "decks": "Decks",
-    "participants": "Participants",
-    "last_move": "Last move",
-    "no_decks": "No decks",
-    "no_participants": "No participants",
-    "previous": "Previous",
-    "next": "Next",
-    "page_empty": "No games",
-    "page_range": "{start}–{end} of {total}",
-    "load_game_aria": "Load game {code}"
-  },
-  "setup": {
-    "players_title": "Players",
-    "back": "Back",
-    "player_name_placeholder": "Player name",
-    "add_player_aria": "Add player",
-    "min_players_hint": "Add at least 2 players to continue.",
-    "continue": "Continue",
-    "back_to_players_aria": "Back to players",
-    "seated_prompt": "Where are you seated?",
-    "seat_aria": "Seat {n}",
-    "choose_decks_title": "Choose decks",
-    "loading_decks": "Loading decks…",
-    "no_decks": "No decks available yet.",
-    "who_goes_first_title": "Who goes first?",
-    "randomize": "Randomize",
-    "start_game": "Start game",
-    "rules_title": "Rules",
-    "turn_timer_label": "Turn timer",
-    "turn_timer_description": "Limit each turn to a fixed number of seconds. If time runs out, the player automatically passes.",
-    "turn_timer_seconds": "{n} seconds"
-  },
-  "game": {
-    "save_alert": "Game code: {code} (copied to clipboard)\n\nYour game is saved automatically after each move.",
-    "new_game_confirm": "Start a new game? Make sure to save first if you want to continue later.",
-    "end_round": "End round",
-    "pass": "Pass",
-    "round_heading": "Round {n}",
-    "standings": "Standings",
-    "next_round": "Next round",
-    "game_over": "Game over",
-    "wins": "{name} wins",
-    "pts": "{n} pts",
-    "pts_short": "pts",
-    "new_game": "New game",
-    "times_up": "Time's up, {name}!",
-    "question_vote_aria": "Rate this question",
-    "thumbs_up_aria": "Good question",
-    "thumbs_down_aria": "Bad question"
-  },
-  "menu": {
-    "turn": "{name}'s turn",
-    "current_round": "Current round",
-    "overall_score": "Overall score",
-    "general_actions": "General actions",
-    "undo_last_move": "Undo last move",
-    "save_game": "Save game",
-    "start_new_game": "Start new game",
-    "skip_round": "Skip round",
-    "admin": "Admin"
-  },
-  "manage_players": {
-    "title": "Manage Players",
-    "add_player": "Add player",
-    "replace_player": "Replace player",
-    "confirm_replace": "Confirm",
-    "choose_seat": "Choose seat",
-    "remove_aria": "Remove {name}",
-    "replace_aria": "Replace {name}"
-  },
-  "blob": {
-    "answer_aria": "Answer: {answer}",
-    "undo_aria": "Undo last move for answer: {answer}",
-    "reveal_aria": "Reveal answer {n}"
-  },
-  "question_meta": {
-    "type": "Type",
-    "deck": "Deck"
-  },
-  "question_types": {
-    "boolean": "Yes / No",
-    "standard": "Standard",
-    "rank": "1 – 10",
-    "chooseBetween": "Choose between",
-    "colors": "Colors",
-    "numbers": "Numbers",
-    "centuryDecade": "Century / Decade"
-  },
-  "score": {
-    "playing": "Playing",
-    "passed": "Passed",
-    "out": "Out"
-  },
-  "answer_dialog": {
-    "yes": "Yes",
-    "no": "No",
-    "correct": "Correct",
-    "wrong": "Wrong",
-    "reveal": "Reveal answer"
-  },
-  "undo_dialog": {
-    "prompt": "Undo last move?",
-    "yes": "Yes",
-    "no": "No"
-  },
-  "app": {
-    "loading_aria": "Loading",
-    "load_error": "Could not load game."
-  }
+	"home": {
+		"new_game": "New game",
+		"load_game": "Load game",
+		"game_code_placeholder": "Game code",
+		"game_code_aria": "5-character game code",
+		"load": "Load",
+		"cancel": "Cancel",
+		"previous_games": "Previous games"
+	},
+	"previous_games": {
+		"title": "Previous games",
+		"loading": "Loading previous games…",
+		"empty": "No unfinished games found.",
+		"started": "Started",
+		"decks": "Decks",
+		"participants": "Participants",
+		"last_move": "Last move",
+		"no_decks": "No decks",
+		"no_participants": "No participants",
+		"previous": "Previous",
+		"next": "Next",
+		"page_empty": "No games",
+		"page_range": "{start}–{end} of {total}",
+		"load_game_aria": "Load game {code}",
+		"round_leads": "Round {round} · {name} leads",
+		"started_at": "started {time}",
+		"today_time": "today, {time}",
+		"yesterday_time": "yesterday, {time}",
+		"only_one_round": "only 1 round played",
+		"resume": "Resume",
+		"just_now": "just now"
+	},
+	"setup": {
+		"players_title": "Players",
+		"back": "Back",
+		"player_name_placeholder": "Player name",
+		"add_player_aria": "Add player",
+		"min_players_hint": "Add at least 2 players to continue.",
+		"continue": "Continue",
+		"back_to_players_aria": "Back to players",
+		"seated_prompt": "Where are you seated?",
+		"seat_aria": "Seat {n}",
+		"choose_decks_title": "Choose decks",
+		"loading_decks": "Loading decks…",
+		"no_decks": "No decks available yet.",
+		"who_goes_first_title": "Who goes first?",
+		"randomize": "Randomize",
+		"start_game": "Start game",
+		"rules_title": "Rules",
+		"turn_timer_label": "Turn timer",
+		"turn_timer_description": "Limit each turn to a fixed number of seconds. If time runs out, the player automatically passes.",
+		"turn_timer_seconds": "{n} seconds"
+	},
+	"game": {
+		"save_alert": "Game code: {code} (copied to clipboard)\n\nYour game is saved automatically after each move.",
+		"new_game_confirm": "Start a new game? Make sure to save first if you want to continue later.",
+		"end_round": "End round",
+		"pass": "Pass",
+		"round_heading": "Round {n}",
+		"standings": "Standings",
+		"next_round": "Next round",
+		"game_over": "Game over",
+		"wins": "{name} wins",
+		"pts": "{n} pts",
+		"pts_short": "pts",
+		"new_game": "New game",
+		"times_up": "Time's up, {name}!",
+		"question_vote_aria": "Rate this question",
+		"thumbs_up_aria": "Good question",
+		"thumbs_down_aria": "Bad question"
+	},
+	"menu": {
+		"turn": "{name}'s turn",
+		"current_round": "Current round",
+		"overall_score": "Overall score",
+		"general_actions": "General actions",
+		"undo_last_move": "Undo last move",
+		"save_game": "Save game",
+		"start_new_game": "Start new game",
+		"skip_round": "Skip round",
+		"admin": "Admin"
+	},
+	"manage_players": {
+		"title": "Manage Players",
+		"add_player": "Add player",
+		"replace_player": "Replace player",
+		"confirm_replace": "Confirm",
+		"choose_seat": "Choose seat",
+		"remove_aria": "Remove {name}",
+		"replace_aria": "Replace {name}"
+	},
+	"blob": {
+		"answer_aria": "Answer: {answer}",
+		"undo_aria": "Undo last move for answer: {answer}",
+		"reveal_aria": "Reveal answer {n}"
+	},
+	"question_meta": {
+		"type": "Type",
+		"deck": "Deck"
+	},
+	"question_types": {
+		"boolean": "Yes / No",
+		"standard": "Standard",
+		"rank": "1 – 10",
+		"chooseBetween": "Choose between",
+		"colors": "Colors",
+		"numbers": "Numbers",
+		"centuryDecade": "Century / Decade"
+	},
+	"score": {
+		"playing": "Playing",
+		"passed": "Passed",
+		"out": "Out"
+	},
+	"answer_dialog": {
+		"yes": "Yes",
+		"no": "No",
+		"correct": "Correct",
+		"wrong": "Wrong",
+		"reveal": "Reveal answer"
+	},
+	"undo_dialog": {
+		"prompt": "Undo last move?",
+		"yes": "Yes",
+		"no": "No"
+	},
+	"app": {
+		"loading_aria": "Loading",
+		"load_error": "Could not load game."
+	}
 }
