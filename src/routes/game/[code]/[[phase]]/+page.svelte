@@ -3,7 +3,6 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import GameView from '$lib/views/GameView.svelte';
-	import GameToaster from '$lib/components/GameToaster.svelte';
 	import { game, loadGame } from '$lib/game.svelte.js';
 	import { _ } from 'svelte-i18n';
 
@@ -46,8 +45,6 @@
 <svelte:head>
 	<title>Clever 11 — {code}</title>
 </svelte:head>
-
-<GameToaster />
 
 {#if loading}
 	<div class="loading-overlay" aria-label={$_('app.loading_aria')} aria-busy="true">
