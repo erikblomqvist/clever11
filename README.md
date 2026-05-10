@@ -4,9 +4,9 @@ A digital adaptation of a trivia board game. Players take turns revealing blobs 
 
 ## Tech stack
 
-- **Svelte 5** + Vite — frontend
-- **Supabase** — database, auth, storage (Postgres + Realtime)
-- **Vercel** — hosting + serverless API routes (`/api`)
+- **Svelte 5** + **SvelteKit** — full-stack framework
+- **Supabase** — database, auth (@supabase/ssr), storage (Postgres + Realtime)
+- **Vercel** — hosting + serverless deployment
 - **bun** — package manager and test runner
 
 ## Local dev
@@ -18,7 +18,7 @@ bun install
 bun run dev
 ```
 
-The admin interface is served at `/admin` (`admin.html` as a separate Vite entry point).
+The admin interface is served at `/admin`.
 
 ### Environment variables
 
@@ -26,7 +26,7 @@ The admin interface is served at `/admin` (`admin.html` as a separate Vite entry
 |---|---|
 | `VITE_SUPABASE_URL` | Your Supabase project URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/public key |
-| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, used by `/api` routes) |
+| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, used by API routes) |
 
 ### Database migrations
 
@@ -37,7 +37,7 @@ Migrations live in `supabase/migrations/`. Apply them via the Supabase CLI or th
 | Command | Description |
 |---|---|
 | `bun run dev` | Start dev server |
-| `bun run build` | Production build to `dist/` |
+| `bun run build` | Production build |
 | `bun run test` | Run tests (vitest) |
 | `bun run lint` | Lint with ESLint |
 | `bun run format` | Format with Prettier |
@@ -46,12 +46,15 @@ Migrations live in `supabase/migrations/`. Apply them via the Supabase CLI or th
 
 ```
 src/
+  routes/       # SvelteKit routes (Pages, Layouts, API endpoints)
   components/   # Shared UI components
-  views/        # Route-level views (Setup, Playing, RoundReview, Finished)
-  lib/          # Game logic, store, Supabase client
-  data/         # Static data (icons, colors)
-  i18n/         # Translations
-api/            # Vercel serverless functions
+  views/        # View-specific components
+  lib/          # Game logic, state, Supabase client
+    server/     # Server-only utilities (Supabase admin client)
+  data/         # Question types and static configuration
+  i18n/         # Translations (en, sv, no)
+  hooks.server.js # Server-side hooks (Auth guard, Supabase SSR session)
+static/         # Static assets (favicons, images)
 supabase/
   migrations/   # SQL migrations
 ```
