@@ -27,6 +27,7 @@
 	--black: hsl(0 0% 0%);
 
 	--color-muted: hsl(0 0% 100% / 0.8);
+	--color-muted-light: hsl(0 0% 100% / 0.45);
 
 	/* OLD */
 

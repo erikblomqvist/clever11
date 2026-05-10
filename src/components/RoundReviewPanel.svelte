@@ -2,7 +2,7 @@
 	import { _ } from 'svelte-i18n';
 	import { Users, ThumbsUp, ThumbsDown } from 'lucide-svelte';
 	import Button from './Button.svelte';
-	import { getPlayerIconComponent } from '../lib/playerIcons.js';
+	import PlayerIcon from './PlayerIcon.svelte';
 
 	/**
 	 * @type {{
@@ -14,42 +14,89 @@
 	 *   onmanageplayers: () => void,
 	 * }}
 	 */
-	let { players, roundNumber, vote = null, onvote, onnext, onmanageplayers } = $props();
+	let {
+		players,
+		roundNumber,
+		vote = null,
+		onvote,
+		onnext,
+		onmanageplayers,
+	} = $props();
 
 	function handleVote(/** @type {boolean} */ value) {
 		onvote?.(vote === value ? null : value);
 	}
 
-	const activePlayers = $derived(players.filter((p) => p.status !== 'removed'));
+	const activePlayers = $derived(
+		players.filter((p) => p.status !== 'removed'),
+	);
 
 	const rankedPlayers = $derived(
 		[...activePlayers].sort((a, b) => b.roundScore - a.roundScore),
 	);
+
+	const highestTotalScore = $derived(
+		activePlayers.length > 0
+			? Math.max(...activePlayers.map((p) => p.totalScore))
+			: null,
+	);
 </script>
 
 <div class="review-panel">
-	<h2 class="review-panel__heading">
-		{$_('game.round_heading', { values: { n: roundNumber } })}
-	</h2>
+	<div class="review-panel__header">
+		<div class="review-panel__header--start">
+			<h2 class="review-panel__round-heading">
+				{$_('game.round_heading', { values: { n: roundNumber } })}
+			</h2>
+			<h1 class="review-panel__standings-heading">
+				{$_('game.standings')}
+			</h1>
+		</div>
+		<Button
+			variant="tertiary"
+			size="sm"
+			icon={Users}
+			text={$_('manage_players.title')}
+			onclick={onmanageplayers}
+			class="review-panel__manage-players-btn"
+			style="--btn-padding: 0.75rem 1rem;"
+		/>
+	</div>
 	<ol class="review-panel__scores">
 		{#each rankedPlayers as player (player.id)}
-			{@const PlayerIcon = getPlayerIconComponent(player.icon)}
-			<li class="review-panel__score-item">
-				<span class="review-panel__player-icon" aria-hidden="true">
-					{#if PlayerIcon}<PlayerIcon size={14} />{/if}
+			{@const rank = rankedPlayers.indexOf(player) + 1}
+			<li
+				class="review-panel__score-item"
+				class:leader={player.totalScore === highestTotalScore}
+				style="--player-color: var(--{player.color});"
+			>
+				<span
+					class="review-panel__player-icon"
+					data-rank={rank}
+					aria-hidden="true"
+				>
+					<PlayerIcon
+						player={player}
+						size={40}
+					/>
 				</span>
 				<span class="review-panel__player-name">{player.name}</span>
-				<span class="review-panel__round-score"
-					>+{player.roundScore}</span
-				>
-				<span class="review-panel__total-score">
-					{$_('game.pts', { values: { n: player.totalScore } })}
+				<span class="review-panel__player-meta">
+					<span class="review-panel__round-score">+{player.roundScore}</span>
+					<span class="review-panel__total-score">
+						<b>{player.totalScore}</b>
+						{$_('game.pts_short')}
+					</span>
 				</span>
 			</li>
 		{/each}
 	</ol>
 	<div class="review-panel__actions">
-		<div class="review-panel__vote" role="group" aria-label={$_('game.question_vote_aria')}>
+		<div
+			class="review-panel__vote"
+			role="group"
+			aria-label={$_('game.question_vote_aria')}
+		>
 			<button
 				class="review-panel__vote-btn"
 				class:review-panel__vote-btn--active={vote === true}
@@ -72,7 +119,6 @@
 			</button>
 		</div>
 		<Button text={$_('game.next_round')} onclick={onnext} />
-		<Button variant="secondary" size="sm" icon={Users} text={$_('manage_players.title')} onclick={onmanageplayers} />
 	</div>
 </div>
 
@@ -81,86 +127,136 @@
 		position: fixed;
 		inset-inline: 0;
 		bottom: 0;
-		height: var(--review-panel-height);
-		display: grid;
-		grid-template-columns: 1fr auto;
-		grid-template-rows: auto 1fr;
-		gap: 0.4rem 1rem;
-		padding: 0.75rem 1.25rem max(0.75rem, env(safe-area-inset-bottom));
-		background: hsl(0 0% 5% / 0.92);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		border-top: 1px solid hsl(0 0% 100% / 0.1);
+		container-type: inline-size;
+		container-name: review-panel;
+
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+
+		border-top: 1px solid var(--palette-purple-neutral);
+		padding: 1.5rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+		background: var(--palette-purple-dark);
 	}
 
-	.review-panel__heading {
+	.review-panel__header {
 		grid-column: 1 / -1;
-		margin: 0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+
+		h1 {
+			margin: 0;
+
+			font-family: var(--font-family-display);
+			color: var(--palette-white);
+		}
+	}
+
+	.review-panel__round-heading {
+		grid-column: 1;
+
+		margin-block: 0 0.25rem;
+
 		font-family: var(--font-family-display);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-base);
 		font-weight: 400;
-		color: hsl(0 0% 100% / 0.45);
+		text-transform: uppercase;
+		color: var(--color-muted-light);
+	}
+
+	:global(.review-panel__manage-players-btn) {
+		grid-column: 2;
+		grid-row: 1;
 	}
 
 	.review-panel__scores {
-		grid-column: 1;
-		margin: 0;
-		padding: 0;
-		list-style: none;
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		gap: 0.2rem;
+		gap: 0.5rem;
+
+		margin: 0 -1.5rem;
+		max-width: 100cqi;
+		padding: 0 1.5rem;
+		list-style: none;
 		overflow-y: auto;
-		min-width: 0;
 	}
 
 	.review-panel__score-item {
 		display: grid;
-		grid-template-columns: 1.25rem 1fr auto auto;
+		grid-template-rows: 1fr 1fr;
+		grid-template-columns: auto 1fr;
 		align-items: center;
-		gap: 0.4rem;
+		gap: 0.125rem 0.75rem;
+
+		border-radius: 0.75rem;
+		border: 1px solid color-mix(in oklab, var(--player-color) 28%, transparent);
+		min-width: 10rem;
+		padding: 0.75rem;
+		background-color: color-mix(in oklab, var(--player-color) 14%, transparent);
+
 		font-family: var(--font-family-primary);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
 		color: var(--white);
-	}
 
+		&.leader {
+			border-color: color-mix(in oklab, var(--player-color) 35%, transparent);
+			background-color: color-mix(in oklab, var(--player-color) 22%, transparent);
+		}
+	}
+	
 	.review-panel__player-icon {
+		grid-row: 1 / 3;
 		display: grid;
 		place-items: center;
-		color: hsl(0 0% 100% / 0.55);
+		box-sizing: border-box;
+
+		border-radius: 50%;
+		outline: 2px solid color-mix(in oklab, var(--player-color) 50%, var(--palette-white) 30%);
+		width: 40px;
+		height: 40px;
+		color: var(--palette-white);
 	}
 
 	.review-panel__player-name {
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		font-weight: 700;
+		font-size: var(--font-size-base);
+	}
+
+	.review-panel__player-meta {
+		font-family: var(--font-family-display);
+		font-size: var(--font-size-base);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.review-panel__round-score {
-		color: var(--white);
-		font-size: var(--font-size-xl);
-		min-width: 2.5rem;
-		text-align: right;
+		min-width: 4rem;
+		
+		font-weight: 700;
+		text-align: end;
+		color: var(--player-color);
 	}
 
 	.review-panel__total-score {
+		margin-inline-start: 0.5rem;
+		min-width: 4rem;
+		
+		font-weight: 400;
+		text-align: end;
 		color: hsl(0 0% 100% / 0.4);
-		font-size: var(--font-size-md);
-		min-width: 3.25rem;
-		text-align: right;
+
+		b {
+			font-weight: 700;
+			color: var(--palette-white);
+		}
 	}
 
 	.review-panel__actions {
-		grid-column: 2;
-		grid-row: 2;
-		align-self: center;
 		display: flex;
-		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
 		gap: 0.4rem;
-		align-items: stretch;
 	}
 
 	.review-panel__vote {
@@ -179,7 +275,10 @@
 		background: none;
 		color: hsl(0 0% 100% / 0.35);
 		cursor: pointer;
-		transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+		transition:
+			color 0.15s,
+			border-color 0.15s,
+			background-color 0.15s;
 	}
 
 	.review-panel__vote-btn:hover {

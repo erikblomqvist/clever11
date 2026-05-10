@@ -1,7 +1,7 @@
 <script>
 	/**
 	 * @type {{
-	 *   variant?: 'primary' | 'secondary' | 'cta',
+	 *   variant?: 'primary' | 'secondary' | 'tertiary' | 'cta',
 	 *   size?: 'sm' | 'base' | 'md' | 'lg',
 	 *   icon?: import('svelte').Component,
 	 *   text?: string,
@@ -70,6 +70,15 @@
 
 	.btn--secondary {
 		background-color: var(--palette-purple-neutral);
+		&:hover:not(:disabled) {
+			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+		}
+	}
+
+	.btn--tertiary {
+		outline: 1px solid var(--palette-purple-neutral);
+		background-color: var(--palette-purple-dark);
+
 		&:hover:not(:disabled) {
 			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
 		}
