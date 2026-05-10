@@ -16,12 +16,12 @@
  *
  * @typedef {{
  *   id: string,
- *   type: import('../data/questionTypes.js').QuestionType,
+ *   type: import('$lib/data/questionTypes.js').QuestionType,
  *   text: string,
  *   deck: string,
  *   deckIcon: string|null,
  *   options: string[],
- *   correctAnswers: import('../data/game.js').CorrectAnswer[],
+ *   correctAnswers: import('$lib/data/game.js').CorrectAnswer[],
  *   answerMedia: object[],
  * }} GameQuestion
  *

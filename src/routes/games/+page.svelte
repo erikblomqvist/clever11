@@ -1,5 +1,5 @@
 <script>
-	import PreviousGamesView from '$views/PreviousGamesView.svelte';
+	import PreviousGamesView from '$lib/views/PreviousGamesView.svelte';
 	import { goto } from '$app/navigation';
 	import { loadGame } from '$lib/game.svelte.js';
 	import { _ } from 'svelte-i18n';

@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import '$src/admin.css';
+	import '../../admin.css';
 
 	let { data, children } = $props();
 	const { supabase, session } = $derived(data);

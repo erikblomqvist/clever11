@@ -1,5 +1,5 @@
 <script>
-	import DashboardView from '$src/admin/DashboardView.svelte';
+	import DashboardView from '$lib/admin/DashboardView.svelte';
 </script>
 
 <DashboardView />

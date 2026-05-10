@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	import { setupI18n } from '$lib/i18n';
 	import { waitLocale } from 'svelte-i18n';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/state';

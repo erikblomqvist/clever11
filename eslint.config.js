@@ -27,6 +27,6 @@ export default [
 		},
 	},
 	{
-		ignores: ['dist/', 'node_modules/', '.claude/'],
+		ignores: ['dist/', 'node_modules/', '.claude/', '.svelte-kit/'],
 	},
 ];

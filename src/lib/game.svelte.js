@@ -155,7 +155,7 @@ export function loadDemoGame(snapshot) {
 }
 
 /**
- * @param {{ players: import('../views/SetupView.svelte').SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds?: number|null }} setup
+ * @param {{ players: import('$lib/views/SetupView.svelte').SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds?: number|null }} setup
  */
 export async function initGame(setup) {
 	questionPool = await gamePersist.fetchQuestionsForDecks(setup.selectedDeckIds);

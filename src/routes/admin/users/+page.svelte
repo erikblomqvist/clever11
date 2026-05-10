@@ -1,5 +1,5 @@
 <script>
-	import UsersView from '$src/admin/UsersView.svelte';
+	import UsersView from '$lib/admin/UsersView.svelte';
 </script>
 
 <UsersView />

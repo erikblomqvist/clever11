@@ -1,5 +1,5 @@
 <script>
-	import DecksView from '$src/admin/DecksView.svelte';
+	import DecksView from '$lib/admin/DecksView.svelte';
 </script>
 
 <DecksView />

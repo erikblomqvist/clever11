@@ -7,7 +7,7 @@
 
 import { supabase } from './supabase.js';
 
-/** @type {Record<string, import('../data/game.js').Question>} */
+/** @type {Record<string, import('$lib/data/game.js').Question>} */
 const questionsByType = {
 	boolean: {
 		type: 'boolean',

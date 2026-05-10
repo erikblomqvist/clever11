@@ -1,5 +1,5 @@
 <script>
-	import LoginView from '$src/admin/LoginView.svelte';
+	import LoginView from '$lib/admin/LoginView.svelte';
 	import { goto } from '$app/navigation';
 
 	let { data } = $props();

@@ -1,5 +1,5 @@
 <script>
-	import SetupView from '$views/SetupView.svelte';
+	import SetupView from '$lib/views/SetupView.svelte';
 	import { goto } from '$app/navigation';
 	import { initGame } from '$lib/game.svelte.js';
 	import { _ } from 'svelte-i18n';

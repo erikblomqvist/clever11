@@ -1,5 +1,5 @@
 <script>
-	import QuestionsView from '$src/admin/QuestionsView.svelte';
+	import QuestionsView from '$lib/admin/QuestionsView.svelte';
 </script>
 
 <QuestionsView />

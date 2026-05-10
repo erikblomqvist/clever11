@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import GameView from '$views/GameView.svelte';
-	import GameToaster from '$components/GameToaster.svelte';
+	import GameView from '$lib/views/GameView.svelte';
+	import GameToaster from '$lib/components/GameToaster.svelte';
 	import { game, loadGame } from '$lib/game.svelte.js';
 	import { _ } from 'svelte-i18n';
 

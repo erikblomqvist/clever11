@@ -1,5 +1,5 @@
 <script>
-	import DeckFormView from '$src/admin/DeckFormView.svelte';
+	import DeckFormView from '$lib/admin/DeckFormView.svelte';
 	import { page } from '$app/state';
 
 	const id = $derived(page.params.id === 'new' ? null : page.params.id);

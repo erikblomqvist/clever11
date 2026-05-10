@@ -1,5 +1,5 @@
 <script>
-	import DemoView from '$views/DemoView.svelte';
+	import DemoView from '$lib/views/DemoView.svelte';
 	import { goto } from '$app/navigation';
 </script>
 

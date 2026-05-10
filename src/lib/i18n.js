@@ -4,9 +4,9 @@ import { browser } from '$app/environment';
 const LOCALES = ['en', 'sv', 'no'];
 const STORAGE_KEY = 'clever11_locale';
 
-register('en', () => import('../i18n/en.json'));
-register('sv', () => import('../i18n/sv.json'));
-register('no', () => import('../i18n/no.json'));
+register('en', () => import('$lib/i18n/en.json'));
+register('sv', () => import('$lib/i18n/sv.json'));
+register('no', () => import('$lib/i18n/no.json'));
 
 function resolveInitialLocale() {
 	if (browser) {

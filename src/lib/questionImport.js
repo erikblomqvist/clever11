@@ -10,7 +10,7 @@ export const IMPORT_QUESTION_TYPES = [
 	'centuryDecade',
 ];
 
-/** @type {import('../data/questionTypes.js').QuestionType} */
+/** @type {import('$lib/data/questionTypes.js').QuestionType} */
 export const DEFAULT_IMPORT_TYPE = 'standard';
 
 export function createEmptyImportDraft() {
@@ -20,7 +20,7 @@ export function createEmptyImportDraft() {
 /**
  * @param {unknown} raw
  * @returns {{
- *   type: import('../data/questionTypes.js').QuestionType,
+ *   type: import('$lib/data/questionTypes.js').QuestionType,
  *   question_text: string,
  *   question_number: number|null,
  *   options_json: string[],
@@ -106,7 +106,7 @@ export function toQuestionInsertPayload(draft, deckId) {
 }
 
 /**
- * @param {import('../data/questionTypes.js').QuestionType} type
+ * @param {import('$lib/data/questionTypes.js').QuestionType} type
  */
 export function defaultAnswerForType(type) {
 	if (type === 'boolean') return false;
@@ -124,7 +124,7 @@ function normalizeStringArray(value) {
 }
 
 /**
- * @param {import('../data/questionTypes.js').QuestionType} type
+ * @param {import('$lib/data/questionTypes.js').QuestionType} type
  * @param {unknown} value
  */
 export function normalizeAnswers(type, value) {
@@ -133,7 +133,7 @@ export function normalizeAnswers(type, value) {
 }
 
 /**
- * @param {import('../data/questionTypes.js').QuestionType} type
+ * @param {import('$lib/data/questionTypes.js').QuestionType} type
  * @param {unknown} value
  */
 function normalizeAnswer(type, value) {
