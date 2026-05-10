@@ -161,8 +161,11 @@
 			return $_('previous_games.today_time', { values: { time } });
 		}
 
-		const yesterday = new Date(now);
-		yesterday.setDate(yesterday.getDate() - 1);
+		const yesterday = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate() - 1,
+		);
 		if (then.toDateString() === yesterday.toDateString()) {
 			return $_('previous_games.yesterday_time', { values: { time } });
 		}
@@ -183,15 +186,19 @@
 			now.getMonth(),
 			now.getDate(),
 		);
-		const yesterday = new Date(today);
-		yesterday.setDate(yesterday.getDate() - 1);
+		const yesterday = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate() - 1,
+		);
 
-		// ISO week start (Monday)
-		const weekStart = new Date(today);
 		const dayOfWeek = today.getDay();
-		// Sunday=0 becomes 6, Mon=1 becomes 0, etc.
 		const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-		weekStart.setDate(weekStart.getDate() - daysFromMonday);
+		const weekStart = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate() - daysFromMonday,
+		);
 
 		/** @type {{ label: string, games: import('../lib/previousGames.js').PreviousGame[] }[]} */
 		const buckets = [
@@ -367,7 +374,7 @@
 													)}
 												</span>
 											{/if}
-											{#each game.deckNames.slice(0, MAX_DECKS) as deck}
+											{#each game.deckNames.slice(0, MAX_DECKS) as deck (deck)}
 												<span
 													class="game-card__deck-pill"
 													>{deck}</span
