@@ -133,7 +133,11 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 	);
 }
 
-.main-app.main--game {
+.main--game {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
 	container-type: size;
 	container-name: body;
 	background: linear-gradient(
@@ -144,19 +148,27 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 	transition: background 0.5s ease-in-out;
 }
 
-.main-app.main--setup {
+.main--setup {
+	width: 100%;
+	height: 100%;
 	display: block;
 	overflow: hidden;
 	padding: 0;
 }
 
-.main-app.main--previous-games {
+.main--previous-games {
+	width: 100%;
+	height: 100%;
 	display: block;
 	overflow: hidden;
 	padding: 0;
 }
 
-.main-app.main--review {
+.main--review {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
 	--review-panel-height: 11rem;
 
 	container-type: size;
@@ -164,7 +176,9 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 	padding-block-end: var(--review-panel-height);
 }
 
-.main-app.main--finished {
+.main--finished {
+	width: 100%;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -174,31 +188,38 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 		max(2rem, env(safe-area-inset-bottom));
 }
 
-.main-app[data-question-type='boolean'] {
+.main--landing {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
+}
+
+[data-question-type='boolean'] {
 	--question-color: var(--question-color-boolean);
 }
 
-.main-app[data-question-type='standard'] {
+[data-question-type='standard'] {
 	--question-color: var(--question-color-standard);
 }
 
-.main-app[data-question-type='rank'] {
+[data-question-type='rank'] {
 	--question-color: var(--question-color-rank);
 }
 
-.main-app[data-question-type='choose-between'] {
+[data-question-type='choose-between'] {
 	--question-color: var(--question-color-choose-between);
 }
 
-.main-app[data-question-type='colors'] {
+[data-question-type='colors'] {
 	--question-color: var(--question-color-colors);
 }
 
-.main-app[data-question-type='numbers'] {
+[data-question-type='numbers'] {
 	--question-color: var(--question-color-numbers);
 }
 
-.main-app[data-question-type='century-decade'] {
+[data-question-type='century-decade'] {
 	--question-color: var(--question-color-century-decade);
 }
 

@@ -151,10 +151,8 @@
 	const interactiveWheelSeatRotation = $derived(
 		wheelSeatRotation + springDrag.rotationOffset,
 	);
-	/** Seat rotation for fixed UI (e.g. pass button): not driven by round intro animation. */
-	const actionButtonSeatRotation = $derived(
-		seatRotation + springDrag.rotationOffset,
-	);
+	/** Seat rotation for fixed UI (e.g. pass button): not driven by round intro animation or spring drag. */
+	const actionButtonSeatRotation = $derived(seatRotation);
 	const streakCelebrationActive = $derived(
 		streakCelebrationPlayerId !== null,
 	);
