@@ -641,11 +641,13 @@
 	}
 
 	.game-card__icons {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, 20px);
+		display: inline-grid;
+		grid-auto-columns: 20px;
+		grid-auto-flow: column;
 		flex-shrink: 0;
 
-		width: 100%;
+		/* Account for the 4px overflow of the last icon (24px icon in 20px column) */
+		padding-right: 4px;
 	}
 
 	:global(.game-card__icon) {
