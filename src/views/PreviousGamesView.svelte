@@ -326,6 +326,7 @@
 														<PlayerIcon
 															player={p}
 															size={24}
+															className="game-card__icon"
 														/>
 													{/each}
 													{#if iconOverflow > 0}
@@ -640,10 +641,25 @@
 	}
 
 	.game-card__icons {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, 20px);
 		flex-shrink: 0;
+
+		width: 100%;
+	}
+
+	:global(.game-card__icon) {
+		--size: 10px;
+		
+		mask-image: radial-gradient(
+			circle at calc(100% + 4px) 50%,
+			transparent var(--size),
+			black var(--size)
+		);
+
+		&:last-child {
+			mask-image: none;
+		}
 	}
 
 	.game-card__icon-overflow {
@@ -683,11 +699,13 @@
 	}
 
 	.game-card__status-pill {
-		padding: 0.1875rem 0.625rem;
 		border-radius: 1rem;
+		padding: 0.1875rem 0.625rem;
 		background-color: color-mix(in lch, var(--accent) 20%, transparent);
+
 		font-size: var(--font-size-sm);
 		font-weight: 500;
+		line-height: 1.3;
 	}
 
 	.game-card__deck-pill {
