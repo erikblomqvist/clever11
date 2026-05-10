@@ -57,8 +57,11 @@
 
 <div class="game-menu" class:game-menu--open={open}>
 	{#if open}
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="game-menu__backdrop" onclick={handleBackdropClick}></div>
+		<div
+			class="game-menu__backdrop"
+			onclick={handleBackdropClick}
+			aria-hidden="true"
+		></div>
 	{/if}
 
 	<button
@@ -221,16 +224,20 @@
 	.game-menu__question-info {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		gap: 1rem;
+
 		border-bottom: 2px solid var(--palette-gray-muted);
 		padding-bottom: 0.75rem;
+
+		font-size: var(--font-size-base);
 	}
 
 	.game-menu__question-type {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.375rem;
-		color: var(--qc, var(--grayscale-700));
+		color: var(--qc, var(--palette-white));
 		font-weight: 600;
 	}
 
@@ -257,32 +264,5 @@
 		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
-	}
-
-	.game-menu__action {
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		gap: 0.625rem;
-
-		border: none;
-		border-radius: 0.5rem;
-		width: 100%;
-		padding: 0.5rem 0.625rem;
-		background: none;
-
-		color: var(--grayscale-900);
-		text-decoration: none;
-		font-family: inherit;
-		font-size: var(--font-size-base);
-		text-align: start;
-		&:hover {
-			background-color: var(--orange-100);
-		}
-	}
-
-	.game-menu__action :global(svg) {
-		color: var(--palette-purple-start);
-		flex-shrink: 0;
 	}
 </style>
