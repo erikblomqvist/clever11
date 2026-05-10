@@ -53,10 +53,13 @@
 
 <style>
 	.setup-step {
+		box-sizing: border-box;
 		display: grid;
 		grid-template-rows: auto 1fr auto;
+
+		margin-inline: auto;
+		width: max(50vw, 50rem);
 		height: 100svh;
-		box-sizing: border-box;
 	}
 
 	.setup-header {

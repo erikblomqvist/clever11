@@ -163,11 +163,14 @@
 
 <style>
 	.previous-games {
+		box-sizing: border-box;
 		display: grid;
 		grid-template-rows: auto 1fr auto;
-		width: max(50vw, 30rem);
+
+		margin-inline: auto;
+		width: max(50vw, 50rem);
 		height: 100svh;
-		box-sizing: border-box;
+		
 		color: var(--white);
 	}
 
