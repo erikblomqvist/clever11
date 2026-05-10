@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 
-export const PREVIOUS_GAMES_PAGE_SIZE = 10;
+export const PREVIOUS_GAMES_PAGE_SIZE = 20;
 
 /**
  * @typedef {{
