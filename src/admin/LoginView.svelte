@@ -1,8 +1,9 @@
 <script>
-	import { supabase } from '../lib/supabase.js';
+	/** @type {{ onlogin: (user: import('@supabase/supabase-js').User) => void, supabase?: import('@supabase/supabase-js').SupabaseClient|null }} */
+	let { onlogin, supabase: supabaseProp } = $props();
+	import { supabase as supabaseGlobal } from '../lib/supabase.js';
 
-	/** @type {{ onlogin: (user: import('@supabase/supabase-js').User) => void }} */
-	let { onlogin } = $props();
+	const supabase = $derived(supabaseProp ?? supabaseGlobal);
 
 	let email = $state('');
 	let password = $state('');
@@ -15,12 +16,12 @@
 		loading = true;
 		error = '';
 		const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-		loading = false;
 		if (authError) {
+			loading = false;
 			error = authError.message;
 			return;
 		}
-		if (!data.user) { error = 'Login failed.'; return; }
+		if (!data.user) { error = 'Login failed.'; loading = false; return; }
 
 		// Check admin flag
 		const { data: userData } = await supabase
@@ -28,12 +29,15 @@
 			.select('is_admin')
 			.eq('id', data.user.id)
 			.single();
+		
 		if (!userData?.is_admin) {
 			await supabase.auth.signOut();
+			loading = false;
 			error = 'You do not have admin access.';
 			return;
 		}
 		onlogin(data.user);
+		loading = false;
 	}
 </script>
 

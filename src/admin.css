@@ -633,6 +633,7 @@ a.admin-list__name:hover {
 		background 0.15s,
 		border-color 0.15s;
 	text-align: left;
+	text-decoration: none;
 	color: #e8e8e8;
 }
 

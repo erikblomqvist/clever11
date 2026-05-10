@@ -7,9 +7,10 @@
 		uploadDeckImage,
 		deleteDeckImage,
 	} from '../lib/storage.js';
+	import { goto } from '$app/navigation';
 
-	/** @type {{ id: string|null, navigate: (path: string) => void }} */
-	let { id, navigate } = $props();
+	/** @type {{ id: string|null }} */
+	let { id } = $props();
 
 	const isEdit = $derived(id !== null);
 
@@ -139,7 +140,7 @@
 						.eq('id', deck.id);
 				}
 			}
-			navigate('/decks');
+			goto('/admin/decks');
 		} catch (/** @type {any} */ err) {
 			error = err.message ?? 'Failed to save deck.';
 			saving = false;
@@ -149,10 +150,9 @@
 
 <div class="admin-page">
 	<div class="admin-page__header">
-		<button
+		<a
 			class="admin-back"
-			type="button"
-			onclick={() => navigate('/decks')}>← Decks</button
+			href="/admin/decks">← Decks</a
 		>
 		<h1 class="admin-page__title">{isEdit ? 'Edit deck' : 'New deck'}</h1>
 	</div>
@@ -292,11 +292,10 @@
 							? 'Save changes'
 							: 'Create deck'}
 				</button>
-				<button
+				<a
 					class="admin-btn"
-					type="button"
-					onclick={() => navigate('/decks')}
-					disabled={saving}>Cancel</button
+					href="/admin/decks"
+					style="text-decoration: none">Cancel</a
 				>
 			</div>
 		</form>

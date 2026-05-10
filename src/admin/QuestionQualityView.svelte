@@ -168,7 +168,7 @@
 							<span class="quality-played">{row.times_played}</span>
 						</td>
 						<td>
-							<a class="admin-btn admin-btn--sm" href={`/admin#/questions/${row.id}`}>Edit</a>
+							<a class="admin-btn admin-btn--sm" href={`/admin/questions/${row.id}`}>Edit</a>
 						</td>
 					</tr>
 				{/each}

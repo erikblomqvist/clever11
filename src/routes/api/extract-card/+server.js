@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import sharp from 'sharp';
-import { getUserIdFromAuthorization, recordAiImportEvent } from './_supabase.js';
+import { json } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+import { getUserIdFromAuthorization, recordAiImportEvent } from '$lib/server/adminSupabase';
 
 const QUESTION_TYPES = [
 	'standard',
@@ -109,23 +112,18 @@ const schema = {
 	},
 };
 
-export default async function handler(request, response) {
+/** @type {import('./$types').RequestHandler} */
+export async function POST({ request }) {
 	const requestId = randomUUID();
 	const startedAt = Date.now();
-	const model = process.env.GEMINI_CARD_IMPORT_MODEL || 'gemini-3-flash-preview';
+	const model = env.GEMINI_CARD_IMPORT_MODEL || 'gemini-3-flash-preview';
 	const baseEvent = {
 		request_id: requestId,
 		model,
 		status: 'error',
 	};
 
-	if (request.method !== 'POST') {
-		response.setHeader('Allow', 'POST');
-		response.status(405).json({ error: 'Method not allowed' });
-		return;
-	}
-
-	const apiKey = process.env.GEMINI_API_KEY;
+	const apiKey = env.GEMINI_API_KEY;
 	if (!apiKey) {
 		const errorMessage = 'GEMINI_API_KEY is not configured.';
 		await logAndRecord({
@@ -133,17 +131,16 @@ export default async function handler(request, response) {
 			duration_ms: elapsedSince(startedAt),
 			error_message: errorMessage,
 		});
-		response.status(500).json({ error: errorMessage, request_id: requestId });
-		return;
+		return json({ error: errorMessage, request_id: requestId }, { status: 500 });
 	}
 
 	try {
-		const body = typeof request.body === 'string' ? JSON.parse(request.body) : request.body;
+		const body = await request.json();
 		const image = body?.image;
 		const monitoringContext = {
 			deck_id: toUuid(body?.deckId),
 			file_name: toOptionalString(body?.fileName, 255),
-			user_id: await getUserIdFromAuthorization(getAuthorizationHeader(request)),
+			user_id: await getUserIdFromAuthorization(request.headers.get('authorization')),
 		};
 		if (!isDataUrl(image)) {
 			const errorMessage = 'Expected a JSON body with an image data URL.';
@@ -153,8 +150,7 @@ export default async function handler(request, response) {
 				duration_ms: elapsedSince(startedAt),
 				error_message: errorMessage,
 			});
-			response.status(400).json({ error: errorMessage, request_id: requestId });
-			return;
+			return json({ error: errorMessage, request_id: requestId }, { status: 400 });
 		}
 
 		const imageInfo = getImageInfo(image);
@@ -190,8 +186,7 @@ export default async function handler(request, response) {
 				option_image_warnings: collectOptionImageWarnings(optionImages),
 				error_message: errorMessage,
 			});
-			response.status(500).json({ error: errorMessage, request_id: requestId });
-			return;
+			return json({ error: errorMessage, request_id: requestId }, { status: 500 });
 		}
 
 		const draft = draftResult.value;
@@ -210,7 +205,7 @@ export default async function handler(request, response) {
 			option_image_warnings: collectOptionImageWarnings(optionImages),
 		};
 		await logAndRecord(event);
-		response.status(200).json({ ...draft, option_images: optionImages, request_id: requestId });
+		return json({ ...draft, option_images: optionImages, request_id: requestId });
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : 'Failed to extract card.';
 		await logAndRecord({
@@ -218,14 +213,14 @@ export default async function handler(request, response) {
 			duration_ms: elapsedSince(startedAt),
 			error_message: errorMessage,
 		});
-		response.status(500).json({ error: errorMessage, request_id: requestId });
+		return json({ error: errorMessage, request_id: requestId }, { status: 500 });
 	}
 }
 
 /**
  * @param {string} image
  */
-export async function extractOptionImages(image) {
+async function extractOptionImages(image) {
 	const { data } = parseDataUrl(image);
 	const source = Buffer.from(data, 'base64');
 	const rotated = await sharp(source).rotate().toBuffer();
@@ -406,12 +401,6 @@ function toUuid(value) {
 	return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 		? value
 		: null;
-}
-
-/** @param {{ headers?: Record<string, string | string[] | undefined> }} request */
-function getAuthorizationHeader(request) {
-	const value = request.headers?.authorization ?? request.headers?.Authorization;
-	return Array.isArray(value) ? value[0] : value;
 }
 
 /**

@@ -14,6 +14,7 @@ export default [
 			},
 		},
 		rules: {
+			'svelte/no-navigation-without-resolve': 'off',
 			'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 		},
 	},

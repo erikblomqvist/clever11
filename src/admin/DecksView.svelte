@@ -3,9 +3,6 @@
 	import { supabase } from '../lib/supabase.js';
 	import { getDeckIconNode } from '../lib/deckIcons.js';
 
-	/** @type {{ navigate: (path: string) => void }} */
-	let { navigate } = $props();
-
 	/** @type {{ id: string, name: string, description: string|null, icon: string|null, image_url: string|null }[]} */
 	let decks = $state([]);
 	let loading = $state(true);
@@ -37,9 +34,9 @@
 <div class="admin-page">
 	<div class="admin-page__header">
 		<h1 class="admin-page__title">Decks</h1>
-		<button class="admin-btn admin-btn--primary" type="button" onclick={() => navigate('/decks/new')}>
+		<a class="admin-btn admin-btn--primary" href="/admin/decks/new">
 			New deck
-		</button>
+		</a>
 	</div>
 
 	{#if loading}
@@ -61,7 +58,7 @@
 						<span class="admin-list__meta">{deck.description}</span>
 					{/if}
 					<div class="admin-list__actions">
-						<button class="admin-btn admin-btn--sm" type="button" onclick={() => navigate(`/decks/${deck.id}`)}>Edit</button>
+						<a class="admin-btn admin-btn--sm" href={`/admin/decks/${deck.id}`}>Edit</a>
 						<button class="admin-btn admin-btn--sm admin-btn--danger" type="button" onclick={() => deleteDeck(deck.id)}>Delete</button>
 					</div>
 				</li>

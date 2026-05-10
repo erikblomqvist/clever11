@@ -121,7 +121,7 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 	touch-action: pan-y;
 }
 
-main {
+.main-app {
 	box-sizing: border-box;
 	display: grid;
 	place-items: center;
@@ -133,7 +133,7 @@ main {
 	);
 }
 
-main.main--game {
+.main-app.main--game {
 	container-type: size;
 	container-name: body;
 	background: linear-gradient(
@@ -144,19 +144,19 @@ main.main--game {
 	transition: background 0.5s ease-in-out;
 }
 
-main.main--setup {
+.main-app.main--setup {
 	display: block;
 	overflow: hidden;
 	padding: 0;
 }
 
-main.main--previous-games {
+.main-app.main--previous-games {
 	display: block;
 	overflow: hidden;
 	padding: 0;
 }
 
-main.main--review {
+.main-app.main--review {
 	--review-panel-height: 11rem;
 
 	container-type: size;
@@ -164,7 +164,7 @@ main.main--review {
 	padding-block-end: var(--review-panel-height);
 }
 
-main.main--finished {
+.main-app.main--finished {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -174,31 +174,31 @@ main.main--finished {
 		max(2rem, env(safe-area-inset-bottom));
 }
 
-main[data-question-type='boolean'] {
+.main-app[data-question-type='boolean'] {
 	--question-color: var(--question-color-boolean);
 }
 
-main[data-question-type='standard'] {
+.main-app[data-question-type='standard'] {
 	--question-color: var(--question-color-standard);
 }
 
-main[data-question-type='rank'] {
+.main-app[data-question-type='rank'] {
 	--question-color: var(--question-color-rank);
 }
 
-main[data-question-type='choose-between'] {
+.main-app[data-question-type='choose-between'] {
 	--question-color: var(--question-color-choose-between);
 }
 
-main[data-question-type='colors'] {
+.main-app[data-question-type='colors'] {
 	--question-color: var(--question-color-colors);
 }
 
-main[data-question-type='numbers'] {
+.main-app[data-question-type='numbers'] {
 	--question-color: var(--question-color-numbers);
 }
 
-main[data-question-type='century-decade'] {
+.main-app[data-question-type='century-decade'] {
 	--question-color: var(--question-color-century-decade);
 }
 

@@ -55,9 +55,6 @@
 
 	const persisted = readPersistedFilters();
 
-	/** @type {{ navigate: (path: string) => void }} */
-	let { navigate } = $props();
-
 	/** @type {{ id: string, question_text: string, type: string, question_number: number|null, archived_at: string|null, decks: { name: string }|null }[]} */
 	let questions = $state([]);
 	let loading = $state(true);
@@ -305,20 +302,18 @@
 <div class="admin-page">
 	<div class="admin-page__header">
 		<h1 class="admin-page__title">Questions</h1>
-		<button
+		<a
 			class="admin-btn"
-			type="button"
-			onclick={() => navigate('/questions/import')}
+			href="/admin/questions/import"
 		>
 			Import cards
-		</button>
-		<button
+		</a>
+		<a
 			class="admin-btn admin-btn--primary"
-			type="button"
-			onclick={() => navigate('/questions/new')}
+			href="/admin/questions/new"
 		>
 			New question
-		</button>
+		</a>
 	</div>
 
 	<div class="admin-filters">
@@ -422,7 +417,7 @@
 					>
 					<a
 						class="admin-list__name"
-						href={`/admin#/questions/${q.id}`}>{q.question_text}</a
+						href={`/admin/questions/${q.id}`}>{q.question_text}</a
 					>
 					<span class="admin-list__meta">{q.decks?.name ?? '—'}</span>
 					<span class="admin-list__votes">
@@ -446,7 +441,7 @@
 					<div class="admin-list__actions">
 						<a
 							class="admin-btn admin-btn--sm"
-							href={`/admin#/questions/${q.id}`}>Edit</a
+							href={`/admin/questions/${q.id}`}>Edit</a
 						>
 						{#if q.archived_at}
 							<button

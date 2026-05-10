@@ -8,10 +8,7 @@
 		toQuestionInsertPayload,
 		validateImportDraft,
 	} from '../lib/questionImport.js';
-
-	/** @type {{ navigate: (path: string) => void }} */
-	let { navigate } = $props();
-
+	import { base } from '$app/paths';
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
 	let deckId = $state('');
@@ -93,14 +90,15 @@
 		updateItem(id, (item) => ({ ...item, status: 'extracting', extractionError: '' }));
 		try {
 			const image = await imageToUploadDataUrl(file);
-			const { data: sessionData } = supabase
-				? await supabase.auth.getSession()
-				: { data: { session: null } };
+			const { data: { user } } = await supabase.auth.getUser();
 			const headers = new Headers({ 'Content-Type': 'application/json' });
-			if (sessionData.session?.access_token) {
-				headers.set('Authorization', `Bearer ${sessionData.session.access_token}`);
+			if (user?.id) {
+				const { data: sessionData } = await supabase.auth.getSession();
+				if (sessionData.session?.access_token) {
+					headers.set('Authorization', `Bearer ${sessionData.session.access_token}`);
+				}
 			}
-			const response = await fetch('/api/extract-card', {
+			const response = await fetch(`${base}/api/extract-card`, {
 				method: 'POST',
 				headers,
 				body: JSON.stringify({ image, deckId, fileName: file.name }),
@@ -468,7 +466,7 @@
 
 <div class="admin-page">
 	<div class="admin-page__header">
-		<button class="admin-back" type="button" onclick={() => navigate('/questions')}>← Questions</button>
+		<a class="admin-back" href="{base}/admin/questions">← Questions</a>
 		<h1 class="admin-page__title">Import cards</h1>
 	</div>
 
@@ -504,7 +502,7 @@
 						{saving ? 'Saving…' : `Save ${readyToSaveCount} ready`}
 					</button>
 					<button class="admin-btn" type="button" onclick={clearSaved} disabled={savedCount === 0 || saving}>Clear saved</button>
-					<button class="admin-btn" type="button" onclick={() => navigate('/questions')} disabled={saving}>Done</button>
+					<a class="admin-btn" href="{base}/admin/questions">Done</a>
 				</div>
 			</section>
 

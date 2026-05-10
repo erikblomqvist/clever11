@@ -1,9 +1,10 @@
 <script>
 	import { untrack } from 'svelte';
 	import { supabase } from '../lib/supabase.js';
+	import { goto } from '$app/navigation';
 
-	/** @type {{ id: string|null, navigate: (path: string) => void }} */
-	let { id, navigate } = $props();
+	/** @type {{ id: string|null }} */
+	let { id } = $props();
 
 	const isEdit = $derived(id !== null);
 	const NUM_BLOBS = 10;
@@ -255,7 +256,7 @@
 				const { error: err } = await supabase.from('questions').insert(payload);
 				if (err) throw err;
 			}
-			navigate('/questions');
+			goto('/admin/questions');
 		} catch (/** @type {any} */ err) {
 			error = err.message ?? 'Failed to save.';
 			saving = false;
@@ -430,7 +431,7 @@
 
 <div class="admin-page">
 	<div class="admin-page__header">
-		<button class="admin-back" type="button" onclick={() => navigate('/questions')}>← Questions</button>
+		<a class="admin-back" href="/admin/questions">← Questions</a>
 		<h1 class="admin-page__title">{isEdit ? 'Edit question' : 'New question'}</h1>
 	</div>
 
@@ -655,7 +656,7 @@
 				<button class="admin-btn admin-btn--primary" type="submit" disabled={saving}>
 					{saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create question'}
 				</button>
-				<button class="admin-btn" type="button" onclick={() => navigate('/questions')} disabled={saving}>Cancel</button>
+				<a class="admin-btn" href="/admin/questions">Cancel</a>
 			</div>
 		</form>
 	{/if}

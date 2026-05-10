@@ -1,15 +1,9 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [svelte()],
-  build: {
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      input: {
-        main: 'index.html',
-        admin: 'admin.html',
-      },
-    },
-  },
-})
+	plugins: [sveltekit()],
+	build: {
+		chunkSizeWarningLimit: 600
+	}
+});

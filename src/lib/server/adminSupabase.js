@@ -1,10 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
+import { env } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 
+/** @type {import('@supabase/supabase-js').SupabaseClient|null} */
 let adminClient = null;
 
 export function getSupabaseAdmin() {
-	const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-	const secretKey = process.env.SUPABASE_SECRET_KEY;
+	const url = env.SUPABASE_URL || publicEnv.VITE_SUPABASE_URL;
+	const secretKey = env.SUPABASE_SECRET_KEY;
 	if (!url || !secretKey) return null;
 
 	if (!adminClient) {
@@ -19,7 +22,7 @@ export function getSupabaseAdmin() {
 	return adminClient;
 }
 
-/** @param {Record<string, unknown>} event */
+/** @param {Record<string, any>} event */
 export async function recordAiImportEvent(event) {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) {

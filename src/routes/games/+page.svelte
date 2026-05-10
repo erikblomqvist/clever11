@@ -1,0 +1,40 @@
+<script>
+	import PreviousGamesView from '$views/PreviousGamesView.svelte';
+	import { goto } from '$app/navigation';
+	import { loadGame } from '$lib/game.svelte.js';
+	import { _ } from 'svelte-i18n';
+
+	let loading = $state(false);
+	let loadError = $state(null);
+
+	async function handleLoadGame(code) {
+		loading = true;
+		loadError = null;
+		try {
+			await loadGame(code);
+			goto(`/game/${code.toUpperCase()}`);
+		} catch (e) {
+			loadError = e.message ?? $_('app.load_error');
+		} finally {
+			loading = false;
+		}
+	}
+</script>
+
+<svelte:head>
+	<title>Clever 11 — Previous Games</title>
+</svelte:head>
+
+<main class="main--previous-games">
+	<PreviousGamesView
+		onback={() => goto('/')}
+		onloadgame={handleLoadGame}
+		loaderror={loadError}
+	/>
+</main>
+
+{#if loading}
+	<div class="loading-overlay" aria-label={$_('app.loading_aria')} aria-busy="true">
+		<span class="loading-spinner"></span>
+	</div>
+{/if}

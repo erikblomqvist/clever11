@@ -6,9 +6,6 @@
 		setForcedFirstQuestionId,
 	} from '../lib/testingOptions.js';
 
-	/** @type {{ navigate: (path: string) => void }} */
-	let { navigate } = $props();
-
 	let forcedQuestionId = $state(getForcedFirstQuestionId() ?? '');
 	let forcedQuestionStatus = $state('');
 	let savingForcedQuestion = $state(false);
@@ -55,18 +52,18 @@
 <div class="admin-page">
 	<h1 class="admin-page__title">Dashboard</h1>
 	<div class="admin-dashboard">
-		<button class="admin-dashboard__card" type="button" onclick={() => navigate('/decks')}>
+		<a class="admin-dashboard__card" href="/admin/decks">
 			<strong>Decks</strong>
 			<span>Manage question decks</span>
-		</button>
-		<button class="admin-dashboard__card" type="button" onclick={() => navigate('/questions')}>
+		</a>
+		<a class="admin-dashboard__card" href="/admin/questions">
 			<strong>Questions</strong>
 			<span>Manage questions</span>
-		</button>
-		<button class="admin-dashboard__card" type="button" onclick={() => navigate('/users')}>
+		</a>
+		<a class="admin-dashboard__card" href="/admin/users">
 			<strong>Users</strong>
 			<span>Manage admin access</span>
-		</button>
+		</a>
 	</div>
 
 	<form class="admin-testing-panel" onsubmit={saveForcedQuestion}>
