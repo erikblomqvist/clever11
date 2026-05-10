@@ -10,6 +10,8 @@
 	},
 	"previous_games": {
 		"title": "Previous games",
+		"continue_title": "Continue a game",
+		"subtitle": "Pick up where you left off — paused and in-progress games are saved by code.",
 		"loading": "Loading previous games…",
 		"empty": "No unfinished games found.",
 		"started": "Started",
@@ -29,7 +31,11 @@
 		"yesterday_time": "yesterday, {time}",
 		"only_one_round": "only 1 round played",
 		"resume": "Resume",
-		"just_now": "just now"
+		"just_now": "just now",
+		"group_today": "Today",
+		"group_yesterday": "Yesterday",
+		"group_earlier_this_week": "Earlier this week",
+		"group_older": "Older"
 	},
 	"setup": {
 		"players_title": "Players",

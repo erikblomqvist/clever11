@@ -10,6 +10,8 @@
 	},
 	"previous_games": {
 		"title": "Tidligere spill",
+		"continue_title": "Fortsett et spill",
+		"subtitle": "Fortsett der du slapp — pausede og pågående spill lagres med kode.",
 		"loading": "Laster tidligere spill…",
 		"empty": "Ingen uavsluttede spill funnet.",
 		"started": "Startet",
@@ -29,7 +31,11 @@
 		"yesterday_time": "i går, {time}",
 		"only_one_round": "bare 1 runde spilt",
 		"resume": "Fortsett",
-		"just_now": "akkurat nå"
+		"just_now": "akkurat nå",
+		"group_today": "I dag",
+		"group_yesterday": "I går",
+		"group_earlier_this_week": "Tidligere denne uken",
+		"group_older": "Eldre"
 	},
 	"setup": {
 		"players_title": "Spillere",

@@ -10,6 +10,8 @@
 	},
 	"previous_games": {
 		"title": "Tidigare spel",
+		"continue_title": "Fortsätt ett spel",
+		"subtitle": "Fortsätt där du slutade — pausade och pågående spel sparas med kod.",
 		"loading": "Laddar tidigare spel…",
 		"empty": "Inga oavslutade spel hittades.",
 		"started": "Startat",
@@ -29,7 +31,11 @@
 		"yesterday_time": "igår, {time}",
 		"only_one_round": "bara 1 runda spelad",
 		"resume": "Fortsätt",
-		"just_now": "just nu"
+		"just_now": "just nu",
+		"group_today": "Idag",
+		"group_yesterday": "Igår",
+		"group_earlier_this_week": "Tidigare denna vecka",
+		"group_older": "Äldre"
 	},
 	"setup": {
 		"players_title": "Spelare",

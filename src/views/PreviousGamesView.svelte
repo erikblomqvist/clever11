@@ -19,40 +19,75 @@
 	let games = $state(
 		/** @type {import('../lib/previousGames.js').PreviousGame[]} */ ([]),
 	);
-	let page = $state(1);
-	let pageSize = $state(10);
-	let total = $state(0);
+	let page = $state(0);
 	let totalPages = $state(1);
 	let loading = $state(true);
+	let loadingMore = $state(false);
 	let error = $state(/** @type {string|null} */ (null));
+
+	let sentinel = $state(/** @type {HTMLDivElement|null} */ (null));
+
+	let hasMore = $derived(page < totalPages);
 
 	const MAX_ICONS = 4;
 	const MAX_NAMES = 3;
 	const MAX_DECKS = 3;
 
-	async function loadPage(/** @type {number} */ nextPage) {
-		loading = true;
+	async function loadNextPage() {
+		const nextPage = page + 1;
+		const isInitial = nextPage === 1;
+
+		if (isInitial) {
+			loading = true;
+		} else {
+			loadingMore = true;
+		}
 		error = null;
 
 		try {
 			const result = await fetchPreviousGamesPage(nextPage);
-			games = result.games;
+			games = [...games, ...result.games];
 			page = result.page;
-			pageSize = result.pageSize;
-			total = result.total;
 			totalPages = result.totalPages;
 		} catch (e) {
 			error = /** @type {Error} */ (e).message;
-			games = [];
-			total = 0;
-			totalPages = 1;
+			if (isInitial) {
+				games = [];
+				totalPages = 1;
+			}
 		} finally {
 			loading = false;
+			loadingMore = false;
 		}
 	}
 
 	onMount(() => {
-		loadPage(1);
+		loadNextPage();
+	});
+
+	$effect(() => {
+		const el = sentinel;
+		if (!el) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (
+					entries[0]?.isIntersecting &&
+					hasMore &&
+					!loading &&
+					!loadingMore
+				) {
+					loadNextPage();
+				}
+			},
+			{ rootMargin: '200px' },
+		);
+
+		observer.observe(el);
+
+		return () => {
+			observer.disconnect();
+		};
 	});
 
 	/** @param {import('../lib/previousGames.js').PreviousGameParticipant[]} participants */
@@ -106,28 +141,76 @@
 		);
 	}
 
-	const pageRange = $derived.by(() => {
-		if (total === 0) return $_('previous_games.page_empty');
+	/**
+	 * Groups games into time-based sections: Today, Yesterday, Earlier this week, Older.
+	 * Uses lastMoveAt, falling back to startedAt when no moves exist.
+	 */
+	const groupedGames = $derived.by(() => {
+		const now = new Date();
+		const today = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+		);
+		const yesterday = new Date(today);
+		yesterday.setDate(yesterday.getDate() - 1);
 
-		const start = (page - 1) * pageSize + 1;
-		const end = Math.min(total, start + games.length - 1);
-		return $_('previous_games.page_range', {
-			values: { start, end, total },
-		});
+		// ISO week start (Monday)
+		const weekStart = new Date(today);
+		const dayOfWeek = today.getDay();
+		// Sunday=0 becomes 6, Mon=1 becomes 0, etc.
+		const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+		weekStart.setDate(weekStart.getDate() - daysFromMonday);
+
+		/** @type {{ label: string, games: import('../lib/previousGames.js').PreviousGame[] }[]} */
+		const buckets = [
+			{ label: 'previous_games.group_today', games: [] },
+			{ label: 'previous_games.group_yesterday', games: [] },
+			{ label: 'previous_games.group_earlier_this_week', games: [] },
+			{ label: 'previous_games.group_older', games: [] },
+		];
+
+		for (const game of games) {
+			const timestamp = game.lastMoveAt ?? game.startedAt;
+			const date = new Date(timestamp);
+			const dateDay = new Date(
+				date.getFullYear(),
+				date.getMonth(),
+				date.getDate(),
+			);
+
+			if (dateDay.getTime() >= today.getTime()) {
+				buckets[0].games.push(game);
+			} else if (dateDay.getTime() >= yesterday.getTime()) {
+				buckets[1].games.push(game);
+			} else if (dateDay.getTime() >= weekStart.getTime()) {
+				buckets[2].games.push(game);
+			} else {
+				buckets[3].games.push(game);
+			}
+		}
+
+		return buckets.filter((b) => b.games.length > 0);
 	});
 </script>
 
 <div class="previous-games">
 	<header class="previous-games__header">
-		<h1 class="previous-games__title">{$_('previous_games.title')}</h1>
 		<Button
 			variant="secondary"
 			size="sm"
 			icon={ChevronLeft}
-			text={$_('setup.back')}
 			onclick={onback}
-			style="--btn-padding: 0.375rem 0.625rem"
+			aria-label={$_('setup.back')}
 		/>
+		<div class="previous-games__header-text">
+			<h1 class="previous-games__title">
+				{$_('previous_games.continue_title')}
+			</h1>
+			<p class="previous-games__subtitle">
+				{$_('previous_games.subtitle')}
+			</p>
+		</div>
 	</header>
 
 	<section class="previous-games__content" aria-busy={loading}>
@@ -142,175 +225,198 @@
 		{:else if games.length === 0}
 			<p class="previous-games__hint">{$_('previous_games.empty')}</p>
 		{:else}
-			<ul class="previous-games__list" role="list">
-				{#each games as game (game.code)}
-					{@const leader = getLeader(game.participants)}
-					{@const accentColor = leader
-						? `var(--${leader.color})`
-						: 'var(--palette-purple)'}
-					{@const iconOverflow = Math.max(
-						0,
-						game.participants.length - MAX_ICONS,
-					)}
-					{@const nameOverflow = Math.max(
-						0,
-						game.participants.length - MAX_NAMES,
-					)}
-					{@const deckOverflow = Math.max(
-						0,
-						game.deckNames.length - MAX_DECKS,
-					)}
-					<li>
-						<button
-							class="game-card"
-							type="button"
-							style="--accent: {accentColor}"
-							onclick={() => onloadgame(game.code)}
-							aria-label={$_('previous_games.load_game_aria', {
-								values: { code: game.code },
-							})}
+			{#each groupedGames as group (group.label)}
+				<div class="previous-games__group">
+					<h2 class="previous-games__group-header">
+						<span class="previous-games__group-label"
+							>{$_(group.label)}</span
 						>
-							<div class="game-card__code-box">
-								<span class="game-card__code-label">CODE</span>
-								<span class="game-card__code">{game.code}</span>
-							</div>
-
-							<div class="game-card__body">
-								<div class="game-card__players">
-									{#if game.participants.length > 0}
-										<span class="game-card__icons">
-											{#each game.participants.slice(0, MAX_ICONS) as p (p.name)}
-												<PlayerIcon
-													player={p}
-													size={24}
-												/>
-											{/each}
-											{#if iconOverflow > 0}
-												<span
-													class="game-card__icon-overflow"
-													>+{iconOverflow}</span
-												>
-											{/if}
-										</span>
-										<span class="game-card__names">
-											{game.participants
-												.slice(0, MAX_NAMES)
-												.map((p) => p.name)
-												.join(', ')}
-											{#if nameOverflow > 0}
-												<span
-													class="game-card__name-overflow"
-													>&nbsp;+{nameOverflow}</span
-												>
-											{/if}
-										</span>
-									{:else}
-										<span
-											class="game-card__names game-card__names--empty"
-										>
-											{$_(
-												'previous_games.no_participants',
-											)}
-										</span>
-									{/if}
-								</div>
-
-								<div class="game-card__pills">
-									{#if leader}
-										<span class="game-card__status-pill">
-											{$_('previous_games.round_leads', {
-												values: {
-													round: game.roundNumber,
-													name: leader.name,
-												},
-											})}
-										</span>
-									{/if}
-									{#each game.deckNames.slice(0, MAX_DECKS) as deck}
-										<span class="game-card__deck-pill"
-											>{deck}</span
-										>
-									{/each}
-									{#if deckOverflow > 0}
-										<span class="game-card__deck-pill"
-											>+{deckOverflow}</span
-										>
-									{/if}
-								</div>
-
-								<div class="game-card__meta">
-									{#if game.lastMoveAt}
-										<span
-											>{$_('previous_games.last_move')}
-											{formatRelativeTime(
-												game.lastMoveAt,
-											)}</span
-										>
-										<span class="game-card__meta-sep"
-											>&middot;</span
-										>
-									{/if}
-									{#if game.roundNumber === 1}
-										<span
-											>{$_(
-												'previous_games.only_one_round',
-											)}</span
-										>
-									{:else}
-										<span
-											>{$_('previous_games.started_at', {
-												values: {
-													time: formatStartedTime(
-														game.startedAt,
-													),
-												},
-											})}</span
-										>
-									{/if}
-								</div>
-							</div>
-
-							<div class="game-card__resume">
-								<span class="game-card__resume-circle">
-									<ArrowRight size={20} />
-								</span>
-								<span class="game-card__resume-label"
-									>{$_('previous_games.resume')}</span
+						<span class="previous-games__group-line"></span>
+					</h2>
+					<ul class="previous-games__list" role="list">
+						{#each group.games as game (game.code)}
+							{@const leader = getLeader(game.participants)}
+							{@const accentColor = leader
+								? `var(--${leader.color})`
+								: 'var(--palette-purple)'}
+							{@const iconOverflow = Math.max(
+								0,
+								game.participants.length - MAX_ICONS,
+							)}
+							{@const nameOverflow = Math.max(
+								0,
+								game.participants.length - MAX_NAMES,
+							)}
+							{@const deckOverflow = Math.max(
+								0,
+								game.deckNames.length - MAX_DECKS,
+							)}
+							<li>
+								<button
+									class="game-card"
+									type="button"
+									style="--accent: {accentColor}"
+									onclick={() => onloadgame(game.code)}
+									aria-label={$_(
+										'previous_games.load_game_aria',
+										{
+											values: { code: game.code },
+										},
+									)}
 								>
-							</div>
-						</button>
-					</li>
-				{/each}
-			</ul>
+									<div class="game-card__code-box">
+										<span class="game-card__code-label"
+											>CODE</span
+										>
+										<span class="game-card__code"
+											>{game.code}</span
+										>
+									</div>
+
+									<div class="game-card__body">
+										<div class="game-card__players">
+											{#if game.participants.length > 0}
+												<span class="game-card__icons">
+													{#each game.participants.slice(0, MAX_ICONS) as p (p.name)}
+														<PlayerIcon
+															player={p}
+															size={24}
+														/>
+													{/each}
+													{#if iconOverflow > 0}
+														<span
+															class="game-card__icon-overflow"
+															>+{iconOverflow}</span
+														>
+													{/if}
+												</span>
+												<span class="game-card__names">
+													{game.participants
+														.slice(0, MAX_NAMES)
+														.map((p) => p.name)
+														.join(', ')}
+													{#if nameOverflow > 0}
+														<span
+															class="game-card__name-overflow"
+															>&nbsp;+{nameOverflow}</span
+														>
+													{/if}
+												</span>
+											{:else}
+												<span
+													class="game-card__names game-card__names--empty"
+												>
+													{$_(
+														'previous_games.no_participants',
+													)}
+												</span>
+											{/if}
+										</div>
+
+										<div class="game-card__pills">
+											{#if leader}
+												<span
+													class="game-card__status-pill"
+												>
+													{$_(
+														'previous_games.round_leads',
+														{
+															values: {
+																round: game.roundNumber,
+																name: leader.name,
+															},
+														},
+													)}
+												</span>
+											{/if}
+											{#each game.deckNames.slice(0, MAX_DECKS) as deck}
+												<span
+													class="game-card__deck-pill"
+													>{deck}</span
+												>
+											{/each}
+											{#if deckOverflow > 0}
+												<span
+													class="game-card__deck-pill"
+													>+{deckOverflow}</span
+												>
+											{/if}
+										</div>
+
+										<div class="game-card__meta">
+											{#if game.lastMoveAt}
+												<span
+													>{$_(
+														'previous_games.last_move',
+													)}
+													{formatRelativeTime(
+														game.lastMoveAt,
+													)}</span
+												>
+												<span
+													class="game-card__meta-sep"
+													>&middot;</span
+												>
+											{/if}
+											{#if game.roundNumber === 1}
+												<span
+													>{$_(
+														'previous_games.only_one_round',
+													)}</span
+												>
+											{:else}
+												<span
+													>{$_(
+														'previous_games.started_at',
+														{
+															values: {
+																time: formatStartedTime(
+																	game.startedAt,
+																),
+															},
+														},
+													)}</span
+												>
+											{/if}
+										</div>
+									</div>
+
+									<div class="game-card__resume">
+										<span class="game-card__resume-circle">
+											<ArrowRight size={20} />
+										</span>
+										<span class="game-card__resume-label"
+											>{$_('previous_games.resume')}</span
+										>
+									</div>
+								</button>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
+
+			{#if loadingMore}
+				<p class="previous-games__loading-more">
+					{$_('previous_games.loading')}
+				</p>
+			{/if}
+
+			{#if hasMore}
+				<div
+					bind:this={sentinel}
+					class="previous-games__sentinel"
+				></div>
+			{/if}
 		{/if}
 	</section>
-
-	<footer class="previous-games__footer">
-		<span class="previous-games__page-range">{pageRange}</span>
-		<div class="previous-games__pagination">
-			<Button
-				variant="secondary"
-				size="sm"
-				text={$_('previous_games.previous')}
-				onclick={() => loadPage(page - 1)}
-				disabled={loading || page <= 1}
-			/>
-			<Button
-				variant="secondary"
-				size="sm"
-				text={$_('previous_games.next')}
-				onclick={() => loadPage(page + 1)}
-				disabled={loading || page >= totalPages}
-			/>
-		</div>
-	</footer>
 </div>
 
 <style>
 	.previous-games {
 		box-sizing: border-box;
 		display: grid;
-		grid-template-rows: auto 1fr auto;
+		grid-template-rows: auto 1fr;
 
 		margin-inline: auto;
 		width: max(50vw, 50rem);
@@ -321,11 +427,17 @@
 
 	.previous-games__header {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		align-items: flex-start;
 		gap: 0.75rem;
 		padding: max(1rem, env(safe-area-inset-top)) 1rem 0.75rem;
 		border-bottom: 1px solid hsl(0 0% 100% / 0.2);
+	}
+
+	.previous-games__header-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		min-width: 0;
 	}
 
 	.previous-games__title {
@@ -334,6 +446,13 @@
 		font-size: var(--font-size-xl);
 		font-weight: 600;
 		letter-spacing: 0.04em;
+	}
+
+	.previous-games__subtitle {
+		margin: 0;
+		font-size: var(--font-size-sm);
+		color: var(--color-muted);
+		line-height: 1.4;
 	}
 
 	.previous-games__content {
@@ -357,6 +476,41 @@
 		border-radius: 0.5rem;
 		background: hsl(0 86% 58% / 0.2);
 		color: var(--white);
+	}
+
+	/* Time group sections */
+
+	.previous-games__group {
+		max-width: 54rem;
+		margin: 0 auto;
+	}
+
+	.previous-games__group + .previous-games__group {
+		margin-top: 1.5rem;
+	}
+
+	.previous-games__group-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 0 0 0.75rem;
+	}
+
+	.previous-games__group-label {
+		font-family: var(--font-family-monospace);
+		font-size: var(--font-size-xs);
+		font-weight: 600;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--color-muted);
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	.previous-games__group-line {
+		flex: 1;
+		height: 1px;
+		background-color: hsl(0 0% 100% / 0.15);
 	}
 
 	.previous-games__list {
@@ -537,25 +691,17 @@
 		color: var(--color-muted);
 	}
 
-	/* Pagination footer */
+	/* Infinite scroll */
 
-	.previous-games__footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 0.75rem 1rem max(1rem, env(safe-area-inset-bottom));
-		border-top: 1px solid hsl(0 0% 100% / 0.2);
-	}
-
-	.previous-games__page-range {
+	.previous-games__loading-more {
+		margin: 1rem 0 0;
 		color: var(--color-muted);
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-base);
+		text-align: center;
 	}
 
-	.previous-games__pagination {
-		display: flex;
-		gap: 0.5rem;
+	.previous-games__sentinel {
+		height: 1px;
 	}
 
 	/* Mobile */
@@ -574,22 +720,16 @@
 
 		.game-card__resume {
 			flex-direction: row;
+			justify-content: center;
 			gap: 0.5rem;
+			padding: 0.5rem;
+			border-radius: 0.5rem;
+			background-color: hsl(0 0% 100% / 0.05);
 		}
 
 		.game-card__resume-circle {
 			width: 2.5rem;
 			height: 2.5rem;
-		}
-
-		.previous-games__footer {
-			align-items: stretch;
-			flex-direction: column;
-		}
-
-		.previous-games__pagination {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
 		}
 	}
 </style>
