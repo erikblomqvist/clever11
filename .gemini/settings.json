@@ -1,5 +1,45 @@
 {
     "general": {
         "enableNotifications": true
+    },
+    "hooks": {
+        "BeforeTool": [
+            {
+                "matcher": "run_shell_command",
+                "hooks": [
+                    {
+                        "name": "block-npm",
+                        "type": "command",
+                        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/block-npm.sh",
+                        "timeout": 5000
+                    },
+                    {
+                        "name": "strip-redundant-git-c",
+                        "type": "command",
+                        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/strip-redundant-git-c.sh",
+                        "timeout": 5000
+                    },
+                    {
+                        "name": "lint-on-commit",
+                        "type": "command",
+                        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/lint-on-commit.sh",
+                        "timeout": 30000
+                    }
+                ]
+            }
+        ],
+        "AfterTool": [
+            {
+                "matcher": "replace|write_file",
+                "hooks": [
+                    {
+                        "name": "prettier-on-edit",
+                        "type": "command",
+                        "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/prettier-on-edit.sh",
+                        "timeout": 10000
+                    }
+                ]
+            }
+        ]
     }
 }
