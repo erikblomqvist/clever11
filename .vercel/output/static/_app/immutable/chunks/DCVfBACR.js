@@ -1,1 +1,0 @@
-const t="clever11:forced-first-question-id";function n(){var e;return typeof localStorage>"u"?null:((e=localStorage.getItem(t))==null?void 0:e.trim())||null}function i(o){const e=o.trim();if(!e){r();return}localStorage.setItem(t,e)}function r(){typeof localStorage>"u"||localStorage.removeItem(t)}export{r as c,n as g,i as s};

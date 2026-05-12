@@ -9,6 +9,9 @@ build/
 # Vite
 .vite/
 
+# Vercel
+.vercel/
+
 # Environment files
 .env
 .env.*
