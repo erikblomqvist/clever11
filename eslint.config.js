@@ -15,7 +15,10 @@ export default [
 		},
 		rules: {
 			'svelte/no-navigation-without-resolve': 'off',
-			'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+			'no-unused-vars': [
+				'error',
+				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+			],
 		},
 	},
 	{
@@ -27,6 +30,12 @@ export default [
 		},
 	},
 	{
-		ignores: ['dist/', 'node_modules/', '.claude/', '.svelte-kit/'],
+		ignores: [
+			'dist/',
+			'node_modules/',
+			'.claude/',
+			'.svelte-kit/',
+			'.vercel/',
+		],
 	},
 ];

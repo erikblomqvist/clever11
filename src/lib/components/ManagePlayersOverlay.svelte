@@ -20,7 +20,9 @@
 	 */
 	let { players, onremove, onreplace, onadd, onclose } = $props();
 
-	const activePlayers = $derived(players.filter((p) => p.status !== 'removed'));
+	const activePlayers = $derived(
+		players.filter((p) => p.status !== 'removed'),
+	);
 	const canRemove = $derived(activePlayers.length > 2);
 	const canAdd = $derived(activePlayers.length < 8);
 	const usedIcons = $derived(activePlayers.map((p) => p.icon));
@@ -38,8 +40,10 @@
 	let formSeat = $state(-1);
 
 	function startAdd() {
-		const availableIcon = PLAYER_ICONS.find((i) => !usedIcons.includes(i.id))?.id ?? '';
-		const availableColor = PLAYER_COLORS.find((c) => !usedColors.includes(c.id))?.id ?? '';
+		const availableIcon =
+			PLAYER_ICONS.find((i) => !usedIcons.includes(i.id))?.id ?? '';
+		const availableColor =
+			PLAYER_COLORS.find((c) => !usedColors.includes(c.id))?.id ?? '';
 		formName = '';
 		formIcon = availableIcon;
 		formColor = availableColor;
@@ -57,38 +61,66 @@
 	}
 
 	function confirmAdd() {
-		if (!formName.trim() || !formIcon || !formColor || formSeat === -1) return;
-		onadd({ name: formName.trim(), icon: formIcon, color: formColor, seatPosition: formSeat });
+		if (!formName.trim() || !formIcon || !formColor || formSeat === -1)
+			return;
+		onadd({
+			name: formName.trim(),
+			icon: formIcon,
+			color: formColor,
+			seatPosition: formSeat,
+		});
 		mode = 'list';
 	}
 
 	function confirmReplace() {
-		if (!replacingPlayerId || !formName.trim() || !formIcon || !formColor) return;
-		onreplace(replacingPlayerId, { name: formName.trim(), icon: formIcon, color: formColor });
+		if (!replacingPlayerId || !formName.trim() || !formIcon || !formColor)
+			return;
+		onreplace(replacingPlayerId, {
+			name: formName.trim(),
+			icon: formIcon,
+			color: formColor,
+		});
 		mode = 'list';
 	}
 
 	const formValid = $derived(
 		mode === 'add'
-			? formName.trim().length > 0 && formIcon && formColor && formSeat !== -1
+			? formName.trim().length > 0 &&
+					formIcon &&
+					formColor &&
+					formSeat !== -1
 			: formName.trim().length > 0 && formIcon && formColor,
 	);
 
 	const iconsForForm = $derived(
 		mode === 'replace'
-			? usedIcons.filter((i) => i !== activePlayers.find((p) => p.id === replacingPlayerId)?.icon)
+			? usedIcons.filter(
+					(i) =>
+						i !==
+						activePlayers.find((p) => p.id === replacingPlayerId)
+							?.icon,
+				)
 			: usedIcons,
 	);
 
 	const colorsForForm = $derived(
 		mode === 'replace'
-			? usedColors.filter((c) => c !== activePlayers.find((p) => p.id === replacingPlayerId)?.color)
+			? usedColors.filter(
+					(c) =>
+						c !==
+						activePlayers.find((p) => p.id === replacingPlayerId)
+							?.color,
+				)
 			: usedColors,
 	);
 </script>
 
 <div class="mp-overlay" role="dialog" aria-modal="true">
-	<div class="mp-overlay__backdrop" onclick={onclose}></div>
+	<button
+		class="mp-overlay__backdrop"
+		onclick={onclose}
+		aria-label={$_('common.close')}
+	></button>
 	<div class="mp-overlay__panel">
 		<header class="mp-overlay__header">
 			<h2 class="mp-overlay__title">
@@ -101,11 +133,20 @@
 				{/if}
 			</h2>
 			{#if mode !== 'list'}
-				<button class="mp-overlay__back" type="button" onclick={() => (mode = 'list')}>
+				<button
+					class="mp-overlay__back"
+					type="button"
+					onclick={() => (mode = 'list')}
+				>
 					{$_('setup.back')}
 				</button>
 			{/if}
-			<button class="mp-overlay__close" type="button" onclick={onclose} aria-label="Close">
+			<button
+				class="mp-overlay__close"
+				type="button"
+				onclick={onclose}
+				aria-label={$_('common.close')}
+			>
 				<X size={20} />
 			</button>
 		</header>
@@ -115,7 +156,11 @@
 				{#each activePlayers as player (player.id)}
 					{@const Icon = getPlayerIconComponent(player.icon)}
 					<li class="mp-list__item">
-						<span class="mp-list__icon" style:--player-ring="var(--{player.color})" aria-hidden="true">
+						<span
+							class="mp-list__icon"
+							style:--player-ring="var(--{player.color})"
+							aria-hidden="true"
+						>
 							{#if Icon}<Icon size={16} />{/if}
 						</span>
 						<span class="mp-list__name">{player.name}</span>
@@ -123,7 +168,9 @@
 							class="mp-list__action"
 							type="button"
 							onclick={() => startReplace(player)}
-							aria-label="{$_('manage_players.replace_aria', { values: { name: player.name } })}"
+							aria-label={$_('manage_players.replace_aria', {
+								values: { name: player.name },
+							})}
 						>
 							<UserPen size={16} />
 						</button>
@@ -132,7 +179,9 @@
 							type="button"
 							onclick={() => onremove(player.id)}
 							disabled={!canRemove}
-							aria-label="{$_('manage_players.remove_aria', { values: { name: player.name } })}"
+							aria-label={$_('manage_players.remove_aria', {
+								values: { name: player.name },
+							})}
 						>
 							<UserMinus size={16} />
 						</button>
@@ -157,52 +206,76 @@
 					autocomplete="off"
 				/>
 
-				<div class="mp-form__picker" role="group" aria-label="Choose icon">
+				<div
+					class="mp-form__picker"
+					role="group"
+					aria-label={$_('manage_players.choose_icon_aria')}
+				>
 					{#each PLAYER_ICONS as { id, component: IconComp } (id)}
 						<button
 							class="mp-form__icon-opt"
 							class:mp-form__icon-opt--active={formIcon === id}
-							class:mp-form__icon-opt--used={iconsForForm.includes(id)}
-							onclick={() => { if (!iconsForForm.includes(id)) formIcon = id; }}
+							class:mp-form__icon-opt--used={iconsForForm.includes(
+								id,
+							)}
+							onclick={() => {
+								if (!iconsForForm.includes(id)) formIcon = id;
+							}}
 							type="button"
 							disabled={iconsForForm.includes(id)}
 							aria-pressed={formIcon === id}
+							aria-label={id}
 						>
 							<IconComp size={18} />
 						</button>
 					{/each}
 				</div>
 
-				<div class="mp-form__picker" role="group" aria-label="Choose color">
+				<div
+					class="mp-form__picker"
+					role="group"
+					aria-label={$_('manage_players.choose_color_aria')}
+				>
 					{#each PLAYER_COLORS as { id } (id)}
 						<button
 							class="mp-form__color-opt"
 							class:mp-form__color-opt--active={formColor === id}
-							class:mp-form__color-opt--used={colorsForForm.includes(id)}
+							class:mp-form__color-opt--used={colorsForForm.includes(
+								id,
+							)}
 							style:--swatch="var(--{id})"
-							onclick={() => { if (!colorsForForm.includes(id)) formColor = id; }}
+							onclick={() => {
+								if (!colorsForForm.includes(id)) formColor = id;
+							}}
 							type="button"
 							disabled={colorsForForm.includes(id)}
 							aria-pressed={formColor === id}
+							aria-label={id}
 						>
 						</button>
 					{/each}
 				</div>
 
 				{#if mode === 'add'}
-					<p class="mp-form__label">{$_('manage_players.choose_seat')}</p>
+					<p class="mp-form__label">
+						{$_('manage_players.choose_seat')}
+					</p>
 					<div class="mp-form__seat-map">
 						<SeatMap
 							players={activePlayers}
 							disabledSeats={usedSeats}
 							selectedSeat={formSeat}
-							onselect={(pos) => { if (!usedSeats.includes(pos)) formSeat = pos; }}
+							onselect={(pos) => {
+								if (!usedSeats.includes(pos)) formSeat = pos;
+							}}
 						/>
 					</div>
 				{/if}
 
 				<Button
-					text={mode === 'add' ? $_('manage_players.add_player') : $_('manage_players.confirm_replace')}
+					text={mode === 'add'
+						? $_('manage_players.add_player')
+						: $_('manage_players.confirm_replace')}
 					onclick={mode === 'add' ? confirmAdd : confirmReplace}
 					disabled={!formValid}
 				/>
@@ -472,7 +545,10 @@
 		margin: 0 auto;
 		border-radius: 0.75rem;
 		padding: 1rem;
-		background: linear-gradient(to bottom, var(--orange-500), var(--orange-600));
+		background: linear-gradient(
+			to bottom,
+			var(--orange-500),
+			var(--orange-600)
+		);
 	}
-
 </style>

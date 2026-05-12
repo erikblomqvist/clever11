@@ -7,17 +7,16 @@
 	 *   timerSeconds: number,
 	 * }}
 	 */
-	let {
-		timerEnabled = $bindable(),
-		timerSeconds = $bindable(),
-	} = $props();
+	let { timerEnabled = $bindable(), timerSeconds = $bindable() } = $props();
 </script>
 
 <div class="rule-card">
 	<div class="rule-card__header">
 		<div class="rule-card__text">
 			<span class="rule-card__label">{$_('setup.turn_timer_label')}</span>
-			<span class="rule-card__desc">{$_('setup.turn_timer_description')}</span>
+			<span class="rule-card__desc"
+				>{$_('setup.turn_timer_description')}</span
+			>
 		</div>
 		<button
 			class="toggle"
@@ -25,6 +24,7 @@
 			type="button"
 			role="switch"
 			aria-checked={timerEnabled}
+			aria-label={$_('setup.turn_timer_label')}
 			onclick={() => (timerEnabled = !timerEnabled)}
 		>
 			<span class="toggle__thumb"></span>
@@ -42,7 +42,11 @@
 					required
 					bind:value={timerSeconds}
 				/>
-				<span class="seconds-field__unit">{$_('setup.turn_timer_seconds', { values: { n: timerSeconds } })}</span>
+				<span class="seconds-field__unit"
+					>{$_('setup.turn_timer_seconds', {
+						values: { n: timerSeconds },
+					})}</span
+				>
 			</label>
 		</div>
 	{/if}
