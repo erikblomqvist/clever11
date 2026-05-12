@@ -102,6 +102,8 @@ export class Game {
 	turnTimerSeconds = $state(null);
 	/** @type {boolean|null} Vote on current round's question quality: true=up, false=down, null=none */
 	roundVote = $state(null);
+	/** @type {boolean} True if a persistence operation is in progress */
+	isSyncing = $state(false);
 
 	constructor(adapter) {
 		this.adapter = adapter;
@@ -166,6 +168,10 @@ export class Game {
 		).join('');
 	}
 
+	generateId() {
+		return crypto.randomUUID();
+	}
+
 	pickNextQuestion() {
 		const available = questionPool.filter(
 			(q) => !this.usedQuestionIds.includes(q.id),
@@ -220,6 +226,7 @@ export class Game {
 			demoGame.usedQuestionIds ?? (demoQuestion ? [demoQuestion.id] : []);
 		this.turnTimerSeconds = demoGame.turnTimerSeconds ?? null;
 		this.roundVote = null;
+		this.isSyncing = false;
 
 		this.currentRound = demoGame.currentRound
 			? {
@@ -249,55 +256,60 @@ export class Game {
 	}
 
 	async initGame(setup) {
-		questionPool = await this.adapter.fetchQuestionsForDecks(
-			setup.selectedDeckIds,
-		);
+		this.isSyncing = true;
+		try {
+			questionPool = await this.adapter.fetchQuestionsForDecks(
+				setup.selectedDeckIds,
+			);
 
-		const gamePlayers = setup.players.map((p, i) => ({
-			id: `player-${i}`,
-			dbId: /** @type {string|null} */ (null),
-			name: p.name,
-			icon: p.icon,
-			color: p.color,
-			seatPosition: p.seatPosition ?? 0,
-			turnOrder: p.turnOrder ?? i,
-			totalScore: 0,
-			roundScore: 0,
-			status: /** @type {PlayerStatus} */ ('active'),
-		}));
+			const gamePlayers = setup.players.map((p, i) => ({
+				id: `player-${i}`,
+				dbId: /** @type {string|null} */ (null),
+				name: p.name,
+				icon: p.icon,
+				color: p.color,
+				seatPosition: p.seatPosition ?? 0,
+				turnOrder: p.turnOrder ?? i,
+				totalScore: 0,
+				roundScore: 0,
+				status: /** @type {PlayerStatus} */ ('active'),
+			}));
 
-		const startingPlayer =
-			gamePlayers[setup.startingPlayerIndex] ?? gamePlayers[0];
-		const code = this.generateCode();
-		const firstQuestion =
-			(await this.adapter.fetchForcedQuestion(
-				getForcedFirstQuestionId(),
-			)) ?? this.pickNextQuestion();
+			const startingPlayer =
+				gamePlayers[setup.startingPlayerIndex] ?? gamePlayers[0];
+			const code = this.generateCode();
+			const firstQuestion =
+				(await this.adapter.fetchForcedQuestion(
+					getForcedFirstQuestionId(),
+				)) ?? this.pickNextQuestion();
 
-		this.status = 'playing';
-		this.code = code;
-		this.dbGameId = null;
-		this.winScore = 50;
-		this.players = gamePlayers;
-		this.currentPlayerId = startingPlayer.id;
-		this.startingTurnOrderIndex = startingPlayer.turnOrder;
-		this.selectedDeckIds = setup.selectedDeckIds;
-		this.usedQuestionIds = [firstQuestion.id];
-		this.turnTimerSeconds = setup.turnTimerSeconds ?? null;
-		this.roundVote = null;
-		this.currentRound = {
-			roundNumber: 1,
-			question: firstQuestion,
-			answeredBlobs: [],
-			blobResults: {},
-			lastPlayerId: null,
-			dbId: null,
-			lastAnswerMove: null,
-		};
+			this.status = 'playing';
+			this.code = code;
+			this.dbGameId = null;
+			this.winScore = 50;
+			this.players = gamePlayers;
+			this.currentPlayerId = startingPlayer.id;
+			this.startingTurnOrderIndex = startingPlayer.turnOrder;
+			this.selectedDeckIds = setup.selectedDeckIds;
+			this.usedQuestionIds = [firstQuestion.id];
+			this.turnTimerSeconds = setup.turnTimerSeconds ?? null;
+			this.roundVote = null;
+			this.currentRound = {
+				roundNumber: 1,
+				question: firstQuestion,
+				answeredBlobs: [],
+				blobResults: {},
+				lastPlayerId: null,
+				dbId: null,
+				lastAnswerMove: null,
+			};
 
-		this.lockPortraitOnPhone();
+			this.lockPortraitOnPhone();
 
-		await this.adapter.persistNewGame(this);
+			await this.adapter.persistNewGame(this);
+		} finally {
+			this.isSyncing = false;
+		}
 	}
 
 	revealBlob(blobIndex, isCorrect, options = {}) {
@@ -311,6 +323,7 @@ export class Game {
 		const actingPlayerId = this.currentPlayerId;
 		const actingPlayerDbId = this.players[playerIdx].dbId;
 		const previousRoundScore = this.players[playerIdx].roundScore;
+		const answerId = this.generateId();
 
 		const round = this.currentRound;
 		round.lastAnswerMove = {
@@ -320,7 +333,7 @@ export class Game {
 			previousStatus: this.players[playerIdx].status,
 			previousCurrentPlayerId: actingPlayerId,
 			previousLastPlayerId: round.lastPlayerId,
-			answerId: null,
+			answerId,
 			deleteWhenPersisted: false,
 		};
 		round.answeredBlobs.push(blobIndex);
@@ -343,6 +356,7 @@ export class Game {
 			this.currentPlayerId = nextPlayerId;
 		}
 
+		this.isSyncing = true;
 		this.adapter
 			.persistBlobReveal(
 				this,
@@ -352,7 +366,10 @@ export class Game {
 				actingPlayerDbId,
 				round.lastAnswerMove,
 			)
-			.catch(console.error);
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 
 		return {
 			playerId: actingPlayerId,
@@ -363,7 +380,6 @@ export class Game {
 			roundIsOver,
 		};
 	}
-
 	advanceCurrentPlayer(expectedCurrentPlayerId = this.currentPlayerId) {
 		if (this.status !== 'playing' || this.roundIsOver) return false;
 		if (this.currentPlayerId !== expectedCurrentPlayerId) return false;
@@ -372,7 +388,13 @@ export class Game {
 		if (!nextId) return false;
 
 		this.currentPlayerId = nextId;
-		this.adapter.syncGameState(this).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.syncGameState(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 		return true;
 	}
 
@@ -395,6 +417,7 @@ export class Game {
 		this.players[playerIdx].status = move.previousStatus;
 		this.currentPlayerId = move.previousCurrentPlayerId;
 
+		this.isSyncing = true;
 		if (answerId) {
 			this.adapter
 				.deletePersistedAnswer({ answerId })
@@ -402,7 +425,12 @@ export class Game {
 		} else {
 			move.deleteWhenPersisted = true;
 		}
-		this.adapter.syncGameState(this).catch(console.error);
+		this.adapter
+			.syncGameState(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 	}
 
 	passCurrentPlayer() {
@@ -421,7 +449,13 @@ export class Game {
 			const nextId = this.getNextActivePlayerId(this.currentPlayerId);
 			if (nextId) this.currentPlayerId = nextId;
 		}
-		this.adapter.syncGameState(this).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.syncGameState(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 	}
 
 	skipRound() {
@@ -449,7 +483,13 @@ export class Game {
 			(p) => p.status !== 'removed' && p.totalScore >= this.winScore,
 		);
 		this.status = winner ? 'finished' : 'round_review';
-		this.adapter.syncGameState(this).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.syncGameState(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 	}
 
 	addPlayer(params) {
@@ -484,7 +524,13 @@ export class Game {
 		};
 
 		this.players.push(newPlayer);
-		this.adapter.persistNewPlayer(this, newPlayer).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.persistNewPlayer(this, newPlayer)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 
 		return newId;
 	}
@@ -511,7 +557,13 @@ export class Game {
 		this.players[playerIdx].roundScore = 0;
 
 		if (nextId) this.currentPlayerId = nextId;
-		this.adapter.syncGameState(this).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.syncGameState(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 		return true;
 	}
 
@@ -522,7 +574,13 @@ export class Game {
 		player.name = replacement.name;
 		player.icon = replacement.icon;
 		player.color = replacement.color;
-		this.adapter.syncGameState(this).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.syncGameState(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 		return true;
 	}
 
@@ -532,7 +590,13 @@ export class Game {
 
 	startNextRound() {
 		if (this.roundVote !== null) {
-			this.adapter.persistQuestionVote(this).catch(console.error);
+			this.isSyncing = true;
+			this.adapter
+				.persistQuestionVote(this)
+				.catch(console.error)
+				.finally(() => {
+					this.isSyncing = false;
+				});
 		}
 		this.roundVote = null;
 
@@ -571,28 +635,39 @@ export class Game {
 
 		this.status = 'playing';
 
-		this.adapter.dbCreateNewRound(this).catch(console.error);
+		this.isSyncing = true;
+		this.adapter
+			.dbCreateNewRound(this)
+			.catch(console.error)
+			.finally(() => {
+				this.isSyncing = false;
+			});
 	}
 
 	async loadGame(code) {
-		const state = await this.adapter.loadGame(code);
+		this.isSyncing = true;
+		try {
+			const state = await this.adapter.loadGame(code);
 
-		this.status = /** @type {any} */ (state.status);
-		this.code = state.code;
-		this.dbGameId = state.dbGameId;
-		this.winScore = state.winScore;
-		this.players = state.players;
-		this.currentPlayerId = state.currentPlayerId;
-		this.startingTurnOrderIndex = state.startingTurnOrderIndex;
-		this.selectedDeckIds = state.selectedDeckIds;
-		this.usedQuestionIds = state.usedQuestionIds;
-		this.turnTimerSeconds = state.turnTimerSeconds ?? null;
-		this.roundVote = null;
-		this.currentRound = state.currentRound;
+			this.status = /** @type {any} */ (state.status);
+			this.code = state.code;
+			this.dbGameId = state.dbGameId;
+			this.winScore = state.winScore;
+			this.players = state.players;
+			this.currentPlayerId = state.currentPlayerId;
+			this.startingTurnOrderIndex = state.startingTurnOrderIndex;
+			this.selectedDeckIds = state.selectedDeckIds;
+			this.usedQuestionIds = state.usedQuestionIds;
+			this.turnTimerSeconds = state.turnTimerSeconds ?? null;
+			this.roundVote = null;
+			this.currentRound = state.currentRound;
 
-		questionPool = state.questionPool;
+			questionPool = state.questionPool;
 
-		this.lockPortraitOnPhone();
+			this.lockPortraitOnPhone();
+		} finally {
+			this.isSyncing = false;
+		}
 	}
 }
 

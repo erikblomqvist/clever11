@@ -117,6 +117,34 @@ describe('Game Class - Actions', () => {
 			expect(result.isCorrect).toBe(true);
 		});
 
+		it('generates a client-side UUID for the move', () => {
+			const game = createTestGame();
+			game.revealBlob(0, true);
+			expect(game.currentRound.lastAnswerMove.answerId).toBeDefined();
+			expect(typeof game.currentRound.lastAnswerMove.answerId).toBe(
+				'string',
+			);
+		});
+
+		it('tracks syncing state', async () => {
+			const game = createTestGame();
+			// Mock persistBlobReveal to return a promise we can control
+			let resolvePersist;
+			const persistPromise = new Promise((resolve) => {
+				resolvePersist = resolve;
+			});
+			game.adapter.persistBlobReveal.mockReturnValue(persistPromise);
+
+			game.revealBlob(0, true);
+			expect(game.isSyncing).toBe(true);
+
+			resolvePersist();
+			await persistPromise;
+			// Wait for the .finally() microtask to run
+			await Promise.resolve();
+			expect(game.isSyncing).toBe(false);
+		});
+
 		it('busts the player on incorrect answer', () => {
 			const game = createTestGame();
 			game.players[0].roundScore = 5;
@@ -214,6 +242,51 @@ describe('Game Class - Actions', () => {
 			});
 			expect(game.players[0].name).toBe('NewName');
 			expect(game.adapter.syncGameState).toHaveBeenCalled();
+		});
+	});
+
+	describe('Lifecycle', () => {
+		it('initGame sets up initial state and persists', async () => {
+			const adapter = new MockGameAdapter();
+			const mockQuestions = [{ id: 'q1', text: 'Q1' }];
+			adapter.fetchQuestionsForDecks.mockResolvedValue(mockQuestions);
+			adapter.fetchForcedQuestion.mockResolvedValue(null);
+
+			const game = new Game(adapter);
+			const setup = {
+				players: [{ name: 'P1', icon: 'I1', color: 'C1' }],
+				selectedDeckIds: ['d1'],
+				startingPlayerIndex: 0,
+			};
+
+			await game.initGame(setup);
+
+			expect(game.status).toBe('playing');
+			expect(game.players).toHaveLength(1);
+			expect(game.currentRound.question.id).toBe('q1');
+			expect(adapter.persistNewGame).toHaveBeenCalledWith(game);
+			expect(game.isSyncing).toBe(false);
+		});
+
+		it('loadGame restores state from adapter', async () => {
+			const adapter = new MockGameAdapter();
+			const mockState = {
+				status: 'round_review',
+				code: 'TEST1',
+				players: [{ id: 'p1', name: 'Player 1' }],
+				currentRound: { roundNumber: 2 },
+				questionPool: [{ id: 'q1' }],
+			};
+			adapter.loadGame.mockResolvedValue(mockState);
+
+			const game = new Game(adapter);
+			await game.loadGame('TEST1');
+
+			expect(game.status).toBe('round_review');
+			expect(game.code).toBe('TEST1');
+			expect(game.players).toEqual(mockState.players);
+			expect(game.currentRound.roundNumber).toBe(2);
+			expect(game.isSyncing).toBe(false);
 		});
 	});
 });

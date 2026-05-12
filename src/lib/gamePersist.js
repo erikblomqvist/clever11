@@ -374,18 +374,27 @@ export async function persistBlobReveal(
 ) {
 	if (!supabase || !round.dbId || !actingPlayerDbId) return;
 
+	const answerData = {
+		round_id: round.dbId,
+		player_id: actingPlayerDbId,
+		blob_index: blobIndex,
+		is_correct: isCorrect,
+	};
+
+	if (lastAnswerMove.answerId) {
+		answerData.id = lastAnswerMove.answerId;
+	}
+
 	const { data } = await supabase
 		.from('player_answers')
-		.insert({
-			round_id: round.dbId,
-			player_id: actingPlayerDbId,
-			blob_index: blobIndex,
-			is_correct: isCorrect,
-		})
+		.insert(answerData)
 		.select('id')
 		.single();
 
-	lastAnswerMove.answerId = data?.id ?? null;
+	if (!lastAnswerMove.answerId) {
+		lastAnswerMove.answerId = data?.id ?? null;
+	}
+
 	if (lastAnswerMove.deleteWhenPersisted && lastAnswerMove.answerId) {
 		await deletePersistedAnswer(lastAnswerMove);
 	}
