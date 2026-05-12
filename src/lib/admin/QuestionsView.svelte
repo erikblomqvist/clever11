@@ -302,16 +302,8 @@
 <div class="admin-page">
 	<div class="admin-page__header">
 		<h1 class="admin-page__title">Questions</h1>
-		<a
-			class="admin-btn"
-			href="/admin/questions/import"
-		>
-			Import cards
-		</a>
-		<a
-			class="admin-btn admin-btn--primary"
-			href="/admin/questions/new"
-		>
+		<a class="admin-btn" href="/admin/questions/import"> Import cards </a>
+		<a class="admin-btn admin-btn--primary" href="/admin/questions/new">
 			New question
 		</a>
 	</div>

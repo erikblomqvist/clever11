@@ -15,13 +15,18 @@
 		if (!supabase) return;
 		loading = true;
 		error = '';
-		const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+		const { data, error: authError } =
+			await supabase.auth.signInWithPassword({ email, password });
 		if (authError) {
 			loading = false;
 			error = authError.message;
 			return;
 		}
-		if (!data.user) { error = 'Login failed.'; loading = false; return; }
+		if (!data.user) {
+			error = 'Login failed.';
+			loading = false;
+			return;
+		}
 
 		// Check admin flag
 		const { data: userData } = await supabase
@@ -29,7 +34,7 @@
 			.select('is_admin')
 			.eq('id', data.user.id)
 			.single();
-		
+
 		if (!userData?.is_admin) {
 			await supabase.auth.signOut();
 			loading = false;
@@ -49,13 +54,31 @@
 		{/if}
 		<label class="admin-label">
 			Email
-			<input class="admin-input" type="email" bind:value={email} required autocomplete="email" disabled={loading} />
+			<input
+				class="admin-input"
+				type="email"
+				bind:value={email}
+				required
+				autocomplete="email"
+				disabled={loading}
+			/>
 		</label>
 		<label class="admin-label">
 			Password
-			<input class="admin-input" type="password" bind:value={password} required autocomplete="current-password" disabled={loading} />
+			<input
+				class="admin-input"
+				type="password"
+				bind:value={password}
+				required
+				autocomplete="current-password"
+				disabled={loading}
+			/>
 		</label>
-		<button class="admin-btn admin-btn--primary" type="submit" disabled={loading}>
+		<button
+			class="admin-btn admin-btn--primary"
+			type="submit"
+			disabled={loading}
+		>
 			{loading ? 'Signing in…' : 'Sign in'}
 		</button>
 	</form>

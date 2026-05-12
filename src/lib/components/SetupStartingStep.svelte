@@ -31,7 +31,11 @@
 				onclick={() => (startingPlayerIdx = idx)}
 				type="button"
 			>
-				<span class="starting-card__icon" style:--player-ring="var(--{player.color})" aria-hidden="true">
+				<span
+					class="starting-card__icon"
+					style:--player-ring="var(--{player.color})"
+					aria-hidden="true"
+				>
 					{#if Icon}
 						<Icon size={20} />
 					{/if}
@@ -42,7 +46,14 @@
 	{/each}
 </ul>
 
-<Button class="randomize-btn" variant="secondary" size="base" icon={Shuffle} text={$_('setup.randomize')} onclick={onrandomize} />
+<Button
+	class="randomize-btn"
+	variant="secondary"
+	size="base"
+	icon={Shuffle}
+	text={$_('setup.randomize')}
+	onclick={onrandomize}
+/>
 
 <style>
 	.starting-list {
@@ -66,9 +77,11 @@
 		color: var(--palette-white);
 		text-align: left;
 		cursor: pointer;
-	
+
 		&:hover {
-			background-color: lch(from var(--palette-purple-dark) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-dark) calc(l + 5) c h
+			);
 		}
 	}
 
@@ -77,7 +90,9 @@
 		border-color: var(--palette-purple-start);
 
 		&:hover {
-			background-color: lch(from var(--palette-purple-mid) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-mid) calc(l + 5) c h
+			);
 		}
 	}
 

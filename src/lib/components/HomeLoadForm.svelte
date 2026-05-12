@@ -15,7 +15,7 @@
 	let { code, loaderror = null, onsubmit, oncodeinput, oncancel } = $props();
 </script>
 
-<form class="home-load" onsubmit={onsubmit}>
+<form class="home-load" {onsubmit}>
 	<input
 		class="home-code-input"
 		type="text"
@@ -31,8 +31,16 @@
 		<Message variant="error" description={loaderror} />
 	{/if}
 	<div class="home-load-actions">
-		<Button text={$_('home.load')} type="submit" disabled={code.length !== 5} />
-		<Button variant="secondary" text={$_('home.cancel')} onclick={oncancel} />
+		<Button
+			text={$_('home.load')}
+			type="submit"
+			disabled={code.length !== 5}
+		/>
+		<Button
+			variant="secondary"
+			text={$_('home.cancel')}
+			onclick={oncancel}
+		/>
 	</div>
 </form>
 
@@ -56,7 +64,7 @@
 		text-align: center;
 		width: 100%;
 		box-sizing: border-box;
-	
+
 		&::placeholder {
 			color: var(--grayscale-400);
 		}

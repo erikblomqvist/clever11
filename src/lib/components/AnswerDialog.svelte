@@ -70,8 +70,10 @@
 
 		<p
 			class="answer-dialog__answer"
-			class:answer-dialog__answer--yes={isBoolean && correctAnswer === true}
-			class:answer-dialog__answer--no={isBoolean && correctAnswer === false}
+			class:answer-dialog__answer--yes={isBoolean &&
+				correctAnswer === true}
+			class:answer-dialog__answer--no={isBoolean &&
+				correctAnswer === false}
 		>
 			{#if correctAnswer !== null}
 				{#if isBoolean}
@@ -95,7 +97,10 @@
 		/>
 	{/if}
 
-	<div class="answer-dialog__actions" class:answer-dialog__actions--visible={revealed}>
+	<div
+		class="answer-dialog__actions"
+		class:answer-dialog__actions--visible={revealed}
+	>
 		<button
 			class="answer-dialog__btn answer-dialog__btn--correct"
 			type="button"

@@ -13,11 +13,14 @@ export const handle = async ({ event, resolve }) => {
 				},
 				setAll(cookiesToSet) {
 					cookiesToSet.forEach(({ name, value, options }) =>
-						event.cookies.set(name, value, { ...options, path: '/' })
+						event.cookies.set(name, value, {
+							...options,
+							path: '/',
+						}),
 					);
-				}
-			}
-		}
+				},
+			},
+		},
 	);
 
 	/**
@@ -26,15 +29,20 @@ export const handle = async ({ event, resolve }) => {
 	 */
 	event.locals.getSession = async () => {
 		const {
-			data: { session }
+			data: { session },
 		} = await event.locals.supabase.auth.getSession();
 		return session;
 	};
 
 	// Auth guard for /admin
-	if (event.url.pathname.startsWith('/admin') && event.url.pathname !== '/admin/login') {
+	if (
+		event.url.pathname.startsWith('/admin') &&
+		event.url.pathname !== '/admin/login'
+	) {
 		// Use getUser() for security as it validates the session with the Supabase API
-		const { data: { user } } = await event.locals.supabase.auth.getUser();
+		const {
+			data: { user },
+		} = await event.locals.supabase.auth.getUser();
 		if (!user) {
 			throw redirect(303, '/admin/login');
 		}
@@ -43,6 +51,6 @@ export const handle = async ({ event, resolve }) => {
 	return resolve(event, {
 		filterSerializedResponseHeaders(name) {
 			return name === 'content-range';
-		}
+		},
 	});
 };

@@ -1,5 +1,6 @@
 <script>
-	let { durationSeconds, playerColor, paused, running, timeRemaining } = $props();
+	let { durationSeconds, playerColor, paused, running, timeRemaining } =
+		$props();
 
 	const BORDER_WIDTH = 10;
 	const HALF = BORDER_WIDTH / 2;
@@ -18,7 +19,9 @@
 	});
 
 	const perimeter = $derived(2 * (width + height) - 4 * BORDER_WIDTH);
-	const progress = $derived(durationSeconds > 0 ? timeRemaining / durationSeconds : 0);
+	const progress = $derived(
+		durationSeconds > 0 ? timeRemaining / durationSeconds : 0,
+	);
 	const dashOffset = $derived(perimeter * (1 - progress));
 </script>
 

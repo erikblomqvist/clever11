@@ -30,19 +30,29 @@ export function createEmptyImportDraft() {
  * }}
  */
 export function normalizeImportDraft(raw) {
-	const source = raw && typeof raw === 'object' ? /** @type {Record<string, any>} */ (raw) : {};
-	const type = IMPORT_QUESTION_TYPES.includes(source.type) ? source.type : DEFAULT_IMPORT_TYPE;
+	const source =
+		raw && typeof raw === 'object'
+			? /** @type {Record<string, any>} */ (raw)
+			: {};
+	const type = IMPORT_QUESTION_TYPES.includes(source.type)
+		? source.type
+		: DEFAULT_IMPORT_TYPE;
 	const options = normalizeStringArray(source.options_json);
 	const answers = normalizeAnswers(type, source.correct_answers_json);
 
 	return {
 		type,
-		question_text: typeof source.question_text === 'string' ? source.question_text.trim() : '',
+		question_text:
+			typeof source.question_text === 'string'
+				? source.question_text.trim()
+				: '',
 		question_number: normalizeQuestionNumber(source.question_number),
 		options_json: options,
 		correct_answers_json: answers,
 		confidence: normalizeConfidence(source.confidence),
-		warnings: Array.isArray(source.warnings) ? source.warnings.map(String).filter(Boolean) : [],
+		warnings: Array.isArray(source.warnings)
+			? source.warnings.map(String).filter(Boolean)
+			: [],
 	};
 }
 
@@ -51,9 +61,11 @@ export function normalizeImportDraft(raw) {
  */
 export function validateImportDraft(draft) {
 	const errors = [];
-	if (!IMPORT_QUESTION_TYPES.includes(draft.type)) errors.push('Choose a valid question type.');
+	if (!IMPORT_QUESTION_TYPES.includes(draft.type))
+		errors.push('Choose a valid question type.');
 	if (!draft.question_text.trim()) errors.push('Question text is required.');
-	if (draft.options_json.length !== NUM_IMPORT_BLOBS) errors.push('Exactly 10 options are required.');
+	if (draft.options_json.length !== NUM_IMPORT_BLOBS)
+		errors.push('Exactly 10 options are required.');
 	if (draft.options_json.some((option) => !String(option).trim())) {
 		errors.push('All 10 options must be filled in.');
 	}
@@ -66,22 +78,37 @@ export function validateImportDraft(draft) {
 		if (draft.type === 'boolean' && typeof answer !== 'boolean') {
 			errors.push(`${label} must be yes or no.`);
 		}
-		if (draft.type === 'rank' && (!Number.isInteger(Number(answer)) || Number(answer) < 1 || Number(answer) > 10)) {
+		if (
+			draft.type === 'rank' &&
+			(!Number.isInteger(Number(answer)) ||
+				Number(answer) < 1 ||
+				Number(answer) > 10)
+		) {
 			errors.push(`${label} must be a rank from 1 to 10.`);
 		}
-		if (draft.type === 'numbers' && (answer === '' || Number.isNaN(Number(answer)))) {
+		if (
+			draft.type === 'numbers' &&
+			(answer === '' || Number.isNaN(Number(answer)))
+		) {
 			errors.push(`${label} must be a number.`);
 		}
 		if (draft.type === 'colors') {
 			if (!answer || typeof answer !== 'object') {
-				errors.push(`${label} must include a color label and background.`);
+				errors.push(
+					`${label} must include a color label and background.`,
+				);
 			} else if (!String(answer.text ?? '').trim()) {
 				errors.push(`${label} color label is required.`);
 			} else if (!String(answer.backgroundColor ?? '').trim()) {
 				errors.push(`${label} background color is required.`);
 			}
 		}
-		if (['standard', 'chooseBetween', 'centuryDecade'].includes(draft.type) && !String(answer ?? '').trim()) {
+		if (
+			['standard', 'chooseBetween', 'centuryDecade'].includes(
+				draft.type,
+			) &&
+			!String(answer ?? '').trim()
+		) {
 			errors.push(`${label} is required.`);
 		}
 	});
@@ -100,8 +127,13 @@ export function toQuestionInsertPayload(draft, deckId) {
 		question_text: draft.question_text.trim(),
 		question_number: draft.question_number,
 		options_json: draft.options_json.map((option) => option.trim()),
-		correct_answers_json: normalizeAnswers(draft.type, draft.correct_answers_json),
-		answer_media_json: Array(NUM_IMPORT_BLOBS).fill(null).map(() => ({})),
+		correct_answers_json: normalizeAnswers(
+			draft.type,
+			draft.correct_answers_json,
+		),
+		answer_media_json: Array(NUM_IMPORT_BLOBS)
+			.fill(null)
+			.map(() => ({})),
 	};
 }
 
@@ -111,7 +143,8 @@ export function toQuestionInsertPayload(draft, deckId) {
 export function defaultAnswerForType(type) {
 	if (type === 'boolean') return false;
 	if (type === 'rank' || type === 'numbers') return 0;
-	if (type === 'colors') return { text: '', backgroundColor: 'hsl(0 80% 50%)' };
+	if (type === 'colors')
+		return { text: '', backgroundColor: 'hsl(0 80% 50%)' };
 	return '';
 }
 
@@ -120,7 +153,9 @@ export function defaultAnswerForType(type) {
  */
 function normalizeStringArray(value) {
 	const array = Array.isArray(value) ? value : [];
-	return Array.from({ length: NUM_IMPORT_BLOBS }, (_, index) => String(array[index] ?? '').trim());
+	return Array.from({ length: NUM_IMPORT_BLOBS }, (_, index) =>
+		String(array[index] ?? '').trim(),
+	);
 }
 
 /**
@@ -129,7 +164,9 @@ function normalizeStringArray(value) {
  */
 export function normalizeAnswers(type, value) {
 	const array = Array.isArray(value) ? value : [];
-	return Array.from({ length: NUM_IMPORT_BLOBS }, (_, index) => normalizeAnswer(type, array[index]));
+	return Array.from({ length: NUM_IMPORT_BLOBS }, (_, index) =>
+		normalizeAnswer(type, array[index]),
+	);
 }
 
 /**
@@ -139,7 +176,10 @@ export function normalizeAnswers(type, value) {
 function normalizeAnswer(type, value) {
 	if (type === 'boolean') {
 		if (typeof value === 'boolean') return value;
-		if (typeof value === 'string') return ['true', 'yes', 'ja', 'riktig', 'correct'].includes(value.trim().toLowerCase());
+		if (typeof value === 'string')
+			return ['true', 'yes', 'ja', 'riktig', 'correct'].includes(
+				value.trim().toLowerCase(),
+			);
 		return Boolean(value);
 	}
 	if (type === 'rank') {
@@ -155,10 +195,15 @@ function normalizeAnswer(type, value) {
 			const answer = /** @type {Record<string, any>} */ (value);
 			return {
 				text: String(answer.text ?? answer.label ?? '').trim(),
-				backgroundColor: normalizeBackgroundColor(answer.backgroundColor ?? answer.color),
+				backgroundColor: normalizeBackgroundColor(
+					answer.backgroundColor ?? answer.color,
+				),
 			};
 		}
-		return { text: String(value ?? '').trim(), backgroundColor: 'hsl(0 80% 50%)' };
+		return {
+			text: String(value ?? '').trim(),
+			backgroundColor: 'hsl(0 80% 50%)',
+		};
 	}
 	return String(value ?? '').trim();
 }
@@ -180,7 +225,9 @@ function normalizeBackgroundColor(value) {
 
 /** @param {string} color */
 function parseHsl(color) {
-	const match = color.match(/^hsla?\(\s*([\d.]+)[\s,]+([\d.]+)%?[\s,]+([\d.]+)%?\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i);
+	const match = color.match(
+		/^hsla?\(\s*([\d.]+)[\s,]+([\d.]+)%?[\s,]+([\d.]+)%?\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i,
+	);
 	if (!match) return null;
 	return { h: Number(match[1]), s: Number(match[2]), l: Number(match[3]) };
 }
@@ -201,12 +248,18 @@ function parseHex(color) {
 	} else {
 		return null;
 	}
-	return rgbToHsl(parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16));
+	return rgbToHsl(
+		parseInt(hex.slice(0, 2), 16),
+		parseInt(hex.slice(2, 4), 16),
+		parseInt(hex.slice(4, 6), 16),
+	);
 }
 
 /** @param {string} color */
 function parseRgb(color) {
-	const match = color.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i);
+	const match = color.match(
+		/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/i,
+	);
 	if (!match) return null;
 	return rgbToHsl(Number(match[1]), Number(match[2]), Number(match[3]));
 }
@@ -241,7 +294,10 @@ function normalizeQuestionNumber(value) {
  * @param {unknown} value
  */
 function normalizeConfidence(value) {
-	const source = value && typeof value === 'object' ? /** @type {Record<string, any>} */ (value) : {};
+	const source =
+		value && typeof value === 'object'
+			? /** @type {Record<string, any>} */ (value)
+			: {};
 	return {
 		type: clampConfidence(source.type),
 		question_text: clampConfidence(source.question_text),

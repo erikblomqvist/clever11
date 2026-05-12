@@ -38,7 +38,10 @@
 				<span class="seat-map__stack">
 					{#each claimers as claimer (claimer.name)}
 						{@const Icon = getPlayerIconComponent(claimer.icon)}
-						<span class="seat-map__avatar" style:--player-ring="var(--{claimer.color})">
+						<span
+							class="seat-map__avatar"
+							style:--player-ring="var(--{claimer.color})"
+						>
 							{#if Icon}<Icon size={40} />{/if}
 						</span>
 					{/each}

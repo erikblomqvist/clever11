@@ -42,7 +42,11 @@
 				>
 					<span class="deck-card__icon" aria-hidden="true">
 						{#if iconNode}
-							<LucideIcon name={deck.icon ?? 'Layers'} iconNode={iconNode} size={22} />
+							<LucideIcon
+								name={deck.icon ?? 'Layers'}
+								{iconNode}
+								size={22}
+							/>
 						{/if}
 					</span>
 					<span class="deck-card__info">
@@ -94,18 +98,22 @@
 
 		text-align: start;
 		color: var(--palette-white);
-	
+
 		&:hover {
-			background-color: lch(from var(--palette-purple-dark) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-dark) calc(l + 5) c h
+			);
 		}
 	}
 
 	.deck-card--selected {
 		background-color: var(--palette-purple-mid);
 		border-color: var(--palette-purple-start);
-	
+
 		&:hover {
-			background-color: lch(from var(--palette-purple-mid) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-mid) calc(l + 5) c h
+			);
 		}
 	}
 

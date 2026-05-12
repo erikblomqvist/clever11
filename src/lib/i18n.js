@@ -14,7 +14,12 @@ function resolveInitialLocale() {
 		if (stored && LOCALES.includes(stored)) return stored;
 		const nav = getLocaleFromNavigator() ?? 'en';
 		if (nav.startsWith('sv')) return 'sv';
-		if (nav.startsWith('nb') || nav.startsWith('no') || nav.startsWith('nn')) return 'no';
+		if (
+			nav.startsWith('nb') ||
+			nav.startsWith('no') ||
+			nav.startsWith('nn')
+		)
+			return 'no';
 	}
 	return 'en';
 }

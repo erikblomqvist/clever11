@@ -23,7 +23,11 @@
 					{@const Icon = getPlayerIconComponent(player.icon)}
 					<li
 						class="overall-score-list__podium-item"
-						data-podium-rank={podiumIndex === 0 ? 'first' : podiumIndex === 1 ? 'second' : 'third'}
+						data-podium-rank={podiumIndex === 0
+							? 'first'
+							: podiumIndex === 1
+								? 'second'
+								: 'third'}
 					>
 						{#if Icon}
 							<span
@@ -32,10 +36,14 @@
 								aria-hidden="true"
 							>
 								<Icon size={28} />
-								<span class="overall-score-list__podium-rank">{podiumIndex + 1}</span>
+								<span class="overall-score-list__podium-rank"
+									>{podiumIndex + 1}</span
+								>
 							</span>
 						{/if}
-						<span class="overall-score-list__podium-player">{player.name}</span>
+						<span class="overall-score-list__podium-player"
+							>{player.name}</span
+						>
 						<span class="overall-score-list__podium-score">
 							{$_('game.pts', {
 								values: { n: player.totalScore },
@@ -105,7 +113,7 @@
 
 		&[data-podium-rank='first'] {
 			--podium-color: lch(85% 83 86);
-			
+
 			order: 2;
 			transform: translateY(-0.5rem);
 

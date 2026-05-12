@@ -1,5 +1,11 @@
 <script>
-	import { Info, TriangleAlert, CircleX, CircleCheck, MessageSquare } from 'lucide-svelte';
+	import {
+		Info,
+		TriangleAlert,
+		CircleX,
+		CircleCheck,
+		MessageSquare,
+	} from 'lucide-svelte';
 
 	/**
 	 * @type {{
@@ -22,7 +28,10 @@
 	const Icon = $derived(icons[variant]);
 </script>
 
-<div class="message message--{variant}" role={variant === 'error' ? 'alert' : 'status'}>
+<div
+	class="message message--{variant}"
+	role={variant === 'error' ? 'alert' : 'status'}
+>
 	<span class="message__icon">
 		<Icon size={16} strokeWidth={2.25} />
 	</span>
@@ -97,13 +106,13 @@
 		vertical-align: middle;
 
 		translate: 0 0.125rem;
-		
+
 		color: var(--_icon);
 	}
 
 	.message__title {
 		grid-column-start: 2;
-		
+
 		margin: 0;
 
 		font-size: 0.875rem;
@@ -118,7 +127,7 @@
 
 	.message__description {
 		grid-column-start: 2;
-		
+
 		margin: 0;
 
 		font-size: 0.8125rem;

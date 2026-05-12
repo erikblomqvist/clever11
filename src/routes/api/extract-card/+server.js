@@ -3,7 +3,10 @@ import { Buffer } from 'node:buffer';
 import sharp from 'sharp';
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { getUserIdFromAuthorization, recordAiImportEvent } from '$lib/server/adminSupabase';
+import {
+	getUserIdFromAuthorization,
+	recordAiImportEvent,
+} from '$lib/server/adminSupabase';
 
 const QUESTION_TYPES = [
 	'standard',
@@ -61,18 +64,21 @@ const schema = {
 		},
 		question_number: {
 			type: ['integer', 'null'],
-			description: 'The small printed card number, usually in the bottom-right corner.',
+			description:
+				'The small printed card number, usually in the bottom-right corner.',
 		},
 		options_json: {
 			type: 'array',
-			description: 'The 10 visible answer prompts/options in printed order.',
+			description:
+				'The 10 visible answer prompts/options in printed order.',
 			minItems: 10,
 			maxItems: 10,
 			items: { type: 'string' },
 		},
 		correct_answers_json: {
 			type: 'array',
-			description: 'The 10 correct answers, one for each option in options_json.',
+			description:
+				'The 10 correct answers, one for each option in options_json.',
 			minItems: 10,
 			maxItems: 10,
 			items: {
@@ -95,8 +101,20 @@ const schema = {
 		confidence: {
 			type: 'object',
 			additionalProperties: false,
-			propertyOrdering: ['type', 'question_text', 'question_number', 'options', 'correct_answers'],
-			required: ['type', 'question_text', 'question_number', 'options', 'correct_answers'],
+			propertyOrdering: [
+				'type',
+				'question_text',
+				'question_number',
+				'options',
+				'correct_answers',
+			],
+			required: [
+				'type',
+				'question_text',
+				'question_number',
+				'options',
+				'correct_answers',
+			],
 			properties: {
 				type: { type: 'number', minimum: 0, maximum: 1 },
 				question_text: { type: 'number', minimum: 0, maximum: 1 },
@@ -131,7 +149,10 @@ export async function POST({ request }) {
 			duration_ms: elapsedSince(startedAt),
 			error_message: errorMessage,
 		});
-		return json({ error: errorMessage, request_id: requestId }, { status: 500 });
+		return json(
+			{ error: errorMessage, request_id: requestId },
+			{ status: 500 },
+		);
 	}
 
 	try {
@@ -140,7 +161,9 @@ export async function POST({ request }) {
 		const monitoringContext = {
 			deck_id: toUuid(body?.deckId),
 			file_name: toOptionalString(body?.fileName, 255),
-			user_id: await getUserIdFromAuthorization(request.headers.get('authorization')),
+			user_id: await getUserIdFromAuthorization(
+				request.headers.get('authorization'),
+			),
 		};
 		if (!isDataUrl(image)) {
 			const errorMessage = 'Expected a JSON body with an image data URL.';
@@ -150,32 +173,39 @@ export async function POST({ request }) {
 				duration_ms: elapsedSince(startedAt),
 				error_message: errorMessage,
 			});
-			return json({ error: errorMessage, request_id: requestId }, { status: 400 });
+			return json(
+				{ error: errorMessage, request_id: requestId },
+				{ status: 400 },
+			);
 		}
 
 		const imageInfo = getImageInfo(image);
 		const [draftResult, optionImagesResult] = await Promise.all([
 			measureAsync(() => extractCard(apiKey, image, model)),
-			measureAsync(() => extractOptionImages(image).catch((error) =>
-				createFailedOptionImages(
-					error instanceof Error
-						? error.message
-						: 'Could not extract option images.',
+			measureAsync(() =>
+				extractOptionImages(image).catch((error) =>
+					createFailedOptionImages(
+						error instanceof Error
+							? error.message
+							: 'Could not extract option images.',
+					),
 				),
-			)),
+			),
 		]);
 
-		const optionImages = optionImagesResult.status === 'fulfilled'
-			? optionImagesResult.value
-			: createFailedOptionImages(
-				optionImagesResult.reason instanceof Error
-					? optionImagesResult.reason.message
-					: 'Could not extract option images.',
-			);
+		const optionImages =
+			optionImagesResult.status === 'fulfilled'
+				? optionImagesResult.value
+				: createFailedOptionImages(
+						optionImagesResult.reason instanceof Error
+							? optionImagesResult.reason.message
+							: 'Could not extract option images.',
+					);
 		if (draftResult.status === 'rejected') {
-			const errorMessage = draftResult.reason instanceof Error
-				? draftResult.reason.message
-				: 'Failed to extract card.';
+			const errorMessage =
+				draftResult.reason instanceof Error
+					? draftResult.reason.message
+					: 'Failed to extract card.';
 			await logAndRecord({
 				...baseEvent,
 				...monitoringContext,
@@ -186,7 +216,10 @@ export async function POST({ request }) {
 				option_image_warnings: collectOptionImageWarnings(optionImages),
 				error_message: errorMessage,
 			});
-			return json({ error: errorMessage, request_id: requestId }, { status: 500 });
+			return json(
+				{ error: errorMessage, request_id: requestId },
+				{ status: 500 },
+			);
 		}
 
 		const draft = draftResult.value;
@@ -199,21 +232,31 @@ export async function POST({ request }) {
 			gemini_duration_ms: draftResult.durationMs,
 			crop_duration_ms: optionImagesResult.durationMs,
 			question_type: toOptionalString(draft.type, 64),
-			question_number: Number.isInteger(draft.question_number) ? draft.question_number : null,
+			question_number: Number.isInteger(draft.question_number)
+				? draft.question_number
+				: null,
 			confidence: draft.confidence ?? null,
 			warnings: toStringArray(draft.warnings),
 			option_image_warnings: collectOptionImageWarnings(optionImages),
 		};
 		await logAndRecord(event);
-		return json({ ...draft, option_images: optionImages, request_id: requestId });
+		return json({
+			...draft,
+			option_images: optionImages,
+			request_id: requestId,
+		});
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Failed to extract card.';
+		const errorMessage =
+			error instanceof Error ? error.message : 'Failed to extract card.';
 		await logAndRecord({
 			...baseEvent,
 			duration_ms: elapsedSince(startedAt),
 			error_message: errorMessage,
 		});
-		return json({ error: errorMessage, request_id: requestId }, { status: 500 });
+		return json(
+			{ error: errorMessage, request_id: requestId },
+			{ status: 500 },
+		);
 	}
 }
 
@@ -238,12 +281,25 @@ async function extractOptionImages(image) {
 	return Promise.all(
 		Array.from({ length: 10 }, async (_, index) => {
 			const [xRatio, yRatio] = OPTION_IMAGE_LAYOUT[index];
-			const left = clamp(Math.round(width * xRatio - cropWidth / 2), 0, Math.max(0, width - cropWidth));
-			const top = clamp(Math.round(height * yRatio - cropHeight / 2), 0, Math.max(0, height - cropHeight));
+			const left = clamp(
+				Math.round(width * xRatio - cropWidth / 2),
+				0,
+				Math.max(0, width - cropWidth),
+			);
+			const top = clamp(
+				Math.round(height * yRatio - cropHeight / 2),
+				0,
+				Math.max(0, height - cropHeight),
+			);
 
 			try {
 				const buffer = await sharp(rotated)
-					.extract({ left, top, width: cropWidth, height: cropHeight })
+					.extract({
+						left,
+						top,
+						width: cropWidth,
+						height: cropHeight,
+					})
 					.resize({
 						width: 384,
 						height: 256,
@@ -303,40 +359,45 @@ function clamp(value, min, max) {
  */
 async function extractCard(apiKey, image, model) {
 	const { mimeType, data } = parseDataUrl(image);
-	const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-		method: 'POST',
-		headers: {
-			'x-goog-api-key': apiKey,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			contents: [
-				{
-					role: 'user',
-					parts: [
-						{
-							text: buildPrompt(),
-						},
-						{
-							inlineData: {
-								mimeType,
-								data,
-							},
-						},
-					],
-				},
-			],
-			generationConfig: {
-				temperature: 0.1,
-				responseMimeType: 'application/json',
-				responseJsonSchema: schema,
+	const geminiResponse = await fetch(
+		`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+		{
+			method: 'POST',
+			headers: {
+				'x-goog-api-key': apiKey,
+				'Content-Type': 'application/json',
 			},
-		}),
-	});
+			body: JSON.stringify({
+				contents: [
+					{
+						role: 'user',
+						parts: [
+							{
+								text: buildPrompt(),
+							},
+							{
+								inlineData: {
+									mimeType,
+									data,
+								},
+							},
+						],
+					},
+				],
+				generationConfig: {
+					temperature: 0.1,
+					responseMimeType: 'application/json',
+					responseJsonSchema: schema,
+				},
+			}),
+		},
+	);
 
 	const json = await geminiResponse.json();
 	if (!geminiResponse.ok) {
-		throw new Error(json?.error?.message || 'The extraction model request failed.');
+		throw new Error(
+			json?.error?.message || 'The extraction model request failed.',
+		);
 	}
 
 	const text = findOutputText(json);
@@ -350,7 +411,7 @@ function buildPrompt() {
 		'The app stores every card as one question with exactly 10 option labels and exactly 10 corresponding correct answers.',
 		'Many cards use a radial "hub" layout: a central bubble with question_text; around it two rings of labels joined by radial lines (spokes) from center outward.',
 		'Spatial rule for that layout: labels on the INNER band (closer to the center question) are options_json. Labels on the OUTER band (toward the card edge) are correct_answers_json. Each spoke pairs one inner label with one outer label—never swap an inner and outer label between the two arrays.',
-		'Order: read both rings clockwise starting at top center (12 o\'clock). options_json[i] must be the inner label at spoke i; correct_answers_json[i] must be the outer label on the SAME spoke as that inner label.',
+		"Order: read both rings clockwise starting at top center (12 o'clock). options_json[i] must be the inner label at spoke i; correct_answers_json[i] must be the outer label on the SAME spoke as that inner label.",
 		'If the card is not radial, infer options as the 10 items the player chooses among (themes, prompts, entities); correct_answers_json are what satisfies question_text for each option—not the reverse.',
 		'Detect the question type from the card layout and wording. Use only these type values: standard, boolean, rank, chooseBetween, colors, numbers, centuryDecade.',
 		'Put the visible prompt in question_text. Put the small bottom-right card number in question_number, or null if unreadable.',
@@ -398,7 +459,10 @@ function getImageInfo(image) {
 
 /** @param {unknown} value */
 function toUuid(value) {
-	return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+	return typeof value === 'string' &&
+		/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+			value,
+		)
 		? value
 		: null;
 }
@@ -416,7 +480,9 @@ function toOptionalString(value, maxLength) {
 /** @param {unknown} value */
 function toStringArray(value) {
 	return Array.isArray(value)
-		? value.filter((item) => typeof item === 'string' && item.trim()).map((item) => item.trim())
+		? value
+				.filter((item) => typeof item === 'string' && item.trim())
+				.map((item) => item.trim())
 		: [];
 }
 
@@ -449,14 +515,19 @@ async function logAndRecord(event) {
  * @param {unknown} value
  */
 function isDataUrl(value) {
-	return typeof value === 'string' && /^data:image\/(png|jpe?g|webp|heic|heif);base64,/i.test(value);
+	return (
+		typeof value === 'string' &&
+		/^data:image\/(png|jpe?g|webp|heic|heif);base64,/i.test(value)
+	);
 }
 
 /**
  * @param {string} dataUrl
  */
 function parseDataUrl(dataUrl) {
-	const match = dataUrl.match(/^data:(image\/(?:png|jpe?g|webp|heic|heif));base64,(.+)$/i);
+	const match = dataUrl.match(
+		/^data:(image\/(?:png|jpe?g|webp|heic|heif));base64,(.+)$/i,
+	);
 	if (!match) throw new Error('Invalid image data URL.');
 	return {
 		mimeType: match[1].toLowerCase(),

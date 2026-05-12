@@ -44,7 +44,10 @@
 	});
 
 	async function loadDecks() {
-		const { data, error: err } = await supabase.from('decks').select('id, name').order('name');
+		const { data, error: err } = await supabase
+			.from('decks')
+			.select('id, name')
+			.order('name');
 		if (err) error = err.message;
 		decks = data ?? [];
 		loading = false;
@@ -53,7 +56,9 @@
 	/** @param {Event} event */
 	async function handleFiles(event) {
 		const input = /** @type {HTMLInputElement} */ (event.currentTarget);
-		const files = Array.from(input.files ?? []).filter((file) => file.type.startsWith('image/'));
+		const files = Array.from(input.files ?? []).filter((file) =>
+			file.type.startsWith('image/'),
+		);
 		input.value = '';
 		if (files.length === 0) return;
 
@@ -72,7 +77,9 @@
 		}));
 
 		items = [...newItems, ...items];
-		await Promise.all(newItems.map((item, index) => extractFile(item.id, files[index])));
+		await Promise.all(
+			newItems.map((item, index) => extractFile(item.id, files[index])),
+		);
 	}
 
 	/** @param {string} id */
@@ -87,15 +94,24 @@
 	 * @param {File} file
 	 */
 	async function extractFile(id, file) {
-		updateItem(id, (item) => ({ ...item, status: 'extracting', extractionError: '' }));
+		updateItem(id, (item) => ({
+			...item,
+			status: 'extracting',
+			extractionError: '',
+		}));
 		try {
 			const image = await imageToUploadDataUrl(file);
-			const { data: { user } } = await supabase.auth.getUser();
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
 			const headers = new Headers({ 'Content-Type': 'application/json' });
 			if (user?.id) {
 				const { data: sessionData } = await supabase.auth.getSession();
 				if (sessionData.session?.access_token) {
-					headers.set('Authorization', `Bearer ${sessionData.session.access_token}`);
+					headers.set(
+						'Authorization',
+						`Bearer ${sessionData.session.access_token}`,
+					);
 				}
 			}
 			const response = await fetch(`${base}/api/extract-card`, {
@@ -104,7 +120,8 @@
 				body: JSON.stringify({ image, deckId, fileName: file.name }),
 			});
 			const data = await response.json();
-			if (!response.ok) throw new Error(data?.error ?? 'Extraction failed.');
+			if (!response.ok)
+				throw new Error(data?.error ?? 'Extraction failed.');
 
 			const draft = normalizeImportDraft(data);
 			const optionImages = normalizeOptionImages(data?.option_images);
@@ -152,7 +169,11 @@
 				draft: normalized,
 				errors: [
 					...validateImportDraft(normalized),
-					...validateImportItem(normalized, item.optionImages, item.useOptionImages),
+					...validateImportItem(
+						normalized,
+						item.optionImages,
+						item.useOptionImages,
+					),
 				],
 			};
 		});
@@ -165,7 +186,10 @@
 	function changeType(id, type) {
 		updateDraft(id, (draft) => {
 			draft.type = type;
-			draft.correct_answers_json = normalizeAnswers(type, draft.correct_answers_json);
+			draft.correct_answers_json = normalizeAnswers(
+				type,
+				draft.correct_answers_json,
+			);
 		});
 	}
 
@@ -190,8 +214,14 @@
 		updateDraft(id, (draft) => {
 			const current = draft.correct_answers_json[index];
 			draft.correct_answers_json[index] = {
-				text: typeof current === 'object' && current ? current.text ?? '' : '',
-				backgroundColor: typeof current === 'object' && current ? current.backgroundColor ?? 'hsl(0 80% 50%)' : 'hsl(0 80% 50%)',
+				text:
+					typeof current === 'object' && current
+						? (current.text ?? '')
+						: '',
+				backgroundColor:
+					typeof current === 'object' && current
+						? (current.backgroundColor ?? 'hsl(0 80% 50%)')
+						: 'hsl(0 80% 50%)',
 				[key]: value,
 			};
 		});
@@ -207,7 +237,11 @@
 			useOptionImages,
 			errors: [
 				...validateImportDraft(item.draft),
-				...validateImportItem(item.draft, item.optionImages, useOptionImages),
+				...validateImportItem(
+					item.draft,
+					item.optionImages,
+					useOptionImages,
+				),
 			],
 		}));
 	}
@@ -226,10 +260,11 @@
 		try {
 			const dataUrl = await resizeOptionCropImage(file);
 			updateItem(id, (item) => {
-				const optionImages = item.optionImages.map((image, imageIndex) =>
-					imageIndex === index
-						? { dataUrl, width: 0, height: 0, warnings: [] }
-						: image,
+				const optionImages = item.optionImages.map(
+					(image, imageIndex) =>
+						imageIndex === index
+							? { dataUrl, width: 0, height: 0, warnings: [] }
+							: image,
 				);
 				return {
 					...item,
@@ -259,7 +294,9 @@
 	}
 
 	function clearSaved() {
-		items.filter((item) => item.status === 'saved').forEach((item) => URL.revokeObjectURL(item.previewUrl));
+		items
+			.filter((item) => item.status === 'saved')
+			.forEach((item) => URL.revokeObjectURL(item.previewUrl));
 		items = items.filter((item) => item.status !== 'saved');
 	}
 
@@ -271,9 +308,16 @@
 			return;
 		}
 		const errors = validateImportDraft(item.draft);
-		const itemErrors = validateImportItem(item.draft, item.optionImages, item.useOptionImages);
+		const itemErrors = validateImportItem(
+			item.draft,
+			item.optionImages,
+			item.useOptionImages,
+		);
 		if (errors.length > 0 || itemErrors.length > 0) {
-			updateItem(item.id, (current) => ({ ...current, errors: [...errors, ...itemErrors] }));
+			updateItem(item.id, (current) => ({
+				...current,
+				errors: [...errors, ...itemErrors],
+			}));
 			return;
 		}
 
@@ -281,11 +325,19 @@
 		try {
 			const payload = toQuestionInsertPayload(item.draft, deckId);
 			if (item.useOptionImages) {
-				payload.answer_media_json = await uploadImportedOptionImages(item);
+				payload.answer_media_json =
+					await uploadImportedOptionImages(item);
 			}
-			const { error: err } = await supabase.from('questions').insert(payload);
+			const { error: err } = await supabase
+				.from('questions')
+				.insert(payload);
 			if (err) throw err;
-			updateItem(item.id, (current) => ({ ...current, status: 'saved', errors: [], collapsed: true }));
+			updateItem(item.id, (current) => ({
+				...current,
+				status: 'saved',
+				errors: [],
+				collapsed: true,
+			}));
 		} catch (/** @type {any} */ err) {
 			error = err.message ?? 'Failed to save imported question.';
 		} finally {
@@ -300,8 +352,13 @@
 	 */
 	function validateImportItem(draft, optionImages, useOptionImages) {
 		if (!useOptionImages) return [];
-		if (optionImages.length !== 10 || optionImages.some((image) => !image.dataUrl)) {
-			return ['All 10 option image crops are required, or turn off image options for this import.'];
+		if (
+			optionImages.length !== 10 ||
+			optionImages.some((image) => !image.dataUrl)
+		) {
+			return [
+				'All 10 option image crops are required, or turn off image options for this import.',
+			];
 		}
 		if (draft.options_json.some((option) => !String(option).trim())) {
 			return ['Image options still need text labels for accessibility.'];
@@ -326,7 +383,9 @@
 						upsert: true,
 					});
 				if (uploadError) throw uploadError;
-				const { data } = supabase.storage.from(OPTION_IMAGE_BUCKET).getPublicUrl(path);
+				const { data } = supabase.storage
+					.from(OPTION_IMAGE_BUCKET)
+					.getPublicUrl(path);
 				return {
 					option_image_url: data.publicUrl,
 					option_image_path: path,
@@ -360,7 +419,10 @@
 			const image = new Image();
 			image.onload = () => {
 				const maxSize = 1600;
-				const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+				const scale = Math.min(
+					1,
+					maxSize / Math.max(image.width, image.height),
+				);
 				const canvas = document.createElement('canvas');
 				canvas.width = Math.max(1, Math.round(image.width * scale));
 				canvas.height = Math.max(1, Math.round(image.height * scale));
@@ -389,7 +451,10 @@
 			const image = new Image();
 			image.onload = () => {
 				const maxSize = 512;
-				const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+				const scale = Math.min(
+					1,
+					maxSize / Math.max(image.width, image.height),
+				);
 				const canvas = document.createElement('canvas');
 				canvas.width = Math.max(1, Math.round(image.width * scale));
 				canvas.height = Math.max(1, Math.round(image.height * scale));
@@ -404,7 +469,11 @@
 					(blob) => {
 						URL.revokeObjectURL(url);
 						if (!blob) {
-							reject(new Error('Could not compress replacement crop.'));
+							reject(
+								new Error(
+									'Could not compress replacement crop.',
+								),
+							);
 							return;
 						}
 						const reader = new FileReader();
@@ -438,14 +507,17 @@
 	function normalizeOptionImages(value) {
 		const array = Array.isArray(value) ? value : [];
 		return Array.from({ length: 10 }, (_, index) => {
-			const image = array[index] && typeof array[index] === 'object'
-				? /** @type {Record<string, any>} */ (array[index])
-				: {};
+			const image =
+				array[index] && typeof array[index] === 'object'
+					? /** @type {Record<string, any>} */ (array[index])
+					: {};
 			return {
 				dataUrl: typeof image.dataUrl === 'string' ? image.dataUrl : '',
 				width: Number(image.width) || 0,
 				height: Number(image.height) || 0,
-				warnings: Array.isArray(image.warnings) ? image.warnings.map(String).filter(Boolean) : [],
+				warnings: Array.isArray(image.warnings)
+					? image.warnings.map(String).filter(Boolean)
+					: [],
 			};
 		});
 	}
@@ -457,11 +529,19 @@
 
 	/** @param {number} value */
 	function confidenceClass(value) {
-		return Math.round(value * 100) >= 100 ? 'admin-import-confidence__pill admin-import-confidence__pill--complete' : 'admin-import-confidence__pill';
+		return Math.round(value * 100) >= 100
+			? 'admin-import-confidence__pill admin-import-confidence__pill--complete'
+			: 'admin-import-confidence__pill';
 	}
 
-	const readyToSaveCount = $derived(items.filter((item) => item.status === 'ready' && item.errors.length === 0).length);
-	const savedCount = $derived(items.filter((item) => item.status === 'saved').length);
+	const readyToSaveCount = $derived(
+		items.filter(
+			(item) => item.status === 'ready' && item.errors.length === 0,
+		).length,
+	);
+	const savedCount = $derived(
+		items.filter((item) => item.status === 'saved').length,
+	);
 </script>
 
 <div class="admin-page">
@@ -480,7 +560,11 @@
 				<div class="admin-form-row">
 					<label class="admin-label">
 						Target deck *
-						<select class="admin-select" bind:value={deckId} disabled={saving}>
+						<select
+							class="admin-select"
+							bind:value={deckId}
+							disabled={saving}
+						>
 							<option value="">Choose a deck</option>
 							{#each decks as deck (deck.id)}
 								<option value={deck.id}>{deck.name}</option>
@@ -492,16 +576,36 @@
 						Card photos
 						<span class="admin-file-upload">
 							Upload or take photos
-							<input type="file" accept="image/*" capture="environment" multiple onchange={handleFiles} />
+							<input
+								type="file"
+								accept="image/*"
+								capture="environment"
+								multiple
+								onchange={handleFiles}
+							/>
 						</span>
 					</label>
 				</div>
-				<p class="admin-hint">Add one physical card per image. Each detected card must be reviewed before it is saved.</p>
+				<p class="admin-hint">
+					Add one physical card per image. Each detected card must be
+					reviewed before it is saved.
+				</p>
 				<div class="admin-form-actions">
-					<button class="admin-btn admin-btn--primary" type="button" onclick={saveAllReady} disabled={!deckId || readyToSaveCount === 0 || saving}>
+					<button
+						class="admin-btn admin-btn--primary"
+						type="button"
+						onclick={saveAllReady}
+						disabled={!deckId || readyToSaveCount === 0 || saving}
+					>
 						{saving ? 'Saving…' : `Save ${readyToSaveCount} ready`}
 					</button>
-					<button class="admin-btn" type="button" onclick={clearSaved} disabled={savedCount === 0 || saving}>Clear saved</button>
+					<button
+						class="admin-btn"
+						type="button"
+						onclick={clearSaved}
+						disabled={savedCount === 0 || saving}
+						>Clear saved</button
+					>
 					<a class="admin-btn" href="{base}/admin/questions">Done</a>
 				</div>
 			</section>
@@ -511,73 +615,232 @@
 			{:else}
 				<div class="admin-import-list">
 					{#each items as item (item.id)}
-						<article class="admin-import-card" class:admin-import-card--collapsed={item.status === 'saved' && item.collapsed}>
+						<article
+							class="admin-import-card"
+							class:admin-import-card--collapsed={item.status ===
+								'saved' && item.collapsed}
+						>
 							<div class="admin-import-card__media">
-								<img src={item.previewUrl} alt={`Preview of ${item.fileName}`} />
-								<span class="admin-list__badge">{item.status}</span>
+								<img
+									src={item.previewUrl}
+									alt={`Preview of ${item.fileName}`}
+								/>
+								<span class="admin-list__badge"
+									>{item.status}</span
+								>
 								<small>{item.fileName}</small>
 							</div>
 
 							<div class="admin-import-card__body">
 								{#if item.status === 'extracting' || item.status === 'queued'}
-									<p class="admin-hint">Extracting question data…</p>
+									<p class="admin-hint">
+										Extracting question data…
+									</p>
 								{:else if item.status === 'error'}
-									<p class="admin-form-error">{item.extractionError}</p>
+									<p class="admin-form-error">
+										{item.extractionError}
+									</p>
 									<div class="admin-form-actions">
-										<button class="admin-btn" type="button" onclick={() => retryExtraction(item.id)}>Try again</button>
-										<button class="admin-btn admin-btn--danger" type="button" onclick={() => removeItem(item.id)}>Discard</button>
+										<button
+											class="admin-btn"
+											type="button"
+											onclick={() =>
+												retryExtraction(item.id)}
+											>Try again</button
+										>
+										<button
+											class="admin-btn admin-btn--danger"
+											type="button"
+											onclick={() => removeItem(item.id)}
+											>Discard</button
+										>
 									</div>
 								{:else if item.status === 'saved' && item.collapsed}
 									<div class="admin-import-saved-summary">
-										<span class="admin-list__badge" data-type={item.draft.type}>{QUESTION_TYPES[item.draft.type]?.label ?? item.draft.type}</span>
+										<span
+											class="admin-list__badge"
+											data-type={item.draft.type}
+											>{QUESTION_TYPES[item.draft.type]
+												?.label ??
+												item.draft.type}</span
+										>
 										{#if item.draft.question_number}
-											<span class="admin-list__num">#{item.draft.question_number}</span>
+											<span class="admin-list__num"
+												>#{item.draft
+													.question_number}</span
+											>
 										{/if}
-										<strong>{item.draft.question_text}</strong>
+										<strong
+											>{item.draft.question_text}</strong
+										>
 									</div>
 									<div class="admin-form-actions">
-										<button class="admin-btn admin-btn--sm" type="button" onclick={() => toggleCollapsed(item.id)}>Expand</button>
-										<button class="admin-btn admin-btn--sm admin-btn--danger" type="button" onclick={() => removeItem(item.id)}>Remove</button>
+										<button
+											class="admin-btn admin-btn--sm"
+											type="button"
+											onclick={() =>
+												toggleCollapsed(item.id)}
+											>Expand</button
+										>
+										<button
+											class="admin-btn admin-btn--sm admin-btn--danger"
+											type="button"
+											onclick={() => removeItem(item.id)}
+											>Remove</button
+										>
 									</div>
 								{:else}
 									<div class="admin-form-row">
 										<label class="admin-label">
 											Type *
-											<select class="admin-select" value={item.draft.type} onchange={(event) => changeType(item.id, /** @type {import('$lib/data/questionTypes.js').QuestionType} */ (/** @type {HTMLSelectElement} */ (event.currentTarget).value))} disabled={item.status === 'saved' || saving}>
+											<select
+												class="admin-select"
+												value={item.draft.type}
+												onchange={(event) =>
+													changeType(
+														item.id,
+														/** @type {import('$lib/data/questionTypes.js').QuestionType} */ (
+															/** @type {HTMLSelectElement} */ (
+																event.currentTarget
+															).value
+														),
+													)}
+												disabled={item.status ===
+													'saved' || saving}
+											>
 												{#each typeOptions as [key, config] (key)}
-													<option value={key}>{config.label}</option>
+													<option value={key}
+														>{config.label}</option
+													>
 												{/each}
 											</select>
 										</label>
-										<label class="admin-label admin-import-number">
+										<label
+											class="admin-label admin-import-number"
+										>
 											Question number
-											<input class="admin-input" type="number" value={item.draft.question_number ?? ''} oninput={(event) => updateDraft(item.id, (draft) => { draft.question_number = /** @type {HTMLInputElement} */ (event.currentTarget).value ? Number(/** @type {HTMLInputElement} */ (event.currentTarget).value) : null; })} disabled={item.status === 'saved' || saving} />
+											<input
+												class="admin-input"
+												type="number"
+												value={item.draft
+													.question_number ?? ''}
+												oninput={(event) =>
+													updateDraft(
+														item.id,
+														(draft) => {
+															draft.question_number =
+																/** @type {HTMLInputElement} */ (
+																	event.currentTarget
+																).value
+																	? Number(
+																			/** @type {HTMLInputElement} */ (
+																				event.currentTarget
+																			)
+																				.value,
+																		)
+																	: null;
+														},
+													)}
+												disabled={item.status ===
+													'saved' || saving}
+											/>
 										</label>
 									</div>
 
 									<label class="admin-label">
 										Question text *
-										<input class="admin-input" type="text" value={item.draft.question_text} oninput={(event) => updateDraft(item.id, (draft) => { draft.question_text = /** @type {HTMLInputElement} */ (event.currentTarget).value; })} disabled={item.status === 'saved' || saving} />
+										<input
+											class="admin-input"
+											type="text"
+											value={item.draft.question_text}
+											oninput={(event) =>
+												updateDraft(
+													item.id,
+													(draft) => {
+														draft.question_text =
+															/** @type {HTMLInputElement} */ (
+																event.currentTarget
+															).value;
+													},
+												)}
+											disabled={item.status === 'saved' ||
+												saving}
+										/>
 									</label>
 
 									<div class="admin-import-confidence">
-										<span class={confidenceClass(item.draft.confidence.type)}>Type {confidencePercent(item.draft.confidence.type)}</span>
-										<span class={confidenceClass(item.draft.confidence.question_text)}>Text {confidencePercent(item.draft.confidence.question_text)}</span>
-										<span class={confidenceClass(item.draft.confidence.question_number)}>Number {confidencePercent(item.draft.confidence.question_number)}</span>
-										<span class={confidenceClass(item.draft.confidence.options)}>Options {confidencePercent(item.draft.confidence.options)}</span>
-										<span class={confidenceClass(item.draft.confidence.correct_answers)}>Answers {confidencePercent(item.draft.confidence.correct_answers)}</span>
+										<span
+											class={confidenceClass(
+												item.draft.confidence.type,
+											)}
+											>Type {confidencePercent(
+												item.draft.confidence.type,
+											)}</span
+										>
+										<span
+											class={confidenceClass(
+												item.draft.confidence
+													.question_text,
+											)}
+											>Text {confidencePercent(
+												item.draft.confidence
+													.question_text,
+											)}</span
+										>
+										<span
+											class={confidenceClass(
+												item.draft.confidence
+													.question_number,
+											)}
+											>Number {confidencePercent(
+												item.draft.confidence
+													.question_number,
+											)}</span
+										>
+										<span
+											class={confidenceClass(
+												item.draft.confidence.options,
+											)}
+											>Options {confidencePercent(
+												item.draft.confidence.options,
+											)}</span
+										>
+										<span
+											class={confidenceClass(
+												item.draft.confidence
+													.correct_answers,
+											)}
+											>Answers {confidencePercent(
+												item.draft.confidence
+													.correct_answers,
+											)}</span
+										>
 									</div>
 
 									{#if item.optionImages.length > 0}
-										<label class="admin-toggle-wrap admin-import-image-toggle">
+										<label
+											class="admin-toggle-wrap admin-import-image-toggle"
+										>
 											<input
 												type="checkbox"
 												checked={item.useOptionImages}
-												onchange={(event) => setUseOptionImages(item.id, /** @type {HTMLInputElement} */ (event.currentTarget).checked)}
-												disabled={item.status === 'saved' || saving}
+												onchange={(event) =>
+													setUseOptionImages(
+														item.id,
+														/** @type {HTMLInputElement} */ (
+															event.currentTarget
+														).checked,
+													)}
+												disabled={item.status ===
+													'saved' || saving}
 											/>
-											<span class="admin-toggle" class:admin-toggle--on={item.useOptionImages}>
-												{item.useOptionImages ? 'Using image options' : 'Use text options'}
+											<span
+												class="admin-toggle"
+												class:admin-toggle--on={item.useOptionImages}
+											>
+												{item.useOptionImages
+													? 'Using image options'
+													: 'Use text options'}
 											</span>
 										</label>
 									{/if}
@@ -595,45 +858,236 @@
 										<div class="admin-options">
 											{#each item.draft.options_json as option, i (i)}
 												<div class="admin-option-row">
-													<span class="admin-option-num">{i + 1}</span>
-													<input class="admin-input admin-option-label" type="text" value={option} placeholder="Option {i + 1}" oninput={(event) => updateDraft(item.id, (draft) => { draft.options_json[i] = /** @type {HTMLInputElement} */ (event.currentTarget).value; })} disabled={item.status === 'saved' || saving} />
+													<span
+														class="admin-option-num"
+														>{i + 1}</span
+													>
+													<input
+														class="admin-input admin-option-label"
+														type="text"
+														value={option}
+														placeholder="Option {i +
+															1}"
+														oninput={(event) =>
+															updateDraft(
+																item.id,
+																(draft) => {
+																	draft.options_json[
+																		i
+																	] =
+																		/** @type {HTMLInputElement} */ (
+																			event.currentTarget
+																		).value;
+																},
+															)}
+														disabled={item.status ===
+															'saved' || saving}
+													/>
 
 													{#if item.useOptionImages && item.optionImages[i]}
-														<div class="admin-import-option-image">
+														<div
+															class="admin-import-option-image"
+														>
 															{#if item.optionImages[i].dataUrl}
-																<img src={item.optionImages[i].dataUrl} alt={option || `Option ${i + 1}`} />
+																<img
+																	src={item
+																		.optionImages[
+																		i
+																	].dataUrl}
+																	alt={option ||
+																		`Option ${i + 1}`}
+																/>
 															{:else}
-																<span>No crop</span>
+																<span
+																	>No crop</span
+																>
 															{/if}
 															{#if item.optionImages[i].warnings.length > 0}
-																<small>{item.optionImages[i].warnings.join(', ')}</small>
+																<small
+																	>{item.optionImages[
+																		i
+																	].warnings.join(
+																		', ',
+																	)}</small
+																>
 															{/if}
-															<label class="admin-btn admin-btn--sm">
+															<label
+																class="admin-btn admin-btn--sm"
+															>
 																Replace
 																<input
 																	type="file"
 																	accept="image/*"
-																	onchange={(event) => replaceImportedOptionImage(item.id, i, event)}
-																	disabled={item.status === 'saved' || saving}
+																	onchange={(
+																		event,
+																	) =>
+																		replaceImportedOptionImage(
+																			item.id,
+																			i,
+																			event,
+																		)}
+																	disabled={item.status ===
+																		'saved' ||
+																		saving}
 																/>
 															</label>
 														</div>
 													{/if}
 
 													{#if item.draft.type === 'boolean'}
-														<label class="admin-toggle-wrap">
-															<input type="checkbox" checked={item.draft.correct_answers_json[i]} onchange={(event) => setAnswer(item.id, i, /** @type {HTMLInputElement} */ (event.currentTarget).checked)} disabled={item.status === 'saved' || saving} />
-															<span class="admin-toggle" class:admin-toggle--on={item.draft.correct_answers_json[i]}>{item.draft.correct_answers_json[i] ? 'Yes' : 'No'}</span>
+														<label
+															class="admin-toggle-wrap"
+														>
+															<input
+																type="checkbox"
+																checked={item
+																	.draft
+																	.correct_answers_json[
+																	i
+																]}
+																onchange={(
+																	event,
+																) =>
+																	setAnswer(
+																		item.id,
+																		i,
+																		/** @type {HTMLInputElement} */ (
+																			event.currentTarget
+																		)
+																			.checked,
+																	)}
+																disabled={item.status ===
+																	'saved' ||
+																	saving}
+															/>
+															<span
+																class="admin-toggle"
+																class:admin-toggle--on={item
+																	.draft
+																	.correct_answers_json[
+																	i
+																]}
+																>{item.draft
+																	.correct_answers_json[
+																	i
+																]
+																	? 'Yes'
+																	: 'No'}</span
+															>
 														</label>
 													{:else if item.draft.type === 'rank'}
-														<input class="admin-input admin-option-num-input" type="number" min="1" max="10" value={item.draft.correct_answers_json[i]} oninput={(event) => setAnswer(item.id, i, Number(/** @type {HTMLInputElement} */ (event.currentTarget).value))} disabled={item.status === 'saved' || saving} />
+														<input
+															class="admin-input admin-option-num-input"
+															type="number"
+															min="1"
+															max="10"
+															value={item.draft
+																.correct_answers_json[
+																i
+															]}
+															oninput={(event) =>
+																setAnswer(
+																	item.id,
+																	i,
+																	Number(
+																		/** @type {HTMLInputElement} */ (
+																			event.currentTarget
+																		).value,
+																	),
+																)}
+															disabled={item.status ===
+																'saved' ||
+																saving}
+														/>
 													{:else if item.draft.type === 'numbers'}
-														<input class="admin-input admin-option-num-input" type="number" step="any" value={item.draft.correct_answers_json[i]} oninput={(event) => setAnswer(item.id, i, Number(/** @type {HTMLInputElement} */ (event.currentTarget).value))} disabled={item.status === 'saved' || saving} />
+														<input
+															class="admin-input admin-option-num-input"
+															type="number"
+															step="any"
+															value={item.draft
+																.correct_answers_json[
+																i
+															]}
+															oninput={(event) =>
+																setAnswer(
+																	item.id,
+																	i,
+																	Number(
+																		/** @type {HTMLInputElement} */ (
+																			event.currentTarget
+																		).value,
+																	),
+																)}
+															disabled={item.status ===
+																'saved' ||
+																saving}
+														/>
 													{:else if item.draft.type === 'colors'}
-														<input class="admin-input admin-option-answer" type="text" value={item.draft.correct_answers_json[i]?.text ?? ''} placeholder="Color label" oninput={(event) => setColorAnswer(item.id, i, 'text', /** @type {HTMLInputElement} */ (event.currentTarget).value)} disabled={item.status === 'saved' || saving} />
-														<input class="admin-input admin-option-answer" type="text" value={item.draft.correct_answers_json[i]?.backgroundColor ?? ''} placeholder="hsl(0 80% 50%)" oninput={(event) => setColorAnswer(item.id, i, 'backgroundColor', /** @type {HTMLInputElement} */ (event.currentTarget).value)} disabled={item.status === 'saved' || saving} />
+														<input
+															class="admin-input admin-option-answer"
+															type="text"
+															value={item.draft
+																.correct_answers_json[
+																i
+															]?.text ?? ''}
+															placeholder="Color label"
+															oninput={(event) =>
+																setColorAnswer(
+																	item.id,
+																	i,
+																	'text',
+																	/** @type {HTMLInputElement} */ (
+																		event.currentTarget
+																	).value,
+																)}
+															disabled={item.status ===
+																'saved' ||
+																saving}
+														/>
+														<input
+															class="admin-input admin-option-answer"
+															type="text"
+															value={item.draft
+																.correct_answers_json[
+																i
+															]
+																?.backgroundColor ??
+																''}
+															placeholder="hsl(0 80% 50%)"
+															oninput={(event) =>
+																setColorAnswer(
+																	item.id,
+																	i,
+																	'backgroundColor',
+																	/** @type {HTMLInputElement} */ (
+																		event.currentTarget
+																	).value,
+																)}
+															disabled={item.status ===
+																'saved' ||
+																saving}
+														/>
 													{:else}
-														<input class="admin-input admin-option-answer" type="text" value={item.draft.correct_answers_json[i]} placeholder="Correct answer" oninput={(event) => setAnswer(item.id, i, /** @type {HTMLInputElement} */ (event.currentTarget).value)} disabled={item.status === 'saved' || saving} />
+														<input
+															class="admin-input admin-option-answer"
+															type="text"
+															value={item.draft
+																.correct_answers_json[
+																i
+															]}
+															placeholder="Correct answer"
+															oninput={(event) =>
+																setAnswer(
+																	item.id,
+																	i,
+																	/** @type {HTMLInputElement} */ (
+																		event.currentTarget
+																	).value,
+																)}
+															disabled={item.status ===
+																'saved' ||
+																saving}
+														/>
 													{/if}
 												</div>
 											{/each}
@@ -649,13 +1103,32 @@
 									{/if}
 
 									<div class="admin-form-actions">
-										<button class="admin-btn admin-btn--primary" type="button" onclick={() => saveItem(item)} disabled={item.status === 'saved' || saving}>
-											{item.status === 'saved' ? 'Saved' : 'Save question'}
+										<button
+											class="admin-btn admin-btn--primary"
+											type="button"
+											onclick={() => saveItem(item)}
+											disabled={item.status === 'saved' ||
+												saving}
+										>
+											{item.status === 'saved'
+												? 'Saved'
+												: 'Save question'}
 										</button>
 										{#if item.status === 'saved'}
-											<button class="admin-btn" type="button" onclick={() => toggleCollapsed(item.id)}>Collapse</button>
+											<button
+												class="admin-btn"
+												type="button"
+												onclick={() =>
+													toggleCollapsed(item.id)}
+												>Collapse</button
+											>
 										{/if}
-										<button class="admin-btn admin-btn--danger" type="button" onclick={() => removeItem(item.id)} disabled={saving}>Discard</button>
+										<button
+											class="admin-btn admin-btn--danger"
+											type="button"
+											onclick={() => removeItem(item.id)}
+											disabled={saving}>Discard</button
+										>
 									</div>
 								{/if}
 							</div>

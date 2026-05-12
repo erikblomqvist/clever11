@@ -107,6 +107,9 @@
 
 	.seating-map-wrapper {
 		position: absolute;
-		inset: max(3rem, env(safe-area-inset-top)) max(3rem, env(safe-area-inset-right)) max(3rem, env(safe-area-inset-bottom)) max(3rem, env(safe-area-inset-left));
+		inset: max(3rem, env(safe-area-inset-top))
+			max(3rem, env(safe-area-inset-right))
+			max(3rem, env(safe-area-inset-bottom))
+			max(3rem, env(safe-area-inset-left));
 	}
 </style>

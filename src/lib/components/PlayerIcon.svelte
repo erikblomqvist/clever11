@@ -8,23 +8,17 @@
 	 *   className?: string,
 	 * }}
 	 */
-	let {
-		player,
-		size = 14,
-		className = '',
-	} = $props();
+	let { player, size = 14, className = '' } = $props();
 
 	const style = $derived.by(() => {
-		const styles = [
-			`--player-ring: var(--${player.color})`,
-		];
+		const styles = [`--player-ring: var(--${player.color})`];
 
 		styles.push(`--player-icon-size: ${size}px`);
 
 		return styles.join('; ');
 	});
 
-    const Icon = $derived(getPlayerIconComponent(player.icon))
+	const Icon = $derived(getPlayerIconComponent(player.icon));
 </script>
 
 <span
@@ -32,7 +26,7 @@
 	{style}
 	aria-hidden="true"
 >
-    <Icon size={size * 0.5} />
+	<Icon size={size * 0.5} />
 </span>
 
 <style>

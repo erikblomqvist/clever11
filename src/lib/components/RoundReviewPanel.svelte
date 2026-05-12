@@ -75,14 +75,13 @@
 					data-rank={rank}
 					aria-hidden="true"
 				>
-					<PlayerIcon
-						player={player}
-						size={40}
-					/>
+					<PlayerIcon {player} size={40} />
 				</span>
 				<span class="review-panel__player-name">{player.name}</span>
 				<span class="review-panel__player-meta">
-					<span class="review-panel__round-score">+{player.roundScore}</span>
+					<span class="review-panel__round-score"
+						>+{player.roundScore}</span
+					>
 					<span class="review-panel__total-score">
 						<b>{player.totalScore}</b>
 						{$_('game.pts_short')}
@@ -190,10 +189,15 @@
 		gap: 0.125rem 0.75rem;
 
 		border-radius: 0.75rem;
-		border: 1px solid color-mix(in oklab, var(--player-color) 28%, transparent);
+		border: 1px solid
+			color-mix(in oklab, var(--player-color) 28%, transparent);
 		min-width: 10rem;
 		padding: 0.75rem;
-		background-color: color-mix(in oklab, var(--player-color) 14%, transparent);
+		background-color: color-mix(
+			in oklab,
+			var(--player-color) 14%,
+			transparent
+		);
 
 		font-family: var(--font-family-primary);
 		font-size: var(--font-size-lg);
@@ -201,11 +205,19 @@
 		color: var(--white);
 
 		&.leader {
-			border-color: color-mix(in oklab, var(--player-color) 35%, transparent);
-			background-color: color-mix(in oklab, var(--player-color) 22%, transparent);
+			border-color: color-mix(
+				in oklab,
+				var(--player-color) 35%,
+				transparent
+			);
+			background-color: color-mix(
+				in oklab,
+				var(--player-color) 22%,
+				transparent
+			);
 		}
 	}
-	
+
 	.review-panel__player-icon {
 		grid-row: 1 / 3;
 		display: grid;
@@ -213,7 +225,12 @@
 		box-sizing: border-box;
 
 		border-radius: 50%;
-		outline: 2px solid color-mix(in oklab, var(--player-color) 50%, var(--palette-white) 30%);
+		outline: 2px solid
+			color-mix(
+				in oklab,
+				var(--player-color) 50%,
+				var(--palette-white) 30%
+			);
 		width: 40px;
 		height: 40px;
 		color: var(--palette-white);
@@ -232,7 +249,7 @@
 
 	.review-panel__round-score {
 		min-width: 4rem;
-		
+
 		font-weight: 700;
 		text-align: end;
 		color: var(--player-color);
@@ -241,7 +258,7 @@
 	.review-panel__total-score {
 		margin-inline-start: 0.5rem;
 		min-width: 4rem;
-		
+
 		font-weight: 400;
 		text-align: end;
 		color: hsl(0 0% 100% / 0.4);

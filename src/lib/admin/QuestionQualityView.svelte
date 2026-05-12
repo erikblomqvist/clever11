@@ -24,21 +24,24 @@
 	/** @type {QualityRow[]} */
 	let rows = $state([]);
 
-	$effect(() => { init(); });
+	$effect(() => {
+		init();
+	});
 
 	async function init() {
 		loading = true;
 		error = '';
 
 		try {
-			const [decksResult, votesResult, roundsResult, questionsResult] = await Promise.all([
-				supabase.from('decks').select('id, name').order('name'),
-				supabase.from('question_votes').select('question_id, vote'),
-				supabase.from('game_rounds').select('question_id'),
-				supabase
-					.from('questions')
-					.select('id, question_text, deck_id, decks(name)'),
-			]);
+			const [decksResult, votesResult, roundsResult, questionsResult] =
+				await Promise.all([
+					supabase.from('decks').select('id, name').order('name'),
+					supabase.from('question_votes').select('question_id, vote'),
+					supabase.from('game_rounds').select('question_id'),
+					supabase
+						.from('questions')
+						.select('id, question_text, deck_id, decks(name)'),
+				]);
 
 			if (decksResult.error) throw decksResult.error;
 			if (votesResult.error) throw votesResult.error;
@@ -64,7 +67,10 @@
 			const playMap = new Map();
 			for (const r of roundsResult.data ?? []) {
 				if (r.question_id) {
-					playMap.set(r.question_id, (playMap.get(r.question_id) ?? 0) + 1);
+					playMap.set(
+						r.question_id,
+						(playMap.get(r.question_id) ?? 0) + 1,
+					);
 				}
 			}
 
@@ -124,7 +130,9 @@
 	{:else if error}
 		<p class="admin-form-error">{error}</p>
 	{:else if filtered.length === 0}
-		<p class="admin-hint">No voted questions found{filterDeckId ? ' in this deck' : ''}.</p>
+		<p class="admin-hint">
+			No voted questions found{filterDeckId ? ' in this deck' : ''}.
+		</p>
 	{:else}
 		<table class="admin-table">
 			<thead>
@@ -149,32 +157,52 @@
 						<td class="quality-deck">{row.deck_name}</td>
 						<td style="text-align:center">
 							{#if row.up}
-								<span class="quality-vote quality-vote--up">{row.up}</span>
+								<span class="quality-vote quality-vote--up"
+									>{row.up}</span
+								>
 							{:else}
-								<span class="quality-vote quality-vote--zero">0</span>
+								<span class="quality-vote quality-vote--zero"
+									>0</span
+								>
 							{/if}
 						</td>
 						<td style="text-align:center">
 							{#if row.down}
-								<span class="quality-vote quality-vote--down">{row.down}</span>
+								<span class="quality-vote quality-vote--down"
+									>{row.down}</span
+								>
 							{:else}
-								<span class="quality-vote quality-vote--zero">0</span>
+								<span class="quality-vote quality-vote--zero"
+									>0</span
+								>
 							{/if}
 						</td>
 						<td style="text-align:center">
-							<span class="quality-net" class:quality-net--negative={row.net < 0} class:quality-net--positive={row.net > 0}>{row.net > 0 ? '+' : ''}{row.net}</span>
+							<span
+								class="quality-net"
+								class:quality-net--negative={row.net < 0}
+								class:quality-net--positive={row.net > 0}
+								>{row.net > 0 ? '+' : ''}{row.net}</span
+							>
 						</td>
 						<td style="text-align:center">
-							<span class="quality-played">{row.times_played}</span>
+							<span class="quality-played"
+								>{row.times_played}</span
+							>
 						</td>
 						<td>
-							<a class="admin-btn admin-btn--sm" href={`/admin/questions/${row.id}`}>Edit</a>
+							<a
+								class="admin-btn admin-btn--sm"
+								href={`/admin/questions/${row.id}`}>Edit</a
+							>
 						</td>
 					</tr>
 				{/each}
 			</tbody>
 		</table>
-		<p class="admin-hint" style="margin-top:12px">{filtered.length} question{filtered.length !== 1 ? 's' : ''} with votes</p>
+		<p class="admin-hint" style="margin-top:12px">
+			{filtered.length} question{filtered.length !== 1 ? 's' : ''} with votes
+		</p>
 	{/if}
 </div>
 

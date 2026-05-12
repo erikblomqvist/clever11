@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { normalizeAnswers } from './questionImport.js';
 
 function normColor(backgroundColor) {
-	return normalizeAnswers('colors', [{ text: 'test', backgroundColor }])[0].backgroundColor;
+	return normalizeAnswers('colors', [{ text: 'test', backgroundColor }])[0]
+		.backgroundColor;
 }
 
 describe('normalizeBackgroundColor', () => {

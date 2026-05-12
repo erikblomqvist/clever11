@@ -71,8 +71,6 @@
 		border-bottom: 1px solid hsl(0 0% 100% / 0.2);
 	}
 
-
-
 	.setup-title {
 		margin: 0;
 		font-family: var(--font-family-display);

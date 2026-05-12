@@ -10,7 +10,7 @@
 	 *   index: number,
 	 *   total: number,
 	 *   onreveal?: () => void,
- *   onansweredclick?: () => void,
+	 *   onansweredclick?: () => void,
 	 * }}
 	 */
 	let {

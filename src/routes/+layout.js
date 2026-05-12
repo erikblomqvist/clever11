@@ -13,25 +13,37 @@ export const load = async ({ fetch, data, depends }) => {
 		import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
 		{
 			global: {
-				fetch
+				fetch,
 			},
 			cookies: {
 				getAll() {
 					if (!isBrowser()) {
 						// On server, we return the session from layout.server.js if it exists
-						return data.session ? [{ name: 'sb-auth-token', value: JSON.stringify(data.session) }] : [];
+						return data.session
+							? [
+									{
+										name: 'sb-auth-token',
+										value: JSON.stringify(data.session),
+									},
+								]
+							: [];
 					}
 
-					const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-						const [name, ...value] = cookie.split('=');
-						if (name) {
-							const trimmedName = name.trim();
-							// Only decode if there is a value
-							const val = value.length > 0 ? decodeURIComponent(value.join('=')) : '';
-							acc.push({ name: trimmedName, value: val });
-						}
-						return acc;
-					}, []);
+					const cookies = document.cookie
+						.split(';')
+						.reduce((acc, cookie) => {
+							const [name, ...value] = cookie.split('=');
+							if (name) {
+								const trimmedName = name.trim();
+								// Only decode if there is a value
+								const val =
+									value.length > 0
+										? decodeURIComponent(value.join('='))
+										: '';
+								acc.push({ name: trimmedName, value: val });
+							}
+							return acc;
+						}, []);
 
 					return cookies;
 				},
@@ -41,21 +53,25 @@ export const load = async ({ fetch, data, depends }) => {
 						// IMPORTANT: Values must be encoded for document.cookie
 						let cookieString = `${name}=${encodeURIComponent(value)}`;
 
-						if (options.maxAge) cookieString += `; max-age=${options.maxAge}`;
-						if (options.domain) cookieString += `; domain=${options.domain}`;
+						if (options.maxAge)
+							cookieString += `; max-age=${options.maxAge}`;
+						if (options.domain)
+							cookieString += `; domain=${options.domain}`;
 
 						const path = options.path || '/';
 						cookieString += `; path=${path}`;
 
-						if (options.expires) cookieString += `; expires=${options.expires.toUTCString()}`;
+						if (options.expires)
+							cookieString += `; expires=${options.expires.toUTCString()}`;
 						if (options.secure) cookieString += '; secure';
-						if (options.sameSite) cookieString += `; samesite=${options.sameSite}`;
+						if (options.sameSite)
+							cookieString += `; samesite=${options.sameSite}`;
 
 						document.cookie = cookieString;
 					});
-				}
-			}
-		}
+				},
+			},
+		},
 	);
 
 	/**
@@ -63,7 +79,7 @@ export const load = async ({ fetch, data, depends }) => {
 	 * getUser() can be called later or in specific guards for extra security.
 	 */
 	const {
-		data: { session }
+		data: { session },
 	} = await supabase.auth.getSession();
 
 	return { supabase, session };

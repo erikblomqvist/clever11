@@ -38,7 +38,10 @@ export function useSpringDrag({ canStart, getCenter }) {
 		if (!center) return;
 
 		pointerId = event.pointerId;
-		startAngle = Math.atan2(event.clientY - center.y, event.clientX - center.x);
+		startAngle = Math.atan2(
+			event.clientY - center.y,
+			event.clientX - center.x,
+		);
 		rotationOffset = 0;
 		isActive = true;
 		event.currentTarget.setPointerCapture(event.pointerId);
@@ -48,7 +51,10 @@ export function useSpringDrag({ canStart, getCenter }) {
 	function handlePointerMove(/** @type {PointerEvent} */ event) {
 		if (pointerId !== event.pointerId || !center) return;
 
-		const currentAngle = Math.atan2(event.clientY - center.y, event.clientX - center.x);
+		const currentAngle = Math.atan2(
+			event.clientY - center.y,
+			event.clientX - center.x,
+		);
 		let angleDelta = currentAngle - startAngle;
 
 		if (angleDelta > Math.PI) angleDelta -= 2 * Math.PI;

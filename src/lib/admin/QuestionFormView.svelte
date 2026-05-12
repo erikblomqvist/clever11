@@ -15,20 +15,30 @@
 
 	// --- Form state ---
 	let deckId = $state('');
-	let type = $state(/** @type {import('$lib/data/questionTypes.js').QuestionType} */ ('standard'));
+	let type = $state(
+		/** @type {import('$lib/data/questionTypes.js').QuestionType} */ (
+			'standard'
+		),
+	);
 	let questionText = $state('');
 	let questionNumber = $state(/** @type {number|''} */ (''));
 	let optionDisplayMode = $state(/** @type {'text'|'image'} */ ('text'));
 	let options = $state(/** @type {string[]} */ (Array(NUM_BLOBS).fill('')));
 	// correctAnswers: type-specific values
-	let correctAnswers = $state(/** @type {any[]} */ (Array(NUM_BLOBS).fill('')));
+	let correctAnswers = $state(
+		/** @type {any[]} */ (Array(NUM_BLOBS).fill('')),
+	);
 	// For colors: per-blob HSL state
 	let colorHsl = $state(
-		Array(NUM_BLOBS).fill(null).map(() => ({ h: 0, s: 80, l: 50 })),
+		Array(NUM_BLOBS)
+			.fill(null)
+			.map(() => ({ h: 0, s: 80, l: 50 })),
 	);
 	// Media per blob: { url, spotify_url, youtube_url, option_image_url, option_image_path }
 	let media = $state(
-		Array(NUM_BLOBS).fill(null).map(() => createEmptyMedia()),
+		Array(NUM_BLOBS)
+			.fill(null)
+			.map(() => createEmptyMedia()),
 	);
 	let imageUploading = $state(Array(NUM_BLOBS).fill(false));
 
@@ -54,7 +64,10 @@
 	});
 
 	async function loadDecks() {
-		const { data } = await supabase.from('decks').select('id, name').order('name');
+		const { data } = await supabase
+			.from('decks')
+			.select('id, name')
+			.order('name');
 		decks = data ?? [];
 	}
 
@@ -71,7 +84,11 @@
 			.select('*')
 			.eq('id', qId)
 			.single();
-		if (err) { error = 'Failed to load question.'; loading = false; return; }
+		if (err) {
+			error = 'Failed to load question.';
+			loading = false;
+			return;
+		}
 
 		deckId = data.deck_id;
 		type = data.type;
@@ -86,14 +103,17 @@
 		// For colors: unpack stored { text, backgroundColor } into colorHsl + correctAnswers[i].text
 		if (data.type === 'colors') {
 			colorHsl = loaded.map((/** @type {any} */ ca) => {
-				const match = (ca?.backgroundColor ?? '').match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/);
+				const match = (ca?.backgroundColor ?? '').match(
+					/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/,
+				);
 				return match
 					? { h: +match[1], s: +match[2], l: +match[3] }
 					: { h: 0, s: 80, l: 50 };
 			});
 		}
 
-		const loadedMedia = data.answer_media_json ?? Array(NUM_BLOBS).fill(null);
+		const loadedMedia =
+			data.answer_media_json ?? Array(NUM_BLOBS).fill(null);
 		media = loadedMedia.map((/** @type {any} */ m) => ({
 			url: m?.url ?? '',
 			spotify_url: m?.spotify_url ?? '',
@@ -102,7 +122,9 @@
 			option_image_path: m?.option_image_path ?? '',
 			option_image_alt: m?.option_image_alt ?? '',
 		}));
-		optionDisplayMode = media.every((m) => m.option_image_url) ? 'image' : 'text';
+		optionDisplayMode = media.every((m) => m.option_image_url)
+			? 'image'
+			: 'text';
 
 		loading = false;
 	}
@@ -127,7 +149,11 @@
 			const v = Math.round(l * 255);
 			return [v, v, v];
 		}
-		const hue2rgb = (/** @type {number} */ p, /** @type {number} */ q, /** @type {number} */ t) => {
+		const hue2rgb = (
+			/** @type {number} */ p,
+			/** @type {number} */ q,
+			/** @type {number} */ t,
+		) => {
 			if (t < 0) t += 1;
 			if (t > 1) t -= 1;
 			if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -174,7 +200,11 @@
 					h = ((r - g) / d + 4) / 6;
 			}
 		}
-		return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+		return {
+			h: Math.round(h * 360),
+			s: Math.round(s * 100),
+			l: Math.round(l * 100),
+		};
 	}
 
 	/** @param {number} i */
@@ -194,7 +224,10 @@
 
 	/** @param {number} i */
 	function syncColorAnswer(i) {
-		const text = typeof correctAnswers[i] === 'object' ? correctAnswers[i]?.text ?? '' : correctAnswers[i] ?? '';
+		const text =
+			typeof correctAnswers[i] === 'object'
+				? (correctAnswers[i]?.text ?? '')
+				: (correctAnswers[i] ?? '');
 		const backgroundColor = colorToBg(i);
 		correctAnswers[i] = { text, backgroundColor };
 	}
@@ -207,22 +240,39 @@
 	async function handleSubmit(/** @type {SubmitEvent} */ e) {
 		e.preventDefault();
 		error = '';
-		if (!deckId) { error = 'Please select a deck.'; return; }
-		if (!questionText.trim()) { error = 'Question text is required.'; return; }
-		if (options.some((o) => !o.trim())) { error = 'All 10 options must be filled in.'; return; }
-		if (imageUploading.some(Boolean)) { error = 'Wait for image uploads to finish.'; return; }
-		if (optionDisplayMode === 'image' && media.some((m) => !m.option_image_url)) {
-			error = 'Upload an image for all 10 options or switch back to text options.';
+		if (!deckId) {
+			error = 'Please select a deck.';
+			return;
+		}
+		if (!questionText.trim()) {
+			error = 'Question text is required.';
+			return;
+		}
+		if (options.some((o) => !o.trim())) {
+			error = 'All 10 options must be filled in.';
+			return;
+		}
+		if (imageUploading.some(Boolean)) {
+			error = 'Wait for image uploads to finish.';
+			return;
+		}
+		if (
+			optionDisplayMode === 'image' &&
+			media.some((m) => !m.option_image_url)
+		) {
+			error =
+				'Upload an image for all 10 options or switch back to text options.';
 			return;
 		}
 
 		// Serialize correct answers for colors
-		const finalAnswers = type === 'colors'
-			? correctAnswers.map((ca, i) => ({
-					text: (typeof ca === 'object' ? ca?.text : ca) ?? '',
-					backgroundColor: colorToBg(i),
-				}))
-			: correctAnswers;
+		const finalAnswers =
+			type === 'colors'
+				? correctAnswers.map((ca, i) => ({
+						text: (typeof ca === 'object' ? ca?.text : ca) ?? '',
+						backgroundColor: colorToBg(i),
+					}))
+				: correctAnswers;
 
 		const finalMedia = media.map((m, i) => ({
 			...(m.url ? { url: m.url } : {}),
@@ -232,7 +282,8 @@
 				? {
 						option_image_url: m.option_image_url,
 						option_image_path: m.option_image_path,
-						option_image_alt: m.option_image_alt || options[i] || '',
+						option_image_alt:
+							m.option_image_alt || options[i] || '',
 					}
 				: {}),
 		}));
@@ -241,7 +292,8 @@
 			deck_id: deckId,
 			type,
 			question_text: questionText.trim(),
-			question_number: questionNumber !== '' ? Number(questionNumber) : null,
+			question_number:
+				questionNumber !== '' ? Number(questionNumber) : null,
 			options_json: options,
 			correct_answers_json: finalAnswers,
 			answer_media_json: finalMedia,
@@ -250,10 +302,15 @@
 		saving = true;
 		try {
 			if (isEdit && id) {
-				const { error: err } = await supabase.from('questions').update(payload).eq('id', id);
+				const { error: err } = await supabase
+					.from('questions')
+					.update(payload)
+					.eq('id', id);
 				if (err) throw err;
 			} else {
-				const { error: err } = await supabase.from('questions').insert(payload);
+				const { error: err } = await supabase
+					.from('questions')
+					.insert(payload);
 				if (err) throw err;
 			}
 			goto('/admin/questions');
@@ -291,7 +348,9 @@
 				});
 			if (uploadError) throw uploadError;
 
-			const { data } = supabase.storage.from(OPTION_IMAGE_BUCKET).getPublicUrl(path);
+			const { data } = supabase.storage
+				.from(OPTION_IMAGE_BUCKET)
+				.getPublicUrl(path);
 			media[index] = {
 				...media[index],
 				option_image_url: data.publicUrl,
@@ -323,7 +382,8 @@
 
 	/** Swap slot `a` with `b` so labels, answers, colors, and media move together. */
 	function swapOptionSlots(/** @type {number} */ a, /** @type {number} */ b) {
-		if (a === b || a < 0 || b < 0 || a >= NUM_BLOBS || b >= NUM_BLOBS) return;
+		if (a === b || a < 0 || b < 0 || a >= NUM_BLOBS || b >= NUM_BLOBS)
+			return;
 		const swap = (/** @type {any[]} */ arr) => {
 			const next = [...arr];
 			[next[a], next[b]] = [next[b], next[a]];
@@ -342,7 +402,10 @@
 			const url = URL.createObjectURL(file);
 			const image = new Image();
 			image.onload = () => {
-				const scale = Math.min(1, OPTION_IMAGE_MAX_SIZE / Math.max(image.width, image.height));
+				const scale = Math.min(
+					1,
+					OPTION_IMAGE_MAX_SIZE / Math.max(image.width, image.height),
+				);
 				const canvas = document.createElement('canvas');
 				canvas.width = Math.max(1, Math.round(image.width * scale));
 				canvas.height = Math.max(1, Math.round(image.height * scale));
@@ -425,14 +488,19 @@
 			rebuilt += chars[i];
 			if (shyAfter[i]) rebuilt += SHY;
 		}
-		questionText = questionText.substring(0, offset) + rebuilt + questionText.substring(offset + wordText.length);
+		questionText =
+			questionText.substring(0, offset) +
+			rebuilt +
+			questionText.substring(offset + wordText.length);
 	}
 </script>
 
 <div class="admin-page">
 	<div class="admin-page__header">
 		<a class="admin-back" href="/admin/questions">← Questions</a>
-		<h1 class="admin-page__title">{isEdit ? 'Edit question' : 'New question'}</h1>
+		<h1 class="admin-page__title">
+			{isEdit ? 'Edit question' : 'New question'}
+		</h1>
 	</div>
 
 	{#if loading}
@@ -444,7 +512,12 @@
 			<div class="admin-form-row">
 				<label class="admin-label">
 					Deck *
-					<select class="admin-select" bind:value={deckId} required disabled={saving}>
+					<select
+						class="admin-select"
+						bind:value={deckId}
+						required
+						disabled={saving}
+					>
 						<option value="">Choose a deck</option>
 						{#each decks as deck (deck.id)}
 							<option value={deck.id}>{deck.name}</option>
@@ -453,7 +526,11 @@
 				</label>
 				<label class="admin-label">
 					Type *
-					<select class="admin-select" bind:value={type} disabled={saving}>
+					<select
+						class="admin-select"
+						bind:value={type}
+						disabled={saving}
+					>
 						{#each TYPE_OPTIONS as opt (opt.value)}
 							<option value={opt.value}>{opt.label}</option>
 						{/each}
@@ -463,7 +540,14 @@
 
 			<label class="admin-label">
 				Question text *
-				<input class="admin-input" type="text" bind:value={questionText} required disabled={saving} placeholder="Write the question" />
+				<input
+					class="admin-input"
+					type="text"
+					bind:value={questionText}
+					required
+					disabled={saving}
+					placeholder="Write the question"
+				/>
 			</label>
 
 			{#if longWords.length > 0}
@@ -476,15 +560,26 @@
 					<div class="shy-helper__words">
 						{#each longWords as word (word.offset)}
 							{@const parsed = parseWordChars(word.text)}
-							<div class="shy-helper__word" class:shy-helper__word--done={word.text.includes(SHY)}>
+							<div
+								class="shy-helper__word"
+								class:shy-helper__word--done={word.text.includes(
+									SHY,
+								)}
+							>
 								{#each parsed.chars as char, i (i)}
 									<button
 										class="shy-helper__letter"
-										class:shy-helper__letter--break={parsed.shyAfter[i]}
+										class:shy-helper__letter--break={parsed
+											.shyAfter[i]}
 										type="button"
-										onclick={() => toggleShy(word.offset, word.text, i)}
-										disabled={saving}
-									>{char}</button>
+										onclick={() =>
+											toggleShy(
+												word.offset,
+												word.text,
+												i,
+											)}
+										disabled={saving}>{char}</button
+									>
 								{/each}
 							</div>
 						{/each}
@@ -494,7 +589,13 @@
 
 			<label class="admin-label" style="max-width:200px">
 				Question number
-				<input class="admin-input" type="number" bind:value={questionNumber} disabled={saving} placeholder="Optional" />
+				<input
+					class="admin-input"
+					type="number"
+					bind:value={questionNumber}
+					disabled={saving}
+					placeholder="Optional"
+				/>
 			</label>
 
 			<!-- Options + correct answers grid -->
@@ -502,11 +603,21 @@
 				Options &amp; correct answers
 				<div class="admin-segmented">
 					<label>
-						<input type="radio" bind:group={optionDisplayMode} value="text" disabled={saving} />
+						<input
+							type="radio"
+							bind:group={optionDisplayMode}
+							value="text"
+							disabled={saving}
+						/>
 						Text options
 					</label>
 					<label>
-						<input type="radio" bind:group={optionDisplayMode} value="image" disabled={saving} />
+						<input
+							type="radio"
+							bind:group={optionDisplayMode}
+							value="image"
+							disabled={saving}
+						/>
 						Image options
 					</label>
 				</div>
@@ -548,19 +659,35 @@
 							{#if optionDisplayMode === 'image'}
 								<div class="admin-option-image">
 									{#if media[i].option_image_url}
-										<img src={media[i].option_image_url} alt={options[i] || `Option ${i + 1}`} />
+										<img
+											src={media[i].option_image_url}
+											alt={options[i] ||
+												`Option ${i + 1}`}
+										/>
 									{/if}
 									<label class="admin-btn admin-btn--sm">
-										{imageUploading[i] ? 'Uploading…' : media[i].option_image_url ? 'Replace image' : 'Upload image'}
+										{imageUploading[i]
+											? 'Uploading…'
+											: media[i].option_image_url
+												? 'Replace image'
+												: 'Upload image'}
 										<input
 											type="file"
 											accept="image/*"
-											onchange={(event) => handleOptionImageFile(i, event)}
-											disabled={saving || imageUploading[i]}
+											onchange={(event) =>
+												handleOptionImageFile(i, event)}
+											disabled={saving ||
+												imageUploading[i]}
 										/>
 									</label>
 									{#if media[i].option_image_url}
-										<button class="admin-btn admin-btn--sm" type="button" onclick={() => clearOptionImage(i)} disabled={saving || imageUploading[i]}>
+										<button
+											class="admin-btn admin-btn--sm"
+											type="button"
+											onclick={() => clearOptionImage(i)}
+											disabled={saving ||
+												imageUploading[i]}
+										>
 											Clear
 										</button>
 									{/if}
@@ -569,61 +696,169 @@
 
 							<!-- Correct answer — type-specific -->
 							{#if type === 'standard'}
-								<input class="admin-input admin-option-answer" type="text" bind:value={correctAnswers[i]} placeholder="Correct answer" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].spotify_url} placeholder="Spotify URL" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].youtube_url} placeholder="YouTube URL" disabled={saving} />
-
+								<input
+									class="admin-input admin-option-answer"
+									type="text"
+									bind:value={correctAnswers[i]}
+									placeholder="Correct answer"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].spotify_url}
+									placeholder="Spotify URL"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].youtube_url}
+									placeholder="YouTube URL"
+									disabled={saving}
+								/>
 							{:else if type === 'boolean'}
 								<label class="admin-toggle-wrap">
-									<input type="checkbox" bind:checked={correctAnswers[i]} disabled={saving} />
-									<span class="admin-toggle" class:admin-toggle--on={correctAnswers[i]}>{correctAnswers[i] ? 'Yes' : 'No'}</span>
+									<input
+										type="checkbox"
+										bind:checked={correctAnswers[i]}
+										disabled={saving}
+									/>
+									<span
+										class="admin-toggle"
+										class:admin-toggle--on={correctAnswers[
+											i
+										]}
+										>{correctAnswers[i]
+											? 'Yes'
+											: 'No'}</span
+									>
 								</label>
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
-
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
 							{:else if type === 'rank'}
-								<input class="admin-input admin-option-num-input" type="number" min="1" max="10" bind:value={correctAnswers[i]} placeholder="1–10" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
-
+								<input
+									class="admin-input admin-option-num-input"
+									type="number"
+									min="1"
+									max="10"
+									bind:value={correctAnswers[i]}
+									placeholder="1–10"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
 							{:else if type === 'chooseBetween'}
-								<input class="admin-input admin-option-answer" type="text" bind:value={correctAnswers[i]} placeholder="Correct choice" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
-
+								<input
+									class="admin-input admin-option-answer"
+									type="text"
+									bind:value={correctAnswers[i]}
+									placeholder="Correct choice"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
 							{:else if type === 'colors'}
 								<div class="admin-color-picker">
-									<label class="admin-color-swatch" style="background:{colorToBg(i)}" title="Pick color" aria-label="Open color picker">
+									<label
+										class="admin-color-swatch"
+										style="background:{colorToBg(i)}"
+										title="Pick color"
+										aria-label="Open color picker"
+									>
 										<input
 											type="color"
 											class="admin-color-picker-native"
-											value={hslToHex(colorHsl[i].h, colorHsl[i].s, colorHsl[i].l)}
+											value={hslToHex(
+												colorHsl[i].h,
+												colorHsl[i].s,
+												colorHsl[i].l,
+											)}
 											oninput={(e) =>
-												applyColorFromNativePicker(i, /** @type {HTMLInputElement} */ (e.currentTarget).value)}
+												applyColorFromNativePicker(
+													i,
+													/** @type {HTMLInputElement} */ (
+														e.currentTarget
+													).value,
+												)}
 											disabled={saving}
 										/>
 									</label>
 									<label class="admin-color-slider">
 										H
-										<input type="range" min="0" max="360"
+										<input
+											type="range"
+											min="0"
+											max="360"
 											value={colorHsl[i].h}
-											oninput={(e) => { colorHsl[i].h = +/** @type {HTMLInputElement} */ (e.target).value; syncColorAnswer(i); }}
+											oninput={(e) => {
+												colorHsl[i].h = +(
+													/** @type {HTMLInputElement} */ (
+														e.target
+													).value
+												);
+												syncColorAnswer(i);
+											}}
 											disabled={saving}
 										/>
 										<span>{colorHsl[i].h}</span>
 									</label>
 									<label class="admin-color-slider">
 										S
-										<input type="range" min="0" max="100"
+										<input
+											type="range"
+											min="0"
+											max="100"
 											value={colorHsl[i].s}
-											oninput={(e) => { colorHsl[i].s = +/** @type {HTMLInputElement} */ (e.target).value; syncColorAnswer(i); }}
+											oninput={(e) => {
+												colorHsl[i].s = +(
+													/** @type {HTMLInputElement} */ (
+														e.target
+													).value
+												);
+												syncColorAnswer(i);
+											}}
 											disabled={saving}
 										/>
 										<span>{colorHsl[i].s}%</span>
 									</label>
 									<label class="admin-color-slider">
 										L
-										<input type="range" min="0" max="100"
+										<input
+											type="range"
+											min="0"
+											max="100"
 											value={colorHsl[i].l}
-											oninput={(e) => { colorHsl[i].l = +/** @type {HTMLInputElement} */ (e.target).value; syncColorAnswer(i); }}
+											oninput={(e) => {
+												colorHsl[i].l = +(
+													/** @type {HTMLInputElement} */ (
+														e.target
+													).value
+												);
+												syncColorAnswer(i);
+											}}
 											disabled={saving}
 										/>
 										<span>{colorHsl[i].l}%</span>
@@ -632,20 +867,56 @@
 								<input
 									class="admin-input admin-option-answer"
 									type="text"
-									value={typeof correctAnswers[i] === 'object' ? correctAnswers[i]?.text ?? '' : correctAnswers[i] ?? ''}
-									oninput={(e) => setColorText(i, /** @type {HTMLInputElement} */ (e.target).value)}
+									value={typeof correctAnswers[i] === 'object'
+										? (correctAnswers[i]?.text ?? '')
+										: (correctAnswers[i] ?? '')}
+									oninput={(e) =>
+										setColorText(
+											i,
+											/** @type {HTMLInputElement} */ (
+												e.target
+											).value,
+										)}
 									placeholder="Color label (e.g. 'röd')"
 									disabled={saving}
 								/>
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
-
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
 							{:else if type === 'numbers'}
-								<input class="admin-input admin-option-num-input" type="text" bind:value={correctAnswers[i]} placeholder="Number" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
-
+								<input
+									class="admin-input admin-option-num-input"
+									type="text"
+									bind:value={correctAnswers[i]}
+									placeholder="Number"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
 							{:else if type === 'centuryDecade'}
-								<input class="admin-input admin-option-answer" type="text" bind:value={correctAnswers[i]} placeholder="e.g. 1960" disabled={saving} />
-								<input class="admin-input admin-option-url" type="url" bind:value={media[i].url} placeholder="URL" disabled={saving} />
+								<input
+									class="admin-input admin-option-answer"
+									type="text"
+									bind:value={correctAnswers[i]}
+									placeholder="e.g. 1960"
+									disabled={saving}
+								/>
+								<input
+									class="admin-input admin-option-url"
+									type="url"
+									bind:value={media[i].url}
+									placeholder="URL"
+									disabled={saving}
+								/>
 							{/if}
 						</div>
 					{/each}
@@ -653,8 +924,16 @@
 			</div>
 
 			<div class="admin-form-actions">
-				<button class="admin-btn admin-btn--primary" type="submit" disabled={saving}>
-					{saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create question'}
+				<button
+					class="admin-btn admin-btn--primary"
+					type="submit"
+					disabled={saving}
+				>
+					{saving
+						? 'Saving…'
+						: isEdit
+							? 'Save changes'
+							: 'Create question'}
 				</button>
 				<a class="admin-btn" href="/admin/questions">Cancel</a>
 			</div>

@@ -96,7 +96,11 @@
 		{#each players as player (player.name)}
 			{@const Icon = getPlayerIconComponent(player.icon)}
 			<li class="player-list-item">
-				<span class="player-list-icon" style:--player-ring="var(--{player.color})" aria-hidden="true">
+				<span
+					class="player-list-icon"
+					style:--player-ring="var(--{player.color})"
+					aria-hidden="true"
+				>
 					{#if Icon}
 						<Icon size={18} />
 					{/if}
@@ -144,7 +148,7 @@
 		&:active {
 			scale: 0.97;
 		}
-	
+
 		&:not(:disabled) {
 			&:not(.icon-option--active):hover {
 				border-color: var(--palette-white);
@@ -155,9 +159,11 @@
 	.icon-option--active {
 		background-color: var(--palette-purple-mid);
 		border-color: var(--palette-purple-start);
-	
+
 		&:hover {
-			background-color: lch(from var(--palette-purple-mid) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-mid) calc(l + 5) c h
+			);
 		}
 	}
 
@@ -177,7 +183,7 @@
 			transform 0.1s,
 			border-color 0.1s,
 			box-shadow 0.1s;
-	
+
 		&:hover:not(:disabled) {
 			border-color: var(--palette-white);
 			transform: scale(1.1);

@@ -92,6 +92,23 @@
 	--player-color-8: var(--color-sky);
 	--player-color-9: var(--color-teal);
 	--player-color-10: var(--color-chartreuse);
+
+	--shadow-opacity: 0.5;
+	--shadow-blur: 15px;
+	--shadow-factor: 0.25px; /* Controls how far the shadow moves */
+
+	--shadow-offset-x: calc((50 - var(--spotlight-x)) * var(--shadow-factor));
+	--shadow-offset-y: calc((50 - var(--spotlight-y)) * var(--shadow-factor));
+
+	--dynamic-shadow: var(--shadow-offset-x) var(--shadow-offset-y)
+		var(--shadow-blur)
+		lch(from var(--palette-purple-end) l c h / var(--shadow-opacity));
+
+	--dynamic-text-shadow: var(--shadow-offset-x) var(--shadow-offset-y)
+		var(--shadow-blur)
+		lch(from var(--palette-purple-end) l c h / var(--shadow-opacity));
+
+	animation: spotlight-move 40s infinite alternate ease-in-out;
 }
 
 body {
@@ -121,16 +138,51 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 	touch-action: pan-y;
 }
 
+@property --spotlight-x {
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 100;
+}
+
+@property --spotlight-y {
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0;
+}
+
 .main-app {
 	box-sizing: border-box;
 	display: grid;
 	place-items: center;
 	height: 100svh;
 	background: radial-gradient(
-		75% 75% at top right,
+		75% 75% at calc(var(--spotlight-x) * 1%) calc(var(--spotlight-y) * 1%),
 		var(--palette-purple-start),
 		var(--palette-purple-end)
 	);
+}
+
+@keyframes spotlight-move {
+	0% {
+		--spotlight-x: 100;
+		--spotlight-y: 0;
+	}
+	25% {
+		--spotlight-x: 0;
+		--spotlight-y: 20;
+	}
+	50% {
+		--spotlight-x: 30;
+		--spotlight-y: 100;
+	}
+	75% {
+		--spotlight-x: 100;
+		--spotlight-y: 60;
+	}
+	100% {
+		--spotlight-x: 60;
+		--spotlight-y: 0;
+	}
 }
 
 .main--game {
@@ -142,7 +194,9 @@ body.game-interaction-lock [data-game-scroll-lock-allow] {
 	container-name: body;
 	background: linear-gradient(
 		to bottom,
-		hsl(from var(--current-player-color, var(--orange-500)) h s calc(l + 8)),
+		hsl(
+			from var(--current-player-color, var(--orange-500)) h s calc(l + 8)
+		),
 		hsl(from var(--current-player-color, var(--orange-500)) h s calc(l - 5))
 	);
 	transition: background 0.5s ease-in-out;

@@ -3,16 +3,11 @@
 
 	let fontReady = false;
 	let runAnimation = false;
-	let reducedMotion = false;
 
 	onMount(async () => {
 		if (typeof window === 'undefined' || typeof document === 'undefined') {
 			return;
 		}
-
-		reducedMotion = window.matchMedia(
-			'(prefers-reduced-motion: reduce)',
-		).matches;
 
 		if (!document.fonts?.check('1em "Erica One"')) {
 			try {
@@ -25,11 +20,9 @@
 
 		fontReady = true;
 
-		if (!reducedMotion) {
-			requestAnimationFrame(() => {
-				runAnimation = true;
-			});
-		}
+		requestAnimationFrame(() => {
+			runAnimation = true;
+		});
 	});
 </script>
 
@@ -38,7 +31,6 @@
 		<h1
 			class="home-title"
 			class:home-title--animate={runAnimation}
-			class:home-title--reduced={reducedMotion}
 			aria-label="Clever 11"
 		>
 			<span class="home-title__clever">Clever</span>
@@ -59,8 +51,6 @@
 		--hue: 233;
 		--blob-start-x: 0.12em;
 		--blob-end-x: 5.82ch;
-		--animation-step-1: 380ms;
-		--animation-step-2: calc(var(--animation-step-1) + 440ms);
 
 		position: relative;
 		display: inline-block;
@@ -70,8 +60,10 @@
 		font-weight: 400;
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
-		text-shadow: 0 2px 8px hsl(0 0% 0% / 0.2);
 		color: var(--palette-white);
+
+		/* Force stacking context for the whole title */
+		isolation: isolate;
 	}
 
 	.home-title__clever,
@@ -81,39 +73,16 @@
 	}
 
 	.home-title__clever {
-		z-index: 0;
+		position: relative;
+		z-index: 1;
 		clip-path: inset(0 100% 0 0);
 	}
 
-	@property --shadow-x {
-		syntax: '<length>';
-		inherits: false;
-		initial-value: -20px;
-	}
-
-	@property --shadow-y {
-		syntax: '<length>';
-		inherits: false;
-		initial-value: 30px;
-	}
-
-	@property --shadow-blur {
-		syntax: '<length>';
-		inherits: false;
-		initial-value: 10px;
-	}
-
-	@property --shadow-spread {
-		syntax: '<length>';
-		inherits: false;
-		initial-value: 10px;
-	}
-	
 	.home-title__blob {
 		position: absolute;
 		inset-block-start: 54%;
 		inset-inline-start: 0;
-		z-index: 1;
+		z-index: 2;
 		box-sizing: border-box;
 		width: 1.5em;
 		height: 1.5em;
@@ -138,126 +107,121 @@
 			);
 		translate: var(--blob-start-x) -50%;
 		scale: 0.8;
+		pointer-events: none;
 
 		&::before {
-			content: "";
+			content: '';
 			position: absolute;
 			inset: 0;
-			z-index: 0;
-
+			z-index: -1;
 			border-radius: inherit;
-			box-shadow:
-				var(--shadow-x)
-				var(--shadow-y)
-				var(--shadow-blur)
-				var(--shadow-spread)
-				lch(0 0 0 / 0.4);
 		}
 	}
 
 	.home-title__eleven {
 		position: relative;
-		z-index: 2;
+		z-index: 3;
 		display: inline-block;
 	}
 
 	.home-title--animate .home-title__blob {
-		animation:
-			blob-enter
-			var(--animation-step-1) /* Duration */
-			ease
-			forwards,
-
-			blob-sweep
-			var(--animation-step-2) /* Duration */
-			calc(var(--animation-step-1) + 10ms) /* Delay */
-			cubic-bezier(0.2, 0.65, 0.15, 1)
+		animation: blob-full-intro 1260ms cubic-bezier(0.2, 0.65, 0.15, 1)
 			forwards;
 
 		&::before {
-			animation:
-				shadow-movement
-				var(--animation-step-2) /* Duration */
-				var(--animation-step-1) /* Delay */
-				ease
-				forwards;
+			/* Unified shadow animation for the blob (duration 2.6s covering intro + handover) */
+			animation: blob-shadow-full-sequence 2600ms ease-out forwards;
 		}
 	}
 
 	.home-title--animate .home-title__clever {
 		animation:
-			clever-reveal
-			calc(var(--animation-step-2) - 200ms) /* Duration */
-			calc(var(--animation-step-1) + 30ms) /* Delay */
-			cubic-bezier(0.16, 0.8, 0.2, 1)
-			forwards;
+			clever-reveal 660ms 410ms cubic-bezier(0.16, 0.8, 0.2, 1) forwards,
+			dynamic-text-shadow-full-sequence 2600ms ease-in-out forwards;
 	}
 
 	.home-title--animate .home-title__eleven {
-		animation:
-			eleven-reveal
-			420ms
-			1350ms
+		animation: eleven-reveal 420ms 1350ms
 			linear(
-				0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017,
-				1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%,
-				1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%,
-				0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1
+				0,
+				0.009,
+				0.035 2.1%,
+				0.141,
+				0.281 6.7%,
+				0.723 12.9%,
+				0.938 16.7%,
+				1.017,
+				1.077,
+				1.121,
+				1.149 24.3%,
+				1.159,
+				1.163,
+				1.161,
+				1.154 29.9%,
+				1.129 32.8%,
+				1.051 39.6%,
+				1.017 43.1%,
+				0.991,
+				0.977 51%,
+				0.974 53.8%,
+				0.975 57.1%,
+				0.997 69.8%,
+				1.003 76.9%,
+				1.004 83.8%,
+				1
 			)
 			forwards;
 	}
 
-	.home-title--reduced .home-title__clever,
-	.home-title--reduced .home-title__blob,
-	.home-title--reduced .home-title__eleven {
-		opacity: 1;
-	}
-
-	.home-title--reduced .home-title__clever {
-		clip-path: inset(0 0 0 0);
-	}
-
-	.home-title--reduced .home-title__blob {
-		translate: var(--blob-end-x) -50%;
-	}
-
-	@keyframes blob-enter {
-		from {
+	@keyframes blob-full-intro {
+		0% {
 			opacity: 0;
 			translate: var(--blob-start-x) calc(0.45em - 50%);
 			scale: 0.12;
 		}
-		to {
+		30% {
 			opacity: 1;
 			translate: var(--blob-start-x) -50%;
 			scale: 1.1;
 		}
-	}
-
-	@keyframes blob-sweep {
-		from {
-			translate: var(--blob-start-x) -50%;
-			scale: 1.1;
-		}
-		to {
+		100% {
 			opacity: 1;
 			translate: var(--blob-end-x) -50%;
 			scale: 1;
 		}
 	}
 
-	@keyframes shadow-movement {
-		from {
-			--shadow-x: -20px;
-			--shadow-y: 30px;
-			--shadow-blur: 10px;
-			--shadow-spread: 10px;
+	@keyframes blob-shadow-full-sequence {
+		/* 0ms to 380ms (approx 15%) */
+		0% {
+			box-shadow: 0 0 0 0 lch(0 0 0 / 0.4);
 		}
-		to {
-			--shadow-x: 0;
-			--shadow-y: 0;
-			--shadow-blur: 0;
-			--shadow-spread: 0;
+		15% {
+			box-shadow: -20px 30px 10px 10px lch(0 0 0 / 0.4);
+		}
+		/* 1260ms (approx 48%) - Blob has landed */
+		48% {
+			box-shadow: 0 0 0 0 lch(0 0 0 / 0.4);
+		}
+		/* 1800ms (approx 69%) - Start handover */
+		69% {
+			box-shadow: 0 0 0 0 lch(0 0 0 / 0.4);
+		}
+		/* 2600ms (100%) - Dynamic spotlight shadow active */
+		100% {
+			box-shadow: var(--dynamic-shadow);
+		}
+	}
+
+	@keyframes dynamic-text-shadow-full-sequence {
+		/* 0ms to 1800ms (0 to 69%) - Standard static intro shadow */
+		0%,
+		69% {
+			text-shadow: 0 2px 8px hsl(0 0% 0% / 0.2);
+		}
+		/* 2600ms (100%) - Dynamic spotlight shadow active */
+		100% {
+			text-shadow: var(--dynamic-text-shadow);
 		}
 	}
 
@@ -280,14 +244,6 @@
 		to {
 			opacity: 1;
 			scale: 1;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.home-title--animate .home-title__blob,
-		.home-title--animate .home-title__clever,
-		.home-title--animate .home-title__eleven {
-			animation: none;
 		}
 	}
 </style>

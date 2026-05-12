@@ -1,7 +1,16 @@
 <script>
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-	import { Menu, X, RotateCcw, Shield, Save, Undo2, CircleDot, SkipForward } from 'lucide-svelte';
+	import {
+		Menu,
+		X,
+		RotateCcw,
+		Shield,
+		Save,
+		Undo2,
+		CircleDot,
+		SkipForward,
+	} from 'lucide-svelte';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import LucideIcon from './LucideIcon.svelte';
 	import OverallScoreList from './OverallScoreList.svelte';
@@ -38,12 +47,16 @@
 	let open = $state(false);
 
 	const typeConfig = $derived(
-		questionType ? (QUESTION_TYPES[questionType] ?? QUESTION_TYPES.standard) : null,
+		questionType
+			? (QUESTION_TYPES[questionType] ?? QUESTION_TYPES.standard)
+			: null,
 	);
 
 	/** @type {((id: string|null|undefined) => Array<[string, Record<string, string>]>)|null} */
 	let getDeckIconNode = $state(null);
-	const deckIconNode = $derived(deckIcon ? getDeckIconNode?.(deckIcon) : null);
+	const deckIconNode = $derived(
+		deckIcon ? getDeckIconNode?.(deckIcon) : null,
+	);
 
 	onMount(async () => {
 		const icons = await import('$lib/deckIcons.js');
@@ -82,13 +95,20 @@
 		<div class="game-menu__panel" data-game-scroll-lock-allow>
 			{#if typeConfig && questionType && deck}
 				<div class="game-menu__question-info">
-					<span class="game-menu__question-type" style:--qc="var(--question-color)">
+					<span
+						class="game-menu__question-type"
+						style:--qc="var(--question-color)"
+					>
 						<typeConfig.icon size={16} />
 						<span>{$_(`question_types.${questionType}`)}</span>
 					</span>
 					<span class="game-menu__question-deck">
 						{#if deckIconNode}
-							<LucideIcon name={deckIcon} iconNode={deckIconNode} size={16} />
+							<LucideIcon
+								name={deckIcon}
+								iconNode={deckIconNode}
+								size={16}
+							/>
 						{:else}
 							<CircleDot size={16} />
 						{/if}
@@ -123,7 +143,10 @@
 						size="sm"
 						icon={SkipForward}
 						text={$_('menu.skip_round')}
-						onclick={() => { onskipround(); open = false; }}
+						onclick={() => {
+							onskipround();
+							open = false;
+						}}
 					/>
 				{/if}
 				<Button
@@ -184,18 +207,24 @@
 		background-color: var(--palette-purple-neutral);
 		box-shadow: 0 2px 10px hsl(0 0% 0% / 0.15);
 
-		transition: background-color 0.15s, box-shadow 0.15s;
+		transition:
+			background-color 0.15s,
+			box-shadow 0.15s;
 
 		color: var(--palette-white);
-		
+
 		&:hover {
-			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-neutral) calc(l + 5) c h
+			);
 			box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
 		}
 	}
 
 	.game-menu--open .game-menu__trigger {
-		background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+		background-color: lch(
+			from var(--palette-purple-neutral) calc(l + 5) c h
+		);
 		box-shadow: 0 2px 14px hsl(0 0% 0% / 0.22);
 	}
 

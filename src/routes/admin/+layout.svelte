@@ -36,22 +36,28 @@
 			<a
 				class="admin-nav__link"
 				href="/admin/decks"
-				class:admin-nav__link--active={currentPath.startsWith('/admin/decks')}>Decks</a
+				class:admin-nav__link--active={currentPath.startsWith(
+					'/admin/decks',
+				)}>Decks</a
 			>
 			<a
 				class="admin-nav__link"
 				href="/admin/questions"
-				class:admin-nav__link--active={currentPath.startsWith('/admin/questions')}>Questions</a
+				class:admin-nav__link--active={currentPath.startsWith(
+					'/admin/questions',
+				)}>Questions</a
 			>
 			<a
 				class="admin-nav__link"
 				href="/admin/question-quality"
-				class:admin-nav__link--active={currentPath === '/admin/question-quality'}>Quality</a
+				class:admin-nav__link--active={currentPath ===
+					'/admin/question-quality'}>Quality</a
 			>
 			<a
 				class="admin-nav__link"
 				href="/admin/users"
-				class:admin-nav__link--active={currentPath === '/admin/users'}>Users</a
+				class:admin-nav__link--active={currentPath === '/admin/users'}
+				>Users</a
 			>
 			<span class="admin-nav__spacer"></span>
 			<button

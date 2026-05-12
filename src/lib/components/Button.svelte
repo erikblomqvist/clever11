@@ -8,7 +8,14 @@
 	 *   [key: string]: any,
 	 * }}
 	 */
-	let { variant = 'primary', size = 'md', icon: Icon, text, class: extraClass, ...rest } = $props();
+	let {
+		variant = 'primary',
+		size = 'md',
+		icon: Icon,
+		text,
+		class: extraClass,
+		...rest
+	} = $props();
 
 	const iconOnly = $derived(!!Icon && !text);
 </script>
@@ -71,7 +78,9 @@
 	.btn--secondary {
 		background-color: var(--palette-purple-neutral);
 		&:hover:not(:disabled) {
-			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-neutral) calc(l + 5) c h
+			);
 		}
 	}
 
@@ -80,7 +89,9 @@
 		background-color: var(--palette-purple-dark);
 
 		&:hover:not(:disabled) {
-			background-color: lch(from var(--palette-purple-neutral) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-neutral) calc(l + 5) c h
+			);
 		}
 	}
 
@@ -88,14 +99,24 @@
 		background-color: var(--palette-purple-start);
 
 		&:hover:not(:disabled) {
-			background-color: lch(from var(--palette-purple-start) calc(l + 5) c h);
+			background-color: lch(
+				from var(--palette-purple-start) calc(l + 5) c h
+			);
 		}
 	}
 
-	.btn--sm { font-size: var(--font-size-sm); }
-	.btn--base { font-size: var(--font-size-base); }
-	.btn--md { font-size: var(--font-size-md); }
-	.btn--lg { font-size: var(--font-size-lg); }
+	.btn--sm {
+		font-size: var(--font-size-sm);
+	}
+	.btn--base {
+		font-size: var(--font-size-base);
+	}
+	.btn--md {
+		font-size: var(--font-size-md);
+	}
+	.btn--lg {
+		font-size: var(--font-size-lg);
+	}
 
 	.btn--icon-only {
 		display: grid;

@@ -15,7 +15,11 @@
 		{@const Icon = getPlayerIconComponent(player.icon)}
 		<li class="score-list__item" data-player-state={player.status}>
 			{#if Icon}
-				<span class="score-list__icon" style:--player-ring="var(--{player.color})" aria-hidden="true">
+				<span
+					class="score-list__icon"
+					style:--player-ring="var(--{player.color})"
+					aria-hidden="true"
+				>
 					<Icon size={14} />
 				</span>
 			{/if}
@@ -66,7 +70,7 @@
 		width: 1.75rem;
 		height: 1.75rem;
 		background-color: var(--player-ring, transparent);
-		
+
 		color: var(--palette-white);
 	}
 

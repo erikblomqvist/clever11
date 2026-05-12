@@ -10,8 +10,16 @@
 		...rest
 	} = $props();
 
-	const classes = $derived(['lucide-icon', 'lucide', name ? `lucide-${name}` : ''].filter(Boolean).join(' '));
-	const computedStrokeWidth = $derived(absoluteStrokeWidth ? (Number(strokeWidth) * 24) / Number(size) : strokeWidth);
+	const classes = $derived(
+		['lucide-icon', 'lucide', name ? `lucide-${name}` : '']
+			.filter(Boolean)
+			.join(' '),
+	);
+	const computedStrokeWidth = $derived(
+		absoluteStrokeWidth
+			? (Number(strokeWidth) * 24) / Number(size)
+			: strokeWidth,
+	);
 </script>
 
 <svg

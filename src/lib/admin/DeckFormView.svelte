@@ -150,10 +150,7 @@
 
 <div class="admin-page">
 	<div class="admin-page__header">
-		<a
-			class="admin-back"
-			href="/admin/decks">← Decks</a
-		>
+		<a class="admin-back" href="/admin/decks">← Decks</a>
 		<h1 class="admin-page__title">{isEdit ? 'Edit deck' : 'New deck'}</h1>
 	</div>
 

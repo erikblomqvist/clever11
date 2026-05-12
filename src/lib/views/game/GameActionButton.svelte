@@ -65,7 +65,7 @@
 
 	.game-action__btn--end-round {
 		background-color: var(--palette-purple-start);
-		
+
 		&:hover {
 			background-color: var(--palette-purple-mid);
 		}

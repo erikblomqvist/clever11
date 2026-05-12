@@ -144,5 +144,4 @@
 		color: hsl(0 0% 100% / 0.5);
 		font-size: var(--font-size-md);
 	}
-
 </style>

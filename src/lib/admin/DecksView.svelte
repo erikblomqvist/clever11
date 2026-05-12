@@ -18,15 +18,29 @@
 			.from('decks')
 			.select('id, name, description, icon, image_url')
 			.order('name');
-		if (err) { error = err.message; }
-		else { decks = data ?? []; }
+		if (err) {
+			error = err.message;
+		} else {
+			decks = data ?? [];
+		}
 		loading = false;
 	}
 
 	async function deleteDeck(/** @type {string} */ id) {
-		if (!confirm('Delete this deck? All its questions will also be deleted.')) return;
-		const { error: err } = await supabase.from('decks').delete().eq('id', id);
-		if (err) { alert(err.message); return; }
+		if (
+			!confirm(
+				'Delete this deck? All its questions will also be deleted.',
+			)
+		)
+			return;
+		const { error: err } = await supabase
+			.from('decks')
+			.delete()
+			.eq('id', id);
+		if (err) {
+			alert(err.message);
+			return;
+		}
 		decks = decks.filter((d) => d.id !== id);
 	}
 </script>
@@ -51,15 +65,27 @@
 				{@const iconNode = getDeckIconNode(deck.icon)}
 				<li class="admin-list__item">
 					<span class="admin-list__icon">
-						<LucideIcon name={deck.icon ?? 'Layers'} iconNode={iconNode} size={18} aria-hidden="true" />
+						<LucideIcon
+							name={deck.icon ?? 'Layers'}
+							{iconNode}
+							size={18}
+							aria-hidden="true"
+						/>
 					</span>
 					<span class="admin-list__name">{deck.name}</span>
 					{#if deck.description}
 						<span class="admin-list__meta">{deck.description}</span>
 					{/if}
 					<div class="admin-list__actions">
-						<a class="admin-btn admin-btn--sm" href={`/admin/decks/${deck.id}`}>Edit</a>
-						<button class="admin-btn admin-btn--sm admin-btn--danger" type="button" onclick={() => deleteDeck(deck.id)}>Delete</button>
+						<a
+							class="admin-btn admin-btn--sm"
+							href={`/admin/decks/${deck.id}`}>Edit</a
+						>
+						<button
+							class="admin-btn admin-btn--sm admin-btn--danger"
+							type="button"
+							onclick={() => deleteDeck(deck.id)}>Delete</button
+						>
 					</div>
 				</li>
 			{/each}

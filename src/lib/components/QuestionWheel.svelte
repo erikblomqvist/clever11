@@ -59,8 +59,12 @@
 	const streakDisplacementScale = $derived(10 + streakIntensity * 4);
 	const streakRingWidth = $derived(`${2 + streakIntensity * 0.55}px`);
 	const streakSparkWidth = $derived(`${7 + streakIntensity * 1.4}px`);
-	const streakGlowOpacity = $derived(Math.min(0.32 + streakIntensity * 0.08, 0.82));
-	const streakSparkOpacity = $derived(Math.min(0.45 + streakIntensity * 0.08, 0.9));
+	const streakGlowOpacity = $derived(
+		Math.min(0.32 + streakIntensity * 0.08, 0.82),
+	);
+	const streakSparkOpacity = $derived(
+		Math.min(0.45 + streakIntensity * 0.08, 0.9),
+	);
 	const streakInnerGlowOpacity = $derived(
 		Math.min(streakGlowOpacity * 0.75, 0.62),
 	);
@@ -131,7 +135,12 @@
 						/>
 					</feOffset>
 
-					<feBlend in="offsetNoise1" in2="offsetNoise2" mode="color-dodge" result="combinedNoise" />
+					<feBlend
+						in="offsetNoise1"
+						in2="offsetNoise2"
+						mode="color-dodge"
+						result="combinedNoise"
+					/>
 					<feDisplacementMap
 						in="SourceGraphic"
 						in2="combinedNoise"
@@ -146,7 +155,10 @@
 		<div class="electric-field" aria-hidden="true">
 			<span class="electric-glow electric-glow--outer"></span>
 			<span class="electric-glow electric-glow--inner"></span>
-			<span class="electric-ring" style:filter={`url(#${electricFilterId})`}></span>
+			<span
+				class="electric-ring"
+				style:filter={`url(#${electricFilterId})`}
+			></span>
 			<!-- <span class="electric-sparks"></span> -->
 			{#key streakBurstKey}
 				{#if streakBurstKey > 0}
@@ -187,7 +199,12 @@
 				style="--index:{i + 1};--total:{answers.length}"
 			>
 				{#if usesImageOptions}
-					<img class="answer-image" src={optionImageUrls[i]} alt={answer} loading="eager" />
+					<img
+						class="answer-image"
+						src={optionImageUrls[i]}
+						alt={answer}
+						loading="eager"
+					/>
 				{:else}
 					<span class="answer-text">{answer}</span>
 				{/if}
@@ -275,7 +292,8 @@
 		opacity: var(--streak-inner-glow-opacity);
 		box-shadow:
 			0 0 var(--streak-glow-blur) var(--streak-color),
-			inset 0 0 var(--streak-inset-glow-blur) color-mix(in srgb, var(--streak-color), white 24%);
+			inset 0 0 var(--streak-inset-glow-blur)
+				color-mix(in srgb, var(--streak-color), white 24%);
 	}
 
 	.electric-ring {
@@ -407,7 +425,7 @@
 		background: var(--white);
 		box-shadow: 0 0 0 1px hsl(0 0% 0%);
 		text-align: center;
-		
+
 		&::before {
 			content: '';
 			position: absolute;
@@ -430,7 +448,8 @@
 	}
 
 	.question--standard {
-		--question-pattern: radial-gradient(
+		--question-pattern:
+			radial-gradient(
 					circle at 50% 20%,
 					var(--question-pattern-color) 0 0.22rem,
 					transparent 0.24rem
@@ -453,7 +472,8 @@
 	}
 
 	.question--rank {
-		--question-pattern: repeating-conic-gradient(
+		--question-pattern:
+			repeating-conic-gradient(
 				from 2deg,
 				hsl(0 0% 0% / 0.25) 0deg 2deg,
 				transparent 2deg 10deg
@@ -469,30 +489,40 @@
 
 	.question--choose-between {
 		--question-pattern: conic-gradient(
-					from 45deg,
-					var(--question-pattern-color) 0 25%,
-					transparent 0 50%,
-					var(--question-pattern-color) 0 75%,
-					transparent 0
-				)
-				0 0 / 0.9rem 0.9rem;
+				from 45deg,
+				var(--question-pattern-color) 0 25%,
+				transparent 0 50%,
+				var(--question-pattern-color) 0 75%,
+				transparent 0
+			)
+			0 0 / 0.9rem 0.9rem;
 	}
 
 	.question--colors {
-		--question-pattern: radial-gradient(
+		--question-pattern:
+			radial-gradient(
 					circle,
 					hsl(330 100% 71%) 0 0.16rem,
 					transparent 0.18rem
 				)
 				0 0 / 0.62rem 0.62rem,
-			radial-gradient(circle, hsl(46 100% 62%) 0 0.18rem, transparent 0.2rem)
+			radial-gradient(
+					circle,
+					hsl(46 100% 62%) 0 0.18rem,
+					transparent 0.2rem
+				)
 				0.3rem 0.1rem / 0.72rem 0.72rem,
-			radial-gradient(circle, hsl(206 100% 42%) 0 0.14rem, transparent 0.16rem)
+			radial-gradient(
+					circle,
+					hsl(206 100% 42%) 0 0.14rem,
+					transparent 0.16rem
+				)
 				0.1rem 0.36rem / 0.68rem 0.68rem;
 	}
 
 	.question--numbers {
-		--question-pattern: linear-gradient(
+		--question-pattern:
+			linear-gradient(
 					90deg,
 					transparent 0 30%,
 					var(--question-pattern-color) 30% 45%,
@@ -511,7 +541,8 @@
 	}
 
 	.question--century-decade {
-		--question-pattern: repeating-conic-gradient(
+		--question-pattern:
+			repeating-conic-gradient(
 				from -1deg,
 				var(--question-pattern-color) 0deg 3deg,
 				transparent 3deg 10deg

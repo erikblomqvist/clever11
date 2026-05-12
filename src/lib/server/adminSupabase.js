@@ -26,21 +26,25 @@ export function getSupabaseAdmin() {
 export async function recordAiImportEvent(event) {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) {
-		console.warn(JSON.stringify({
-			event: 'ai_import_monitoring_unavailable',
-			reason: 'missing_supabase_server_env',
-			request_id: event.request_id,
-		}));
+		console.warn(
+			JSON.stringify({
+				event: 'ai_import_monitoring_unavailable',
+				reason: 'missing_supabase_server_env',
+				request_id: event.request_id,
+			}),
+		);
 		return;
 	}
 
 	const { error } = await supabase.from('ai_import_events').insert(event);
 	if (error) {
-		console.warn(JSON.stringify({
-			event: 'ai_import_monitoring_insert_failed',
-			request_id: event.request_id,
-			error: error.message,
-		}));
+		console.warn(
+			JSON.stringify({
+				event: 'ai_import_monitoring_insert_failed',
+				request_id: event.request_id,
+				error: error.message,
+			}),
+		);
 	}
 }
 
@@ -54,10 +58,12 @@ export async function getUserIdFromAuthorization(authorization) {
 
 	const { data, error } = await supabase.auth.getUser(token);
 	if (error) {
-		console.warn(JSON.stringify({
-			event: 'ai_import_user_lookup_failed',
-			error: error.message,
-		}));
+		console.warn(
+			JSON.stringify({
+				event: 'ai_import_user_lookup_failed',
+				error: error.message,
+			}),
+		);
 		return null;
 	}
 

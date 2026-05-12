@@ -652,7 +652,7 @@
 
 	:global(.game-card__icon) {
 		--size: 10px;
-		
+
 		mask-image: radial-gradient(
 			circle at calc(100% + 4px) 50%,
 			transparent var(--size),
