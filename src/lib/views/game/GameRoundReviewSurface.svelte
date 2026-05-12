@@ -2,7 +2,7 @@
 	import QuestionWheel from '$lib/components/QuestionWheel.svelte';
 	import RoundReviewPanel from '$lib/components/RoundReviewPanel.svelte';
 	import ManagePlayersOverlay from '$lib/components/ManagePlayersOverlay.svelte';
-	import { game, removePlayer, replacePlayer, addPlayer } from '$lib/game.svelte.js';
+	import { game } from '$lib/game.svelte.js';
 	import {
 		SPRING_DRAG_RETURN_DURATION_MS,
 		useSpringDrag,
@@ -45,12 +45,17 @@
 			event.isPrimary &&
 			event.pointerType !== 'mouse' &&
 			!showManagePlayers &&
-			!(event.target instanceof Element &&
-				event.target.closest(SPRING_DRAG_IGNORE_SELECTOR) !== null),
+			!(
+				event.target instanceof Element &&
+				event.target.closest(SPRING_DRAG_IGNORE_SELECTOR) !== null
+			),
 		getCenter: () => {
 			if (!surfaceEl) return null;
 			const rect = surfaceEl.getBoundingClientRect();
-			return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+			return {
+				x: rect.left + rect.width / 2,
+				y: rect.top + rect.height / 2,
+			};
 		},
 	});
 
@@ -94,14 +99,21 @@
 		/>
 	{/if}
 
-	<RoundReviewPanel {players} {roundNumber} {vote} {onvote} {onnext} onmanageplayers={() => (showManagePlayers = true)} />
+	<RoundReviewPanel
+		{players}
+		{roundNumber}
+		{vote}
+		{onvote}
+		{onnext}
+		onmanageplayers={() => (showManagePlayers = true)}
+	/>
 
 	{#if showManagePlayers}
 		<ManagePlayersOverlay
 			players={game.players}
-			onremove={(id) => removePlayer(id)}
-			onreplace={(id, identity) => replacePlayer(id, identity)}
-			onadd={(params) => addPlayer(params)}
+			onremove={(id) => game.removePlayer(id)}
+			onreplace={(id, identity) => game.replacePlayer(id, identity)}
+			onadd={(params) => game.addPlayer(params)}
 			onclose={() => (showManagePlayers = false)}
 		/>
 	{/if}

@@ -2,19 +2,7 @@
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { toast } from 'svelte-sonner';
-	import {
-		game,
-		gameQueries,
-		revealBlob,
-		advanceCurrentPlayer,
-		passCurrentPlayer,
-		endRound,
-		startNextRound,
-		setRoundVote,
-		undoLastMove,
-		skipRound,
-	} from '$lib/game.svelte.js';
-	import * as engine from '$lib/gameEngine.js';
+	import { game } from '$lib/game.svelte.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import GamePlayingSurface from './game/GamePlayingSurface.svelte';
 	import GameRoundReviewSurface from './game/GameRoundReviewSurface.svelte';
@@ -87,13 +75,13 @@
 	}
 
 	function handleTimerExpiry() {
-		const playerName = gameQueries.currentPlayer?.name ?? '';
-		passCurrentPlayer();
+		const playerName = game.currentPlayer?.name ?? '';
+		game.passCurrentPlayer();
 		toast($_('game.times_up', { values: { name: playerName } }), {
 			duration: 3000,
 		});
-		if (engine.checkRoundOver(game)) {
-			endRound();
+		if (game.roundIsOver) {
+			game.endRound();
 		}
 	}
 
@@ -133,8 +121,8 @@
 	});
 
 	const seatRotation = $derived(
-		gameQueries.currentPlayer
-			? getSeatRotationTurns(gameQueries.currentPlayer.seatPosition)
+		game.currentPlayer
+			? getSeatRotationTurns(game.currentPlayer.seatPosition)
 			: 0,
 	);
 
@@ -156,12 +144,10 @@
 	const streakCelebrationActive = $derived(
 		streakCelebrationPlayerId !== null,
 	);
-	const wheelStreakLevel = $derived(
-		gameQueries.currentPlayer?.roundScore ?? 0,
-	);
+	const wheelStreakLevel = $derived(game.currentPlayer?.roundScore ?? 0);
 	const wheelStreakColor = $derived(
-		gameQueries.currentPlayer
-			? `var(--${gameQueries.currentPlayer.color})`
+		game.currentPlayer
+			? `var(--${game.currentPlayer.color})`
 			: 'var(--orange-700)',
 	);
 	const wheelRotationDurationMs = $derived(
@@ -191,7 +177,7 @@
 	}
 
 	function startStreakCelebration(
-		/** @type {NonNullable<ReturnType<typeof revealBlob>>} */ result,
+		/** @type {NonNullable<ReturnType<typeof game.revealBlob>>} */ result,
 	) {
 		clearStreakCelebration();
 		streakCelebrationPlayerId = result.playerId;
@@ -202,7 +188,7 @@
 			streakCelebrationPlayerId = null;
 
 			if (result.nextPlayerId) {
-				advanceCurrentPlayer(result.playerId);
+				game.advanceCurrentPlayer(result.playerId);
 			}
 		}, STREAK_CELEBRATION_MS);
 	}
@@ -265,7 +251,7 @@
 		roundIntro.syncRound({
 			status: game.status,
 			round: game.currentRound,
-			starter: gameQueries.currentPlayer,
+			starter: game.currentPlayer,
 			playerCount: game.players.length,
 		});
 	});
@@ -307,7 +293,7 @@
 
 	function handleUndoBlobClick(/** @type {number} */ blobIndex) {
 		if (streakCelebrationActive) return;
-		if (blobIndex !== gameQueries.undoableBlobIndex) return;
+		if (blobIndex !== game.undoableBlobIndex) return;
 		undoDialogOpen = true;
 	}
 
@@ -321,8 +307,8 @@
 		if (pendingBlobIndex !== null) {
 			const shouldDeferAdvance =
 				isCorrect &&
-				gameQueries.currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
-			const result = revealBlob(pendingBlobIndex, isCorrect, {
+				game.currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
+			const result = game.revealBlob(pendingBlobIndex, isCorrect, {
 				deferAdvance: shouldDeferAdvance,
 			});
 
@@ -343,22 +329,22 @@
 	function handleUndoDialogConfirm() {
 		if (streakCelebrationActive) return;
 		undoDialogOpen = false;
-		undoLastMove();
+		game.undoLastMove();
 		resetTimer();
 	}
 
 	function handlePassOrEnd() {
 		if (streakCelebrationActive) return;
-		if (gameQueries.roundIsOver) {
-			endRound();
+		if (game.roundIsOver) {
+			game.endRound();
 		} else {
-			passCurrentPlayer();
+			game.passCurrentPlayer();
 		}
 	}
 
 	function handleUndo() {
 		if (streakCelebrationActive) return;
-		undoLastMove();
+		game.undoLastMove();
 		resetTimer();
 	}
 
@@ -368,7 +354,7 @@
 	}
 
 	function handleSkipRound() {
-		skipRound();
+		game.skipRound();
 	}
 
 	function handleStartOver() {
@@ -385,10 +371,10 @@
 		questionType={question?.type}
 		deck={question?.deck}
 		deckIcon={question?.deckIcon}
-		currentPlayer={gameQueries.currentPlayer}
+		currentPlayer={game.currentPlayer}
 		players={game.players}
 		{question}
-		blobStates={gameQueries.blobStates}
+		blobStates={game.blobStates}
 		seatRotation={interactiveWheelSeatRotation}
 		{actionButtonSeatRotation}
 		rotationDurationMs={wheelRotationDurationMs}
@@ -396,10 +382,10 @@
 		streakLevel={wheelStreakLevel}
 		streakColor={wheelStreakColor}
 		{streakBurstKey}
-		undoableBlobIndex={gameQueries.undoableBlobIndex}
-		undoIsAvailable={gameQueries.undoIsAvailable}
-		canSkipRound={gameQueries.canSkipRound}
-		roundIsOver={gameQueries.roundIsOver}
+		undoableBlobIndex={game.undoableBlobIndex}
+		undoIsAvailable={game.undoIsAvailable}
+		canSkipRound={game.canSkipRound}
+		roundIsOver={game.roundIsOver}
 		{streakCelebrationActive}
 		{dialogOpen}
 		{pendingBlobLabel}
@@ -432,8 +418,8 @@
 		{reviewBlobStates}
 		seatRotation={reviewSeatRotation}
 		onblobclick={handleReviewBlobClick}
-		onvote={setRoundVote}
-		onnext={startNextRound}
+		onvote={(vote) => game.setRoundVote(vote)}
+		onnext={() => game.startNextRound()}
 	/>
 {:else if game.status === 'finished'}
 	<GameFinishedSurface

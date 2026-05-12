@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import GameView from '$lib/views/GameView.svelte';
-	import { game, loadGame } from '$lib/game.svelte.js';
+	import { game } from '$lib/game.svelte.js';
 	import { _ } from 'svelte-i18n';
 
 	let loading = $state(true);
@@ -13,7 +13,7 @@
 	onMount(async () => {
 		if (game.code !== code) {
 			try {
-				await loadGame(code);
+				await game.loadGame(code);
 			} catch {
 				goto('/');
 			} finally {
@@ -28,7 +28,7 @@
 	const PHASE_TO_SEGMENT = {
 		playing: 'playing',
 		round_review: 'review',
-		finished: 'finished'
+		finished: 'finished',
 	};
 
 	$effect(() => {
@@ -47,7 +47,11 @@
 </svelte:head>
 
 {#if loading}
-	<div class="loading-overlay" aria-label={$_('app.loading_aria')} aria-busy="true">
+	<div
+		class="loading-overlay"
+		aria-label={$_('app.loading_aria')}
+		aria-busy="true"
+	>
 		<span class="loading-spinner"></span>
 	</div>
 {:else}

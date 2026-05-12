@@ -1,8 +1,8 @@
 /**
- * @typedef {import('./gameEngine.js').GamePlayer} GamePlayer
- * @typedef {import('./gameEngine.js').GameQuestion} GameQuestion
- * @typedef {import('./gameEngine.js').PlayerStatus} PlayerStatus
- * @typedef {import('./gameEngine.js').Round} Round
+ * @typedef {import('./game.svelte.js').GamePlayer} GamePlayer
+ * @typedef {import('./game.svelte.js').GameQuestion} GameQuestion
+ * @typedef {import('./game.svelte.js').PlayerStatus} PlayerStatus
+ * @typedef {import('./game.svelte.js').Round} Round
  */
 
 import { supabase } from './supabase.js';
@@ -422,7 +422,7 @@ export async function persistNewGame(game) {
 				selected_decks: game.selectedDeckIds,
 				used_question_ids: game.usedQuestionIds,
 				current_round: 1,
-				win_score: 50,
+				win_score: game.winScore,
 				turn_timer_seconds: game.turnTimerSeconds ?? null,
 			})
 			.select('id')

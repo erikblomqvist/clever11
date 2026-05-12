@@ -1,9 +1,66 @@
 /**
- * @typedef {import('./gameEngine.js').PlayerStatus} PlayerStatus
- * @typedef {import('./gameEngine.js').GamePlayer} GamePlayer
- * @typedef {import('./gameEngine.js').GameQuestion} GameQuestion
- * @typedef {import('./gameEngine.js').LastAnswerMove} LastAnswerMove
- * @typedef {import('./gameEngine.js').Round} Round
+ * @typedef {'active'|'passed'|'out'|'removed'} PlayerStatus
+ *
+ * @typedef {{
+ *   id: string,
+ *   dbId: string|null,
+ *   name: string,
+ *   icon: string,
+ *   color: string,
+ *   seatPosition: number,
+ *   turnOrder: number,
+ *   totalScore: number,
+ *   roundScore: number,
+ *   status: PlayerStatus,
+ * }} GamePlayer
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: import('$lib/data/questionTypes.js').QuestionType,
+ *   text: string,
+ *   deck: string,
+ *   deckIcon: string|null,
+ *   options: string[],
+ *   correctAnswers: import('$lib/data/game.js').CorrectAnswer[],
+ *   answerMedia: object[],
+ * }} GameQuestion
+ *
+ * @typedef {{
+ *   blobIndex: number,
+ *   playerId: string,
+ *   previousRoundScore: number,
+ *   previousStatus: PlayerStatus,
+ *   previousCurrentPlayerId: string|null,
+ *   previousLastPlayerId: string|null,
+ *   answerId?: string|null,
+ *   deleteWhenPersisted?: boolean,
+ *   [key: string]: any,
+ * }} LastAnswerMove
+ *
+ * @typedef {{
+ *   roundNumber: number,
+ *   question: GameQuestion,
+ *   answeredBlobs: number[],
+ *   blobResults: Record<number, boolean>,
+ *   lastPlayerId: string|null,
+ *   dbId: string|null,
+ *   lastAnswerMove: LastAnswerMove|null,
+ * }} Round
+ *
+ * @typedef {{
+ *   status: 'idle'|'playing'|'round_review'|'finished',
+ *   code: string|null,
+ *   dbGameId: string|null,
+ *   winScore: number,
+ *   players: GamePlayer[],
+ *   currentPlayerId: string|null,
+ *   startingTurnOrderIndex: number,
+ *   selectedDeckIds: string[],
+ *   usedQuestionIds: string[],
+ *   currentRound: Round|null,
+ *   turnTimerSeconds: number|null,
+ *   roundVote: boolean|null,
+ * }} GameState
  *
  * @typedef {{
  *   playerId: string,
@@ -16,363 +73,536 @@
  */
 
 import { getForcedFirstQuestionId } from './testingOptions.js';
-import * as engine from './gameEngine.js';
 import * as gamePersist from './gamePersist.js';
+import { SupabaseGameAdapter } from './gameAdapter.js';
 
 /** @type {GameQuestion[]} */
 let questionPool = gamePersist.MOCK_QUESTIONS;
 
-export const game = $state({
+export class Game {
 	/** @type {'idle'|'playing'|'round_review'|'finished'} */
-	status: 'idle',
+	status = $state('idle');
 	/** @type {string|null} */
-	code: null,
+	code = $state(null);
 	/** @type {string|null} */
-	dbGameId: null,
-	winScore: 50,
+	dbGameId = $state(null);
+	winScore = $state(50);
 	/** @type {GamePlayer[]} */
-	players: [],
+	players = $state([]);
 	/** @type {string|null} */
-	currentPlayerId: null,
-	startingTurnOrderIndex: 0,
+	currentPlayerId = $state(null);
+	startingTurnOrderIndex = $state(0);
 	/** @type {string[]} */
-	selectedDeckIds: [],
+	selectedDeckIds = $state([]);
 	/** @type {string[]} */
-	usedQuestionIds: [],
+	usedQuestionIds = $state([]);
 	/** @type {Round|null} */
-	currentRound: null,
+	currentRound = $state(null);
 	/** @type {number|null} */
-	turnTimerSeconds: null,
+	turnTimerSeconds = $state(null);
 	/** @type {boolean|null} Vote on current round's question quality: true=up, false=down, null=none */
-	roundVote: null,
-});
+	roundVote = $state(null);
 
-// --- Pure helpers ---
+	constructor(adapter) {
+		this.adapter = adapter;
+	}
 
-function generateCode() {
-	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	return Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
+	// --- Derived queries ---
 
-/** @returns {GameQuestion} */
-function pickNextQuestion() {
-	const available = questionPool.filter((q) => !game.usedQuestionIds.includes(q.id));
-	const pool = available.length > 0 ? available : questionPool;
-	if (available.length === 0) game.usedQuestionIds = [];
-	const q = pool[Math.floor(Math.random() * pool.length)];
-	game.usedQuestionIds.push(q.id);
-	return q;
-}
+	get currentPlayer() {
+		return this.players.find((p) => p.id === this.currentPlayerId) ?? null;
+	}
 
-// --- Exported queries ---
-
-class GameQueries {
-	currentPlayer = $derived(
-		game.players.find((p) => p.id === game.currentPlayerId) ?? null,
-	);
-
-	blobStates = $derived(
-		game.currentRound?.question
-			? game.currentRound.question.options.map((_, i) => {
-					return game.currentRound?.blobResults?.[i] ?? null;
+	get blobStates() {
+		return this.currentRound?.question
+			? this.currentRound.question.options.map((_, i) => {
+					return this.currentRound?.blobResults?.[i] ?? null;
 				})
-			: [],
-	);
+			: [];
+	}
 
-	roundIsOver = $derived(engine.checkRoundOver(game));
-	undoIsAvailable = $derived(engine.canUndoLastMove(game));
-	undoableBlobIndex = $derived(
-		this.undoIsAvailable ? (game.currentRound?.lastAnswerMove?.blobIndex ?? null) : null,
-	);
-	canSkipRound = $derived(engine.canSkipRound(game));
+	get roundIsOver() {
+		if (!this.currentRound) return false;
+		const allAnswered =
+			this.currentRound.answeredBlobs.length >=
+			this.currentRound.question.options.length;
+		const allInactive = this.players.every(
+			(p) =>
+				p.status === 'passed' ||
+				p.status === 'out' ||
+				p.status === 'removed',
+		);
+		return allAnswered || allInactive;
+	}
+
+	get undoIsAvailable() {
+		const round = this.currentRound;
+		if (!round?.lastAnswerMove) return false;
+		const lastAnsweredBlob = round.answeredBlobs.at(-1);
+		return lastAnsweredBlob === round.lastAnswerMove.blobIndex;
+	}
+
+	get undoableBlobIndex() {
+		return this.undoIsAvailable
+			? (this.currentRound?.lastAnswerMove?.blobIndex ?? null)
+			: null;
+	}
+
+	get canSkipRound() {
+		if (!this.currentRound) return false;
+		if (this.currentRound.answeredBlobs.length !== 0) return false;
+		return this.players
+			.filter((p) => p.status !== 'removed')
+			.every((p) => p.status === 'active');
+	}
+
+	// --- Internal Helpers ---
+
+	generateCode() {
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+		return Array.from(
+			{ length: 5 },
+			() => chars[Math.floor(Math.random() * chars.length)],
+		).join('');
+	}
+
+	pickNextQuestion() {
+		const available = questionPool.filter(
+			(q) => !this.usedQuestionIds.includes(q.id),
+		);
+		const pool = available.length > 0 ? available : questionPool;
+		if (available.length === 0) this.usedQuestionIds = [];
+		const q = pool[Math.floor(Math.random() * pool.length)];
+		this.usedQuestionIds.push(q.id);
+		return q;
+	}
+
+	lockPortraitOnPhone() {
+		if (typeof screen === 'undefined' || !('orientation' in screen)) return;
+		const isPhone = window.matchMedia(
+			'(max-width: 768px) and (pointer: coarse)',
+		).matches;
+		if (isPhone) {
+			screen.orientation.lock('portrait').catch(() => {});
+		}
+	}
+
+	getNextActivePlayerId(currentPlayerId) {
+		const sorted = [...this.players]
+			.filter((p) => p.status !== 'removed')
+			.sort((a, b) => a.turnOrder - b.turnOrder);
+		const currentIdx = sorted.findIndex((p) => p.id === currentPlayerId);
+		for (let i = 1; i <= sorted.length; i++) {
+			const idx = (currentIdx + i) % sorted.length;
+			if (sorted[idx].status === 'active') return sorted[idx].id;
+		}
+		return null;
+	}
+
+	// --- Actions ---
+
+	loadDemoGame(snapshot) {
+		const demoGame = cloneJson(snapshot);
+		const demoQuestion = demoGame.currentRound?.question ?? null;
+
+		this.status = demoGame.status;
+		this.code = demoGame.code ?? 'DEMO';
+		this.dbGameId = null;
+		this.winScore = demoGame.winScore ?? 50;
+		this.players = demoGame.players.map((player) => ({
+			...player,
+			dbId: null,
+		}));
+		this.currentPlayerId = demoGame.currentPlayerId;
+		this.startingTurnOrderIndex = demoGame.startingTurnOrderIndex ?? 0;
+		this.selectedDeckIds = demoGame.selectedDeckIds ?? [];
+		this.usedQuestionIds =
+			demoGame.usedQuestionIds ?? (demoQuestion ? [demoQuestion.id] : []);
+		this.turnTimerSeconds = demoGame.turnTimerSeconds ?? null;
+		this.roundVote = null;
+
+		this.currentRound = demoGame.currentRound
+			? {
+					...demoGame.currentRound,
+					answeredBlobs: [...demoGame.currentRound.answeredBlobs],
+					blobResults: { ...demoGame.currentRound.blobResults },
+					dbId: null,
+					lastAnswerMove: demoGame.currentRound.lastAnswerMove
+						? {
+								...demoGame.currentRound.lastAnswerMove,
+								answerId: null,
+							}
+						: null,
+				}
+			: null;
+
+		questionPool = demoQuestion
+			? [
+					demoQuestion,
+					...gamePersist.MOCK_QUESTIONS.filter(
+						(question) => question.id !== demoQuestion.id,
+					),
+				]
+			: gamePersist.MOCK_QUESTIONS;
+
+		this.lockPortraitOnPhone();
+	}
+
+	async initGame(setup) {
+		questionPool = await this.adapter.fetchQuestionsForDecks(
+			setup.selectedDeckIds,
+		);
+
+		const gamePlayers = setup.players.map((p, i) => ({
+			id: `player-${i}`,
+			dbId: /** @type {string|null} */ (null),
+			name: p.name,
+			icon: p.icon,
+			color: p.color,
+			seatPosition: p.seatPosition ?? 0,
+			turnOrder: p.turnOrder ?? i,
+			totalScore: 0,
+			roundScore: 0,
+			status: /** @type {PlayerStatus} */ ('active'),
+		}));
+
+		const startingPlayer =
+			gamePlayers[setup.startingPlayerIndex] ?? gamePlayers[0];
+		const code = this.generateCode();
+		const firstQuestion =
+			(await this.adapter.fetchForcedQuestion(
+				getForcedFirstQuestionId(),
+			)) ?? this.pickNextQuestion();
+
+		this.status = 'playing';
+		this.code = code;
+		this.dbGameId = null;
+		this.winScore = 50;
+		this.players = gamePlayers;
+		this.currentPlayerId = startingPlayer.id;
+		this.startingTurnOrderIndex = startingPlayer.turnOrder;
+		this.selectedDeckIds = setup.selectedDeckIds;
+		this.usedQuestionIds = [firstQuestion.id];
+		this.turnTimerSeconds = setup.turnTimerSeconds ?? null;
+		this.roundVote = null;
+		this.currentRound = {
+			roundNumber: 1,
+			question: firstQuestion,
+			answeredBlobs: [],
+			blobResults: {},
+			lastPlayerId: null,
+			dbId: null,
+			lastAnswerMove: null,
+		};
+
+		this.lockPortraitOnPhone();
+
+		await this.adapter.persistNewGame(this);
+	}
+
+	revealBlob(blobIndex, isCorrect, options = {}) {
+		if (!this.currentRound) return null;
+
+		const playerIdx = this.players.findIndex(
+			(p) => p.id === this.currentPlayerId,
+		);
+		if (playerIdx === -1) return null;
+
+		const actingPlayerId = this.currentPlayerId;
+		const actingPlayerDbId = this.players[playerIdx].dbId;
+		const previousRoundScore = this.players[playerIdx].roundScore;
+
+		const round = this.currentRound;
+		round.lastAnswerMove = {
+			blobIndex,
+			playerId: actingPlayerId,
+			previousRoundScore,
+			previousStatus: this.players[playerIdx].status,
+			previousCurrentPlayerId: actingPlayerId,
+			previousLastPlayerId: round.lastPlayerId,
+			answerId: null,
+			deleteWhenPersisted: false,
+		};
+		round.answeredBlobs.push(blobIndex);
+		round.blobResults[blobIndex] = isCorrect;
+		round.lastPlayerId = actingPlayerId;
+
+		if (isCorrect) {
+			this.players[playerIdx].roundScore += 1;
+		} else {
+			this.players[playerIdx].roundScore = 0;
+			this.players[playerIdx].status = 'out';
+		}
+
+		const roundIsOver = this.roundIsOver;
+		const nextPlayerId = roundIsOver
+			? null
+			: this.getNextActivePlayerId(actingPlayerId);
+
+		if (nextPlayerId && !options.deferAdvance) {
+			this.currentPlayerId = nextPlayerId;
+		}
+
+		this.adapter
+			.persistBlobReveal(
+				this,
+				round,
+				blobIndex,
+				isCorrect,
+				actingPlayerDbId,
+				round.lastAnswerMove,
+			)
+			.catch(console.error);
+
+		return {
+			playerId: actingPlayerId,
+			previousRoundScore,
+			newRoundScore: this.players[playerIdx].roundScore,
+			isCorrect,
+			nextPlayerId,
+			roundIsOver,
+		};
+	}
+
+	advanceCurrentPlayer(expectedCurrentPlayerId = this.currentPlayerId) {
+		if (this.status !== 'playing' || this.roundIsOver) return false;
+		if (this.currentPlayerId !== expectedCurrentPlayerId) return false;
+
+		const nextId = this.getNextActivePlayerId(expectedCurrentPlayerId);
+		if (!nextId) return false;
+
+		this.currentPlayerId = nextId;
+		this.adapter.syncGameState(this).catch(console.error);
+		return true;
+	}
+
+	undoLastMove() {
+		const round = this.currentRound;
+		const move = round?.lastAnswerMove;
+		if (!round || !move || !this.undoIsAvailable) return;
+
+		const playerIdx = this.players.findIndex((p) => p.id === move.playerId);
+		if (playerIdx === -1) return;
+
+		const answerId = move.answerId;
+
+		round.answeredBlobs.pop();
+		delete round.blobResults[move.blobIndex];
+		round.lastPlayerId = move.previousLastPlayerId;
+		round.lastAnswerMove = null;
+
+		this.players[playerIdx].roundScore = move.previousRoundScore;
+		this.players[playerIdx].status = move.previousStatus;
+		this.currentPlayerId = move.previousCurrentPlayerId;
+
+		if (answerId) {
+			this.adapter
+				.deletePersistedAnswer({ answerId })
+				.catch(console.error);
+		} else {
+			move.deleteWhenPersisted = true;
+		}
+		this.adapter.syncGameState(this).catch(console.error);
+	}
+
+	passCurrentPlayer() {
+		const playerIdx = this.players.findIndex(
+			(p) => p.id === this.currentPlayerId,
+		);
+		if (playerIdx === -1) return;
+
+		this.players[playerIdx].status = 'passed';
+		if (this.currentRound) {
+			this.currentRound.lastPlayerId = this.currentPlayerId;
+			this.currentRound.lastAnswerMove = null;
+		}
+
+		if (!this.roundIsOver) {
+			const nextId = this.getNextActivePlayerId(this.currentPlayerId);
+			if (nextId) this.currentPlayerId = nextId;
+		}
+		this.adapter.syncGameState(this).catch(console.error);
+	}
+
+	skipRound() {
+		this.players.forEach((_, idx) => {
+			if (this.players[idx].status === 'active') {
+				this.players[idx].status = 'passed';
+			}
+		});
+		if (this.currentRound) {
+			this.currentRound.lastAnswerMove = null;
+		}
+		this.endRound();
+	}
+
+	endRound() {
+		if (this.currentRound) this.currentRound.lastAnswerMove = null;
+
+		this.players.forEach((_, idx) => {
+			if (this.players[idx].status !== 'removed') {
+				this.players[idx].totalScore += this.players[idx].roundScore;
+			}
+		});
+
+		const winner = this.players.find(
+			(p) => p.status !== 'removed' && p.totalScore >= this.winScore,
+		);
+		this.status = winner ? 'finished' : 'round_review';
+		this.adapter.syncGameState(this).catch(console.error);
+	}
+
+	addPlayer(params) {
+		const activeCount = this.players.filter(
+			(p) => p.status !== 'removed',
+		).length;
+		if (activeCount >= 8) return false;
+
+		const maxIdNum = this.players.reduce((max, p) => {
+			const num = parseInt(p.id.replace('player-', ''), 10);
+			return num > max ? num : max;
+		}, -1);
+		const newId = `player-${maxIdNum + 1}`;
+
+		const maxTurnOrder = this.players.reduce(
+			(max, p) => (p.turnOrder > max ? p.turnOrder : max),
+			-1,
+		);
+
+		/** @type {GamePlayer} */
+		const newPlayer = {
+			id: newId,
+			dbId: null,
+			name: params.name,
+			icon: params.icon,
+			color: params.color,
+			seatPosition: params.seatPosition,
+			turnOrder: maxTurnOrder + 1,
+			totalScore: 0,
+			roundScore: 0,
+			status: 'active',
+		};
+
+		this.players.push(newPlayer);
+		this.adapter.persistNewPlayer(this, newPlayer).catch(console.error);
+
+		return newId;
+	}
+
+	removePlayer(playerId) {
+		const playerIdx = this.players.findIndex((p) => p.id === playerId);
+		if (playerIdx === -1) return false;
+
+		const player = this.players[playerIdx];
+		if (player.status === 'removed') return false;
+
+		const activeCount = this.players.filter(
+			(p) => p.status !== 'removed',
+		).length;
+		if (activeCount <= 2) return false;
+
+		let nextId = null;
+		if (this.currentPlayerId === playerId) {
+			nextId = this.getNextActivePlayerId(playerId);
+		}
+
+		this.players[playerIdx].status = 'removed';
+		this.players[playerIdx].seatPosition = -1;
+		this.players[playerIdx].roundScore = 0;
+
+		if (nextId) this.currentPlayerId = nextId;
+		this.adapter.syncGameState(this).catch(console.error);
+		return true;
+	}
+
+	replacePlayer(playerId, replacement) {
+		const player = this.players.find((p) => p.id === playerId);
+		if (!player || player.status === 'removed') return false;
+
+		player.name = replacement.name;
+		player.icon = replacement.icon;
+		player.color = replacement.color;
+		this.adapter.syncGameState(this).catch(console.error);
+		return true;
+	}
+
+	setRoundVote(vote) {
+		this.roundVote = vote;
+	}
+
+	startNextRound() {
+		if (this.roundVote !== null) {
+			this.adapter.persistQuestionVote(this).catch(console.error);
+		}
+		this.roundVote = null;
+
+		const question = this.pickNextQuestion();
+		const activePlayers = this.players.filter(
+			(p) => p.status !== 'removed',
+		);
+		const allPassed = activePlayers.every((p) => p.status === 'passed');
+
+		this.players.forEach((_, idx) => {
+			if (this.players[idx].status !== 'removed') {
+				this.players[idx].status = 'active';
+				this.players[idx].roundScore = 0;
+			}
+		});
+
+		const sorted = [...activePlayers].sort(
+			(a, b) => a.turnOrder - b.turnOrder,
+		);
+		if (!allPassed) {
+			this.startingTurnOrderIndex =
+				(this.startingTurnOrderIndex + 1) % sorted.length;
+		}
+		const nextStarter = sorted[this.startingTurnOrderIndex % sorted.length];
+		this.currentPlayerId = nextStarter.id;
+
+		this.currentRound = {
+			roundNumber: (this.currentRound?.roundNumber ?? 0) + 1,
+			question,
+			answeredBlobs: [],
+			blobResults: {},
+			lastPlayerId: null,
+			dbId: null,
+			lastAnswerMove: null,
+		};
+
+		this.status = 'playing';
+
+		this.adapter.dbCreateNewRound(this).catch(console.error);
+	}
+
+	async loadGame(code) {
+		const state = await this.adapter.loadGame(code);
+
+		this.status = /** @type {any} */ (state.status);
+		this.code = state.code;
+		this.dbGameId = state.dbGameId;
+		this.winScore = state.winScore;
+		this.players = state.players;
+		this.currentPlayerId = state.currentPlayerId;
+		this.startingTurnOrderIndex = state.startingTurnOrderIndex;
+		this.selectedDeckIds = state.selectedDeckIds;
+		this.usedQuestionIds = state.usedQuestionIds;
+		this.turnTimerSeconds = state.turnTimerSeconds ?? null;
+		this.roundVote = null;
+		this.currentRound = state.currentRound;
+
+		questionPool = state.questionPool;
+
+		this.lockPortraitOnPhone();
+	}
 }
 
-export const gameQueries = new GameQueries();
+// --- Singleton instance ---
 
-// --- Exported mutations ---
+export const game = new Game(new SupabaseGameAdapter());
 
-/**
- * @typedef {{
- *   status: 'playing'|'round_review'|'finished',
- *   code?: string|null,
- *   winScore?: number,
- *   players: GamePlayer[],
- *   currentPlayerId: string|null,
- *   startingTurnOrderIndex?: number,
- *   selectedDeckIds?: string[],
- *   usedQuestionIds?: string[],
- *   currentRound: Round|null,
- *   turnTimerSeconds?: number|null,
- * }} DemoGameSnapshot
- */
+// --- Helpers ---
 
 /** @template T @param {T} value @returns {T} */
 function cloneJson(value) {
 	return JSON.parse(JSON.stringify(value));
-}
-
-/** @param {DemoGameSnapshot} snapshot */
-export function loadDemoGame(snapshot) {
-	const demoGame = cloneJson(snapshot);
-	const demoQuestion = demoGame.currentRound?.question ?? null;
-
-	game.status = demoGame.status;
-	game.code = demoGame.code ?? 'DEMO';
-	game.dbGameId = null;
-	game.winScore = demoGame.winScore ?? 50;
-	game.players = demoGame.players.map((player) => ({
-		...player,
-		dbId: null,
-	}));
-	game.currentPlayerId = demoGame.currentPlayerId;
-	game.startingTurnOrderIndex = demoGame.startingTurnOrderIndex ?? 0;
-	game.selectedDeckIds = demoGame.selectedDeckIds ?? [];
-	game.usedQuestionIds =
-		demoGame.usedQuestionIds ?? (demoQuestion ? [demoQuestion.id] : []);
-	game.turnTimerSeconds = demoGame.turnTimerSeconds ?? null;
-	game.roundVote = null;
-
-	game.currentRound = demoGame.currentRound
-		? {
-				...demoGame.currentRound,
-				answeredBlobs: [...demoGame.currentRound.answeredBlobs],
-				blobResults: { ...demoGame.currentRound.blobResults },
-				dbId: null,
-				lastAnswerMove: demoGame.currentRound.lastAnswerMove
-					? { ...demoGame.currentRound.lastAnswerMove, answerId: null }
-					: null,
-			}
-		: null;
-
-	questionPool = demoQuestion
-		? [
-				demoQuestion,
-				...gamePersist.MOCK_QUESTIONS.filter((question) => question.id !== demoQuestion.id),
-			]
-		: gamePersist.MOCK_QUESTIONS;
-
-	lockPortraitOnPhone();
-}
-
-/**
- * @param {{ players: import('$lib/views/SetupView.svelte').SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds?: number|null }} setup
- */
-export async function initGame(setup) {
-	questionPool = await gamePersist.fetchQuestionsForDecks(setup.selectedDeckIds);
-
-	const gamePlayers = setup.players.map((p, i) => ({
-		id: `player-${i}`,
-		dbId: /** @type {string|null} */ (null),
-		name: p.name,
-		icon: p.icon,
-		color: p.color,
-		seatPosition: p.seatPosition ?? 0,
-		turnOrder: p.turnOrder ?? i,
-		totalScore: 0,
-		roundScore: 0,
-		status: /** @type {PlayerStatus} */ ('active'),
-	}));
-
-	const startingPlayer = gamePlayers[setup.startingPlayerIndex] ?? gamePlayers[0];
-	const code = generateCode();
-	const firstQuestion =
-		(await gamePersist.fetchForcedQuestion(getForcedFirstQuestionId())) ??
-		pickNextQuestion();
-
-	game.status = 'playing';
-	game.code = code;
-	game.dbGameId = null;
-	game.winScore = 50;
-	game.players = gamePlayers;
-	game.currentPlayerId = startingPlayer.id;
-	game.startingTurnOrderIndex = startingPlayer.turnOrder;
-	game.selectedDeckIds = setup.selectedDeckIds;
-	game.usedQuestionIds = [firstQuestion.id];
-	game.turnTimerSeconds = setup.turnTimerSeconds ?? null;
-	game.roundVote = null;
-	game.currentRound = {
-		roundNumber: 1,
-		question: firstQuestion,
-		answeredBlobs: [],
-		blobResults: {},
-		lastPlayerId: null,
-		dbId: null,
-		lastAnswerMove: null,
-	};
-
-	lockPortraitOnPhone();
-
-	await gamePersist.persistNewGame(game);
-}
-
-/**
- * @param {number} blobIndex
- * @param {boolean} isCorrect
- * @param {{ deferAdvance?: boolean }} [options]
- * @returns {RevealBlobResult|null}
- */
-export function revealBlob(blobIndex, isCorrect, options = {}) {
-	if (!game.currentRound) return null;
-
-	const playerIdx = game.players.findIndex((p) => p.id === game.currentPlayerId);
-	if (playerIdx === -1) return null;
-
-	const actingPlayerDbId = game.players[playerIdx].dbId;
-	const previousRoundScore = game.players[playerIdx].roundScore;
-
-	const result = engine.revealBlob(game, blobIndex, isCorrect);
-	if (!result) return null;
-
-	const round = game.currentRound;
-	const lastAnswerMove = round.lastAnswerMove;
-	lastAnswerMove.answerId = /** @type {string|null} */ (null);
-	lastAnswerMove.deleteWhenPersisted = false;
-
-	if (result.nextPlayerId && !options.deferAdvance) {
-		engine.advanceToPlayer(game, result.nextPlayerId);
-	}
-
-	gamePersist.persistBlobReveal(game, round, blobIndex, isCorrect, actingPlayerDbId, lastAnswerMove).catch(console.error);
-
-	return {
-		playerId: result.playerId,
-		previousRoundScore,
-		newRoundScore: result.roundScore,
-		isCorrect,
-		nextPlayerId: result.nextPlayerId,
-		roundIsOver: result.roundIsOver,
-	};
-}
-
-/**
- * @param {string|null} expectedCurrentPlayerId
- * @returns {boolean}
- */
-export function advanceCurrentPlayer(expectedCurrentPlayerId = game.currentPlayerId) {
-	if (game.status !== 'playing' || engine.checkRoundOver(game)) return false;
-	if (game.currentPlayerId !== expectedCurrentPlayerId) return false;
-
-	const nextId = engine.getNextActivePlayerId(game, expectedCurrentPlayerId);
-	if (!nextId) return false;
-
-	engine.advanceToPlayer(game, nextId);
-	gamePersist.syncGameState(game).catch(console.error);
-	return true;
-}
-
-export function undoLastMove() {
-	const move = game.currentRound?.lastAnswerMove;
-	if (!move) return;
-
-	const answerId = move.answerId;
-	const deleteWhenPersisted = move.deleteWhenPersisted;
-
-	engine.undoLastMove(game);
-
-	if (answerId) {
-		gamePersist.deletePersistedAnswer({ answerId }).catch(console.error);
-	} else if (!deleteWhenPersisted) {
-		move.deleteWhenPersisted = true;
-	}
-	gamePersist.syncGameState(game).catch(console.error);
-}
-
-export function passCurrentPlayer() {
-	engine.passCurrentPlayer(game);
-	gamePersist.syncGameState(game).catch(console.error);
-}
-
-export function skipRound() {
-	engine.skipRound(game);
-	engine.endRound(game);
-	gamePersist.syncGameState(game).catch(console.error);
-}
-
-export function endRound() {
-	engine.endRound(game);
-	gamePersist.syncGameState(game).catch(console.error);
-}
-
-/**
- * @param {{ name: string, icon: string, color: string, seatPosition: number }} params
- * @returns {string|false}
- */
-export function addPlayer(params) {
-	const newId = engine.addPlayer(game, params);
-	if (newId === false) return false;
-
-	const newPlayer = game.players.find((p) => p.id === newId);
-	gamePersist.persistNewPlayer(game, newPlayer).catch(console.error);
-
-	return newId;
-}
-
-/**
- * @param {string} playerId
- * @returns {boolean}
- */
-export function removePlayer(playerId) {
-	const result = engine.removePlayer(game, playerId);
-	if (result) gamePersist.syncGameState(game).catch(console.error);
-	return result;
-}
-
-/**
- * @param {string} playerId
- * @param {{ name: string, icon: string, color: string }} replacement
- * @returns {boolean}
- */
-export function replacePlayer(playerId, replacement) {
-	const result = engine.replacePlayer(game, playerId, replacement);
-	if (result) gamePersist.syncGameState(game).catch(console.error);
-	return result;
-}
-
-/** @param {boolean|null} vote */
-export function setRoundVote(vote) {
-	game.roundVote = vote;
-}
-
-export function startNextRound() {
-	if (game.roundVote !== null) {
-		gamePersist.persistQuestionVote(game).catch(console.error);
-	}
-	game.roundVote = null;
-
-	const question = pickNextQuestion();
-	engine.startNextRound(game, question);
-
-	gamePersist.dbCreateNewRound(game).catch(console.error);
-}
-
-/**
- * @param {string} code
- */
-export async function loadGame(code) {
-	const state = await gamePersist.loadGame(code);
-
-	game.status = /** @type {any} */ (state.status);
-	game.code = state.code;
-	game.dbGameId = state.dbGameId;
-	game.winScore = state.winScore;
-	game.players = state.players;
-	game.currentPlayerId = state.currentPlayerId;
-	game.startingTurnOrderIndex = state.startingTurnOrderIndex;
-	game.selectedDeckIds = state.selectedDeckIds;
-	game.usedQuestionIds = state.usedQuestionIds;
-	game.turnTimerSeconds = state.turnTimerSeconds ?? null;
-	game.roundVote = null;
-	game.currentRound = state.currentRound;
-
-	questionPool = state.questionPool;
-
-	lockPortraitOnPhone();
-}
-
-function lockPortraitOnPhone() {
-	if (typeof screen === 'undefined' || !('orientation' in screen)) return;
-	const isPhone = window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
-	if (isPhone) {
-		screen.orientation.lock('portrait').catch(() => {});
-	}
 }

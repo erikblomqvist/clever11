@@ -1,6 +1,6 @@
 <script>
 	import GameView from './GameView.svelte';
-	import { loadDemoGame } from '$lib/game.svelte.js';
+	import { game } from '$lib/game.svelte.js';
 	import { DEMO_SCENARIOS } from '$lib/demo/scenarios.js';
 
 	/** @type {{ onback: () => void }} */
@@ -10,11 +10,14 @@
 	let activeScenarioId = $state(null);
 
 	const activeScenario = $derived(
-		DEMO_SCENARIOS.find((scenario) => scenario.id === activeScenarioId) ?? null,
+		DEMO_SCENARIOS.find((scenario) => scenario.id === activeScenarioId) ??
+			null,
 	);
 
-	function openScenario(/** @type {(typeof DEMO_SCENARIOS)[number]} */ scenario) {
-		loadDemoGame(scenario.snapshot);
+	function openScenario(
+		/** @type {(typeof DEMO_SCENARIOS)[number]} */ scenario,
+	) {
+		game.loadDemoGame(scenario.snapshot);
 		activeScenarioId = scenario.id;
 	}
 
@@ -26,7 +29,11 @@
 {#if activeScenario}
 	<div class="demo-game-shell">
 		<div class="demo-game-toolbar">
-			<button class="demo-game-toolbar__btn" type="button" onclick={backToSelector}>
+			<button
+				class="demo-game-toolbar__btn"
+				type="button"
+				onclick={backToSelector}
+			>
 				Back to demo states
 			</button>
 			<span class="demo-game-toolbar__label">{activeScenario.title}</span>
@@ -42,8 +49,8 @@
 					Pick a game state
 				</h1>
 				<p class="demo-selector__description">
-					These examples use local fixture data and render through the real game
-					views.
+					These examples use local fixture data and render through the
+					real game views.
 				</p>
 			</div>
 
@@ -55,7 +62,9 @@
 						onclick={() => openScenario(scenario)}
 					>
 						<span class="demo-card__title">{scenario.title}</span>
-						<span class="demo-card__description">{scenario.description}</span>
+						<span class="demo-card__description"
+							>{scenario.description}</span
+						>
 					</button>
 				{/each}
 			</div>
@@ -120,7 +129,11 @@
 		padding: max(2rem, env(safe-area-inset-top)) 1rem
 			max(2rem, env(safe-area-inset-bottom));
 		background:
-			radial-gradient(circle at top, hsl(32 95% 58% / 0.35), transparent 34rem),
+			radial-gradient(
+				circle at top,
+				hsl(32 95% 58% / 0.35),
+				transparent 34rem
+			),
 			linear-gradient(160deg, hsl(0 0% 12%) 0%, hsl(0 0% 5%) 100%);
 	}
 

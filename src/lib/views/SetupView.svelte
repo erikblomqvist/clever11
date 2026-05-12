@@ -9,8 +9,8 @@
 	import SetupRulesStep from '$lib/components/SetupRulesStep.svelte';
 	import SetupStartingStep from '$lib/components/SetupStartingStep.svelte';
 
-	/** @type {{ oncomplete: (setup: GameSetup) => void, onback: () => void }} */
-	let { oncomplete, onback } = $props();
+	/** @type {{ oninit: (setup: GameSetup) => void, onback: () => void }} */
+	let { oninit, onback } = $props();
 
 	/**
 	 * @typedef {{ name: string, icon: string, color: string, seatPosition: number|null, turnOrder: number|null }} SetupPlayer
@@ -19,7 +19,9 @@
 
 	// --- Navigation ---
 	let step = $state(
-		/** @type {'players'|'seating'|'decks'|'rules'|'starting'} */ ('players'),
+		/** @type {'players'|'seating'|'decks'|'rules'|'starting'} */ (
+			'players'
+		),
 	);
 
 	function navigateStep(
@@ -81,7 +83,13 @@
 		const name = newName.trim();
 		players = [
 			...players,
-			{ name, icon: newIcon, color: newColor, seatPosition: null, turnOrder: null },
+			{
+				name,
+				icon: newIcon,
+				color: newColor,
+				seatPosition: null,
+				turnOrder: null,
+			},
 		];
 		newName = '';
 		const nextIcon = PLAYER_ICONS.find(
@@ -209,7 +217,12 @@
 	function handleComplete() {
 		const idx =
 			startingPlayerIdx ?? Math.floor(Math.random() * players.length);
-		oncomplete({ players, selectedDeckIds, startingPlayerIndex: idx, turnTimerSeconds: timerEnabled ? timerSeconds : null });
+		oninit({
+			players,
+			selectedDeckIds,
+			startingPlayerIndex: idx,
+			turnTimerSeconds: timerEnabled ? timerSeconds : null,
+		});
 	}
 </script>
 
@@ -262,12 +275,10 @@
 		onback={goBack}
 		primaryLabel={$_('setup.continue')}
 		onprimary={() => navigateStep('starting')}
-		primaryDisabled={timerEnabled && (!timerSeconds || timerSeconds < 10 || timerSeconds > 600)}
+		primaryDisabled={timerEnabled &&
+			(!timerSeconds || timerSeconds < 10 || timerSeconds > 600)}
 	>
-		<SetupRulesStep
-			bind:timerEnabled
-			bind:timerSeconds
-		/>
+		<SetupRulesStep bind:timerEnabled bind:timerSeconds />
 	</SetupStepShell>
 {:else if step === 'starting'}
 	<SetupStepShell

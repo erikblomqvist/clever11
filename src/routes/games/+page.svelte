@@ -1,20 +1,18 @@
 <script>
 	import PreviousGamesView from '$lib/views/PreviousGamesView.svelte';
 	import { goto } from '$app/navigation';
-	import { loadGame } from '$lib/game.svelte.js';
+	import { game } from '$lib/game.svelte.js';
 	import { _ } from 'svelte-i18n';
 
 	let loading = $state(false);
-	let loadError = $state(null);
 
-	async function handleLoadGame(code) {
+	async function handleLoadGame(/** @type {string} */ code) {
 		loading = true;
-		loadError = null;
 		try {
-			await loadGame(code);
+			await game.loadGame(code);
 			goto(`/game/${code.toUpperCase()}`);
 		} catch (e) {
-			loadError = e.message ?? $_('app.load_error');
+			console.error(e);
 		} finally {
 			loading = false;
 		}
@@ -22,19 +20,19 @@
 </script>
 
 <svelte:head>
-	<title>Clever 11 — Previous Games</title>
+	<title>{$_('app.previous_games')} — Clever 11</title>
 </svelte:head>
 
 <main class="main--previous-games">
-	<PreviousGamesView
-		onback={() => goto('/')}
-		onloadgame={handleLoadGame}
-		loaderror={loadError}
-	/>
+	<PreviousGamesView onloadgame={handleLoadGame} onback={() => goto('/')} />
 </main>
 
 {#if loading}
-	<div class="loading-overlay" aria-label={$_('app.loading_aria')} aria-busy="true">
+	<div
+		class="loading-overlay"
+		aria-label={$_('app.loading_aria')}
+		aria-busy="true"
+	>
 		<span class="loading-spinner"></span>
 	</div>
 {/if}
