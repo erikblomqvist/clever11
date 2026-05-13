@@ -289,33 +289,40 @@ describe('Game Class - Actions', () => {
 			expect(game.isSyncing).toBe(false);
 		});
 
-		it('advances starting player correctly between rounds, even if everyone passed', () => {
+		it('advances starting player correctly between rounds: NOT if everyone passed, YES if a normal round was played', () => {
 			const game = createTestGame({ playerCount: 2 });
 			game.status = 'round_review';
 			game.startingTurnOrderIndex = 0; // P0 started round 1
 
-			// Simulating everyone passing
+			// SCENARIO 1: Everyone passing (should NOT increment)
 			game.players[0].status = 'passed';
 			game.players[1].status = 'passed';
 
-			// Start next round
 			game.startNextRound();
 			expect(game.status).toBe('playing');
+			// P0 should start again
+			expect(game.currentPlayerId).toBe('player-0');
+			expect(game.startingTurnOrderIndex).toBe(0);
 
-			// Player 1 (index 1) should now be the starting player
-			expect(game.currentPlayerId).toBe('player-1');
-			expect(game.startingTurnOrderIndex).toBe(1);
-
-			// End round 2
+			// SCENARIO 2: Normal round (should increment)
 			game.status = 'round_review';
 			game.players[0].status = 'active';
 			game.players[1].status = 'active';
 			game.players[0].roundScore = 1; // P0 played
 
-			// Start next round
 			game.startNextRound();
+			// P1 should start now
+			expect(game.currentPlayerId).toBe('player-1');
+			expect(game.startingTurnOrderIndex).toBe(1);
 
-			// Player 0 (index 0) should now be the starting player
+			// SCENARIO 3: Normal round again (should increment/wrap)
+			game.status = 'round_review';
+			game.players[0].status = 'active';
+			game.players[1].status = 'active';
+			game.players[1].roundScore = 1; // P1 played
+
+			game.startNextRound();
+			// P0 should start again
 			expect(game.currentPlayerId).toBe('player-0');
 			expect(game.startingTurnOrderIndex).toBe(0);
 		});
