@@ -23,6 +23,7 @@
 <svelte:head>
 	<title>Clever 11 — Admin</title>
 	<link rel="icon" type="image/png" href="/favicon-admin.png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon-admin.png" />
 </svelte:head>
 
 {#if !session && currentPath !== '/admin/login'}
