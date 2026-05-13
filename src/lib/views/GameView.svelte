@@ -87,6 +87,7 @@
 
 	$effect(() => {
 		game.currentPlayerId;
+		game.currentRound?.roundNumber;
 		resetTimer();
 	});
 
