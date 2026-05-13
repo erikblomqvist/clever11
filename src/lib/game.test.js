@@ -288,5 +288,36 @@ describe('Game Class - Actions', () => {
 			expect(game.currentRound.roundNumber).toBe(2);
 			expect(game.isSyncing).toBe(false);
 		});
+
+		it('advances starting player correctly between rounds, even if everyone passed', () => {
+			const game = createTestGame({ playerCount: 2 });
+			game.status = 'round_review';
+			game.startingTurnOrderIndex = 0; // P0 started round 1
+
+			// Simulating everyone passing
+			game.players[0].status = 'passed';
+			game.players[1].status = 'passed';
+
+			// Start next round
+			game.startNextRound();
+			expect(game.status).toBe('playing');
+
+			// Player 1 (index 1) should now be the starting player
+			expect(game.currentPlayerId).toBe('player-1');
+			expect(game.startingTurnOrderIndex).toBe(1);
+
+			// End round 2
+			game.status = 'round_review';
+			game.players[0].status = 'active';
+			game.players[1].status = 'active';
+			game.players[0].roundScore = 1; // P0 played
+
+			// Start next round
+			game.startNextRound();
+
+			// Player 0 (index 0) should now be the starting player
+			expect(game.currentPlayerId).toBe('player-0');
+			expect(game.startingTurnOrderIndex).toBe(0);
+		});
 	});
 });

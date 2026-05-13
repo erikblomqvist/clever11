@@ -589,6 +589,8 @@ export class Game {
 	}
 
 	startNextRound() {
+		if (this.status === 'playing') return;
+
 		if (this.roundVote !== null) {
 			this.isSyncing = true;
 			this.adapter
@@ -604,7 +606,6 @@ export class Game {
 		const activePlayers = this.players.filter(
 			(p) => p.status !== 'removed',
 		);
-		const allPassed = activePlayers.every((p) => p.status === 'passed');
 
 		this.players.forEach((_, idx) => {
 			if (this.players[idx].status !== 'removed') {
@@ -616,10 +617,10 @@ export class Game {
 		const sorted = [...activePlayers].sort(
 			(a, b) => a.turnOrder - b.turnOrder,
 		);
-		if (!allPassed) {
-			this.startingTurnOrderIndex =
-				(this.startingTurnOrderIndex + 1) % sorted.length;
-		}
+
+		this.startingTurnOrderIndex =
+			(this.startingTurnOrderIndex + 1) % sorted.length;
+
 		const nextStarter = sorted[this.startingTurnOrderIndex % sorted.length];
 		this.currentPlayerId = nextStarter.id;
 
