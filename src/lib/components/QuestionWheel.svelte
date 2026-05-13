@@ -54,7 +54,16 @@
 	);
 	const popoverIdPrefix = Math.random().toString(36).slice(2);
 	const electricFilterId = `question-wheel-electric-${popoverIdPrefix}`;
-	const streakIsActive = $derived(streakLevel >= 3);
+
+	/**
+	 * Toggle to enable/disable performance-intensive streak SVG animations.
+	 * Disabled by default to prevent lag on some devices (e.g., iPad).
+	 */
+	const ENABLE_STREAK_ANIMATIONS = false;
+
+	const streakIsActive = $derived(
+		ENABLE_STREAK_ANIMATIONS && streakLevel >= 3,
+	);
 	const streakIntensity = $derived(Math.min(Math.max(streakLevel - 2, 0), 6));
 	const streakDisplacementScale = $derived(10 + streakIntensity * 4);
 	const streakRingWidth = $derived(`${2 + streakIntensity * 0.55}px`);
