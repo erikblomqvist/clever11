@@ -445,17 +445,19 @@ export class Game {
 			this.currentRound.lastAnswerMove = null;
 		}
 
-		if (!this.roundIsOver) {
+		if (this.roundIsOver) {
+			this.endRound();
+		} else {
 			const nextId = this.getNextActivePlayerId(this.currentPlayerId);
 			if (nextId) this.currentPlayerId = nextId;
+			this.isSyncing = true;
+			this.adapter
+				.syncGameState(this)
+				.catch(console.error)
+				.finally(() => {
+					this.isSyncing = false;
+				});
 		}
-		this.isSyncing = true;
-		this.adapter
-			.syncGameState(this)
-			.catch(console.error)
-			.finally(() => {
-				this.isSyncing = false;
-			});
 	}
 
 	skipRound() {

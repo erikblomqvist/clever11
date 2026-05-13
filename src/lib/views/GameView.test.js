@@ -29,6 +29,8 @@ vi.mock('$lib/game.svelte.js', () => {
 		canSkipRound: false,
 		turnTimerSeconds: null,
 		loadGame: vi.fn(),
+		passCurrentPlayer: vi.fn(),
+		endRound: vi.fn(),
 	};
 	return {
 		game: mockGame,
@@ -37,6 +39,7 @@ vi.mock('$lib/game.svelte.js', () => {
 
 import GameView from './GameView.svelte';
 import { game } from '$lib/game.svelte.js';
+import { fireEvent } from '@testing-library/dom';
 
 describe('GameView', () => {
 	it('renders playing surface when status is playing', () => {
@@ -59,6 +62,32 @@ describe('GameView', () => {
 
 		// Check if question text is rendered (part of QuestionWheel inside GamePlayingSurface)
 		expect(screen.getByText('Question Text')).toBeTruthy();
+	});
+
+	it('calls passCurrentPlayer when pass button is clicked', async () => {
+		game.status = 'playing';
+		game.roundIsOver = false;
+		game.currentRound = {
+			question: {
+				id: 'q1',
+				type: 'standard',
+				text: 'Question Text',
+				options: ['A', 'B'],
+				correctAnswers: [true, false],
+				answerMedia: [{}, {}],
+			},
+			answeredBlobs: [],
+			lastPlayerId: null,
+		};
+		game.blobStates = [null, null];
+
+		render(GameView);
+
+		const passButton = screen.getAllByText('game.pass')[0];
+
+		await fireEvent.click(passButton);
+
+		expect(game.passCurrentPlayer).toHaveBeenCalled();
 	});
 
 	it('renders review surface when status is round_review', () => {

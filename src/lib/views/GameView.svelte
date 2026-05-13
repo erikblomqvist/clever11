@@ -80,9 +80,6 @@
 		toast($_('game.times_up', { values: { name: playerName } }), {
 			duration: 3000,
 		});
-		if (game.roundIsOver) {
-			game.endRound();
-		}
 	}
 
 	$effect(() => {

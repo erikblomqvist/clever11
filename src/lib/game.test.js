@@ -190,6 +190,13 @@ describe('Game Class - Actions', () => {
 			expect(game.currentPlayerId).toBe('player-1');
 			expect(game.adapter.syncGameState).toHaveBeenCalled();
 		});
+
+		it('automatically ends the round if passing makes it over', () => {
+			const game = createTestGame({ playerCount: 1 });
+			game.passCurrentPlayer();
+			expect(game.players[0].status).toBe('passed');
+			expect(game.status).toBe('round_review');
+		});
 	});
 
 	describe('endRound', () => {
