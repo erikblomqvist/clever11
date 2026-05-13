@@ -203,6 +203,7 @@ export const MOCK_QUESTIONS = /** @type {GameQuestion[]} */ (
 		options: q.answers,
 		correctAnswers: q.correctAnswers,
 		answerMedia: q.answers.map(() => ({})),
+		mileage: 0,
 	}))
 );
 
@@ -217,6 +218,7 @@ export function dbRowToQuestion(row) {
 		options: row.options_json ?? [],
 		correctAnswers: row.correct_answers_json ?? [],
 		answerMedia: row.answer_media_json ?? [],
+		mileage: row.mileage ?? 0,
 	});
 }
 

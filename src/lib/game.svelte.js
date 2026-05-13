@@ -23,6 +23,7 @@
  *   options: string[],
  *   correctAnswers: import('$lib/data/game.js').CorrectAnswer[],
  *   answerMedia: object[],
+ *   mileage: number,
  * }} GameQuestion
  *
  * @typedef {{
@@ -178,7 +179,28 @@ export class Game {
 		);
 		const pool = available.length > 0 ? available : questionPool;
 		if (available.length === 0) this.usedQuestionIds = [];
-		const q = pool[Math.floor(Math.random() * pool.length)];
+
+		// Weighted random selection based on mileage: Weight = 1 / (mileage + 1)
+		const weightedPool = pool.map((q) => ({
+			question: q,
+			weight: 1 / (q.mileage + 1),
+		}));
+
+		const totalWeight = weightedPool.reduce(
+			(sum, item) => sum + item.weight,
+			0,
+		);
+		let random = Math.random() * totalWeight;
+
+		let q = pool[0]; // Fallback
+		for (const item of weightedPool) {
+			if (random < item.weight) {
+				q = item.question;
+				break;
+			}
+			random -= item.weight;
+		}
+
 		this.usedQuestionIds.push(q.id);
 		return q;
 	}
