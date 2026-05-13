@@ -19,7 +19,7 @@
 
 	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
 
-	onMount(async () => {
+	$effect(() => {
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((event, _session) => {
@@ -28,11 +28,13 @@
 			}
 		});
 
+		return () => subscription.unsubscribe();
+	});
+
+	onMount(async () => {
 		// On the client, we ensure the locale is loaded before showing translated content
 		await waitLocale();
 		i18nReady = true;
-
-		return () => subscription.unsubscribe();
 	});
 </script>
 
