@@ -1,6 +1,7 @@
 import newRound from './fixtures/new-round.json';
 import threeCorrect from './fixtures/three-correct.json';
 import streakActive from './fixtures/streak-active.json';
+import lastAnswer from './fixtures/last-answer.json';
 import finishedRound from './fixtures/finished-round.json';
 
 export const DEMO_SCENARIOS = [
@@ -24,6 +25,12 @@ export const DEMO_SCENARIOS = [
 		description:
 			'Ava has four correct answers and the wheel is electric on her turn.',
 		snapshot: streakActive,
+	},
+	{
+		id: 'last-answer',
+		title: 'The very last answer',
+		description: 'Only one answer left to reveal! The volcano is erupting.',
+		snapshot: lastAnswer,
 	},
 	{
 		id: 'finished-round',

@@ -1,0 +1,1 @@
+ALTER TABLE games ADD COLUMN volcano_rumble BOOLEAN DEFAULT FALSE;

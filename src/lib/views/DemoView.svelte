@@ -79,6 +79,11 @@
 <style>
 	.demo-game-shell {
 		position: relative;
+		width: 100%;
+		height: 100%;
+		min-height: 100svh;
+		display: grid;
+		place-items: center;
 	}
 
 	.demo-game-toolbar {

@@ -11,6 +11,7 @@
 		CircleDot,
 		SkipForward,
 	} from 'lucide-svelte';
+	import { game } from '$lib/game.svelte.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import LucideIcon from './LucideIcon.svelte';
 	import OverallScoreList from './OverallScoreList.svelte';
@@ -125,6 +126,26 @@
 			<section class="game-menu__section">
 				<h2 class="game-menu__heading">{$_('menu.overall_score')}</h2>
 				<OverallScoreList {players} />
+			</section>
+
+			<section class="game-menu__section">
+				<h2 class="game-menu__heading">{$_('menu.rules')}</h2>
+				<div class="rule-toggle">
+					<span class="rule-toggle__label"
+						>{$_('setup.volcano_rumble_label')}</span
+					>
+					<button
+						class="toggle"
+						class:toggle--on={game.volcanoRumble}
+						type="button"
+						role="switch"
+						aria-checked={game.volcanoRumble}
+						aria-label={$_('setup.volcano_rumble_label')}
+						onclick={() => game.toggleVolcanoRumble()}
+					>
+						<span class="toggle__thumb"></span>
+					</button>
+				</div>
 			</section>
 
 			<section class="game-menu__section game-menu__section--actions">
@@ -293,5 +314,51 @@
 		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
+	}
+
+	.rule-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.25rem 0;
+	}
+
+	.rule-toggle__label {
+		color: var(--palette-white);
+		font-size: var(--font-size-base);
+		font-weight: 500;
+	}
+
+	/* Toggle switch (reused from SetupRulesStep) */
+	.toggle {
+		position: relative;
+		flex-shrink: 0;
+		width: 2.5rem;
+		height: 1.45rem;
+		border: none;
+		border-radius: 999px;
+		background: var(--palette-gray-muted);
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+
+	.toggle--on {
+		background-color: var(--palette-purple-start);
+	}
+
+	.toggle__thumb {
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		width: 1.1rem;
+		height: 1.1rem;
+		border-radius: 50%;
+		background: var(--palette-white);
+		transition: transform 0.2s;
+	}
+
+	.toggle--on .toggle__thumb {
+		transform: translateX(1rem);
 	}
 </style>

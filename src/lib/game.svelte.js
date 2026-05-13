@@ -60,6 +60,7 @@
  *   usedQuestionIds: string[],
  *   currentRound: Round|null,
  *   turnTimerSeconds: number|null,
+ *   volcanoRumble: boolean,
  *   roundVote: boolean|null,
  * }} GameState
  *
@@ -101,6 +102,8 @@ export class Game {
 	currentRound = $state(null);
 	/** @type {number|null} */
 	turnTimerSeconds = $state(null);
+	/** @type {boolean} */
+	volcanoRumble = $state(false);
 	/** @type {boolean|null} Vote on current round's question quality: true=up, false=down, null=none */
 	roundVote = $state(null);
 	/** @type {boolean} True if a persistence operation is in progress */
@@ -247,6 +250,7 @@ export class Game {
 		this.usedQuestionIds =
 			demoGame.usedQuestionIds ?? (demoQuestion ? [demoQuestion.id] : []);
 		this.turnTimerSeconds = demoGame.turnTimerSeconds ?? null;
+		this.volcanoRumble = demoGame.volcanoRumble ?? false;
 		this.roundVote = null;
 		this.isSyncing = false;
 
@@ -315,6 +319,7 @@ export class Game {
 			this.selectedDeckIds = setup.selectedDeckIds;
 			this.usedQuestionIds = [firstQuestion.id];
 			this.turnTimerSeconds = setup.turnTimerSeconds ?? null;
+			this.volcanoRumble = setup.volcanoRumble ?? false;
 			this.roundVote = null;
 			this.currentRound = {
 				roundNumber: 1,
@@ -612,6 +617,19 @@ export class Game {
 		this.roundVote = vote;
 	}
 
+	toggleVolcanoRumble() {
+		this.volcanoRumble = !this.volcanoRumble;
+		if (this.dbGameId) {
+			this.isSyncing = true;
+			this.adapter
+				.syncGameState(this)
+				.catch(console.error)
+				.finally(() => {
+					this.isSyncing = false;
+				});
+		}
+	}
+
 	startNextRound() {
 		if (this.status === 'playing') return;
 
@@ -687,6 +705,7 @@ export class Game {
 			this.selectedDeckIds = state.selectedDeckIds;
 			this.usedQuestionIds = state.usedQuestionIds;
 			this.turnTimerSeconds = state.turnTimerSeconds ?? null;
+			this.volcanoRumble = state.volcanoRumble ?? false;
 			this.roundVote = null;
 			this.currentRound = state.currentRound;
 

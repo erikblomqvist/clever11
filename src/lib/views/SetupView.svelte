@@ -14,7 +14,7 @@
 
 	/**
 	 * @typedef {{ name: string, icon: string, color: string, seatPosition: number|null, turnOrder: number|null }} SetupPlayer
-	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds: number|null }} GameSetup
+	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds: number|null, volcanoRumble: boolean }} GameSetup
 	 */
 
 	// --- Navigation ---
@@ -203,6 +203,7 @@
 	// --- Rules step ---
 	let timerEnabled = $state(false);
 	let timerSeconds = $state(60);
+	let volcanoRumble = $state(false);
 
 	// --- Starting player step ---
 	let startingPlayerIdx = $state(/** @type {number|null} */ (null));
@@ -222,6 +223,7 @@
 			selectedDeckIds,
 			startingPlayerIndex: idx,
 			turnTimerSeconds: timerEnabled ? timerSeconds : null,
+			volcanoRumble,
 		});
 	}
 </script>
@@ -278,7 +280,11 @@
 		primaryDisabled={timerEnabled &&
 			(!timerSeconds || timerSeconds < 10 || timerSeconds > 600)}
 	>
-		<SetupRulesStep bind:timerEnabled bind:timerSeconds />
+		<SetupRulesStep
+			bind:timerEnabled
+			bind:timerSeconds
+			bind:volcanoRumble
+		/>
 	</SetupStepShell>
 {:else if step === 'starting'}
 	<SetupStepShell

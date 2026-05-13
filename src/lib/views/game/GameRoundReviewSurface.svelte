@@ -95,6 +95,7 @@
 			blobs={reviewBlobStates}
 			seatRotation={interactiveSeatRotation}
 			{rotationDurationMs}
+			volcanoRumbleEnabled={game.volcanoRumble}
 			{onblobclick}
 		/>
 	{/if}

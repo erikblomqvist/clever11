@@ -57,7 +57,9 @@
 		"rules_title": "Rules",
 		"turn_timer_label": "Turn timer",
 		"turn_timer_description": "Limit each turn to a fixed number of seconds. If time runs out, the player automatically passes.",
-		"turn_timer_seconds": "{n} seconds"
+		"turn_timer_seconds": "{n} seconds",
+		"volcano_rumble_label": "Volcano Rumble",
+		"volcano_rumble_description": "When only one answer remains, the blob will shake intensely to build suspense."
 	},
 	"game": {
 		"save_alert": "Game code: {code} (copied to clipboard)\n\nYour game is saved automatically after each move.",
@@ -81,6 +83,7 @@
 		"turn": "{name}'s turn",
 		"current_round": "Current round",
 		"overall_score": "Overall score",
+		"rules": "Rules",
 		"general_actions": "General actions",
 		"undo_last_move": "Undo last move",
 		"save_game": "Save game",

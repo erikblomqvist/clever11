@@ -279,6 +279,7 @@ export async function syncGameState(game) {
 				used_question_ids: game.usedQuestionIds,
 				current_player_id: currentPlayerDbId,
 				current_round_id: roundDbId,
+				volcano_rumble: game.volcanoRumble,
 			})
 			.eq('id', game.dbGameId),
 
@@ -435,6 +436,7 @@ export async function persistNewGame(game) {
 				current_round: 1,
 				win_score: game.winScore,
 				turn_timer_seconds: game.turnTimerSeconds ?? null,
+				volcano_rumble: game.volcanoRumble,
 			})
 			.select('id')
 			.single();
@@ -592,6 +594,7 @@ export async function persistQuestionVote(game) {
  *   usedQuestionIds: string[],
  *   currentRound: Round|null,
  *   turnTimerSeconds: number|null,
+ *   volcanoRumble: boolean,
  *   questionPool: GameQuestion[],
  * }>}
  */
@@ -696,6 +699,7 @@ export async function loadGame(code) {
 		),
 		currentRound,
 		turnTimerSeconds: gameRow.turn_timer_seconds ?? null,
+		volcanoRumble: gameRow.volcano_rumble ?? false,
 		questionPool,
 	};
 }

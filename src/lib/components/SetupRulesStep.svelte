@@ -5,54 +5,92 @@
 	 * @type {{
 	 *   timerEnabled: boolean,
 	 *   timerSeconds: number,
+	 *   volcanoRumble: boolean,
 	 * }}
 	 */
-	let { timerEnabled = $bindable(), timerSeconds = $bindable() } = $props();
+	let {
+		timerEnabled = $bindable(),
+		timerSeconds = $bindable(),
+		volcanoRumble = $bindable(),
+	} = $props();
 </script>
 
-<div class="rule-card">
-	<div class="rule-card__header">
-		<div class="rule-card__text">
-			<span class="rule-card__label">{$_('setup.turn_timer_label')}</span>
-			<span class="rule-card__desc"
-				>{$_('setup.turn_timer_description')}</span
+<div class="rules-stack">
+	<div class="rule-card">
+		<div class="rule-card__header">
+			<div class="rule-card__text">
+				<span class="rule-card__label"
+					>{$_('setup.turn_timer_label')}</span
+				>
+				<span class="rule-card__desc"
+					>{$_('setup.turn_timer_description')}</span
+				>
+			</div>
+			<button
+				class="toggle"
+				class:toggle--on={timerEnabled}
+				type="button"
+				role="switch"
+				aria-checked={timerEnabled}
+				aria-label={$_('setup.turn_timer_label')}
+				onclick={() => (timerEnabled = !timerEnabled)}
 			>
+				<span class="toggle__thumb"></span>
+			</button>
 		</div>
-		<button
-			class="toggle"
-			class:toggle--on={timerEnabled}
-			type="button"
-			role="switch"
-			aria-checked={timerEnabled}
-			aria-label={$_('setup.turn_timer_label')}
-			onclick={() => (timerEnabled = !timerEnabled)}
-		>
-			<span class="toggle__thumb"></span>
-		</button>
+
+		{#if timerEnabled}
+			<div class="rule-card__body">
+				<label class="seconds-field">
+					<input
+						class="seconds-field__input"
+						type="number"
+						min="10"
+						max="600"
+						required
+						bind:value={timerSeconds}
+					/>
+					<span class="seconds-field__unit"
+						>{$_('setup.turn_timer_seconds', {
+							values: { n: timerSeconds },
+						})}</span
+					>
+				</label>
+			</div>
+		{/if}
 	</div>
 
-	{#if timerEnabled}
-		<div class="rule-card__body">
-			<label class="seconds-field">
-				<input
-					class="seconds-field__input"
-					type="number"
-					min="10"
-					max="600"
-					required
-					bind:value={timerSeconds}
-				/>
-				<span class="seconds-field__unit"
-					>{$_('setup.turn_timer_seconds', {
-						values: { n: timerSeconds },
-					})}</span
+	<div class="rule-card">
+		<div class="rule-card__header">
+			<div class="rule-card__text">
+				<span class="rule-card__label"
+					>{$_('setup.volcano_rumble_label')}</span
 				>
-			</label>
+				<span class="rule-card__desc"
+					>{$_('setup.volcano_rumble_description')}</span
+				>
+			</div>
+			<button
+				class="toggle"
+				class:toggle--on={volcanoRumble}
+				type="button"
+				role="switch"
+				aria-checked={volcanoRumble}
+				aria-label={$_('setup.volcano_rumble_label')}
+				onclick={() => (volcanoRumble = !volcanoRumble)}
+			>
+				<span class="toggle__thumb"></span>
+			</button>
 		</div>
-	{/if}
+	</div>
 </div>
 
 <style>
+	.rules-stack {
+		display: grid;
+		gap: 1rem;
+	}
+
 	.rule-card {
 		border: 2px solid var(--palette-purple-start);
 		border-radius: 0.625rem;

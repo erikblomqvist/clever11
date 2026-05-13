@@ -57,7 +57,9 @@
 		"rules_title": "Regler",
 		"turn_timer_label": "Tidsbegrensning per tur",
 		"turn_timer_description": "Begrens hver tur til et fast antall sekunder. Hvis tiden går ut, passer spilleren automatisk.",
-		"turn_timer_seconds": "{n} sekunder"
+		"turn_timer_seconds": "{n} sekunder",
+		"volcano_rumble_label": "Vulkanrumling",
+		"volcano_rumble_description": "Når bare ett svar gjenstår, vil boblen riste intenst for å skape spenning."
 	},
 	"game": {
 		"save_alert": "Spillkode: {code} (kopiert til utklippstavlen)\n\nSpillet ditt lagres automatisk etter hvert trekk.",
@@ -81,6 +83,7 @@
 		"turn": "{name}s tur",
 		"current_round": "Nåværende runde",
 		"overall_score": "Totalpoeng",
+		"rules": "Regler",
 		"general_actions": "Generelle handlinger",
 		"undo_last_move": "Angre siste trekk",
 		"save_game": "Lagre spill",

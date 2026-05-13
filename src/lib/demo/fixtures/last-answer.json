@@ -1,0 +1,119 @@
+{
+	"status": "playing",
+	"code": "DEMO2",
+	"winScore": 50,
+	"players": [
+		{
+			"id": "player-0",
+			"dbId": null,
+			"name": "Ava",
+			"icon": "Crown",
+			"color": "player-color-1",
+			"seatPosition": 0,
+			"turnOrder": 0,
+			"totalScore": 8,
+			"roundScore": 3,
+			"status": "active"
+		},
+		{
+			"id": "player-1",
+			"dbId": null,
+			"name": "Bo",
+			"icon": "Car",
+			"color": "player-color-2",
+			"seatPosition": 2,
+			"turnOrder": 1,
+			"totalScore": 6,
+			"roundScore": 1,
+			"status": "active"
+		},
+		{
+			"id": "player-2",
+			"dbId": null,
+			"name": "Cleo",
+			"icon": "Dog",
+			"color": "player-color-3",
+			"seatPosition": 4,
+			"turnOrder": 2,
+			"totalScore": 5,
+			"roundScore": 0,
+			"status": "passed"
+		},
+		{
+			"id": "player-3",
+			"dbId": null,
+			"name": "Dani",
+			"icon": "Rocket",
+			"color": "player-color-4",
+			"seatPosition": 6,
+			"turnOrder": 3,
+			"totalScore": 3,
+			"roundScore": 0,
+			"status": "active"
+		}
+	],
+	"currentPlayerId": "player-1",
+	"startingTurnOrderIndex": 0,
+	"selectedDeckIds": [],
+	"usedQuestionIds": ["demo-three-correct"],
+	"volcanoRumble": true,
+	"currentRound": {
+		"roundNumber": 2,
+		"question": {
+			"id": "demo-three-correct",
+			"type": "boolean",
+			"text": "Is the statement about space true?",
+			"deck": "Demo Deck",
+			"deckIcon": null,
+			"options": [
+				"The Moon has no liquid water oceans",
+				"Venus is hotter than Mercury on average",
+				"Mars has two moons",
+				"Jupiter is the largest planet",
+				"Saturn has no rings",
+				"Neptune is visible to the naked eye",
+				"Earth has one natural moon",
+				"The Sun is a star",
+				"Pluto is larger than Earth",
+				"Comets can have tails"
+			],
+			"correctAnswers": [
+				true,
+				true,
+				true,
+				true,
+				false,
+				false,
+				true,
+				true,
+				false,
+				true
+			],
+			"answerMedia": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+		},
+		"answeredBlobs": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+		"blobResults": {
+			"0": true,
+			"1": true,
+			"2": true,
+			"3": true,
+			"4": true,
+			"5": true,
+			"6": true,
+			"7": true,
+			"8": true
+		},
+		"lastPlayerId": "player-0",
+		"dbId": null,
+		"lastAnswerMove": {
+			"blobIndex": 4,
+			"playerId": "player-0",
+			"previousRoundScore": 2,
+			"previousStatus": "active",
+			"previousCurrentPlayerId": "player-0",
+			"previousLastPlayerId": "player-3",
+			"answerId": null,
+			"deleteWhenPersisted": false
+		}
+	}
+}

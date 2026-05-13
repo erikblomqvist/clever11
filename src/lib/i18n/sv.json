@@ -57,7 +57,9 @@
 		"rules_title": "Regler",
 		"turn_timer_label": "Tidsgräns per tur",
 		"turn_timer_description": "Begränsa varje tur till ett fast antal sekunder. Om tiden tar slut passar spelaren automatiskt.",
-		"turn_timer_seconds": "{n} sekunder"
+		"turn_timer_seconds": "{n} sekunder",
+		"volcano_rumble_label": "Vulkanrummel",
+		"volcano_rumble_description": "När bara ett svar återstår börjar bubblan skaka intensivt för att öka spänningen."
 	},
 	"game": {
 		"save_alert": "Spelkod: {code} (kopierad till urklipp)\n\nDitt spel sparas automatiskt efter varje drag.",
@@ -81,6 +83,7 @@
 		"turn": "{name}s tur",
 		"current_round": "Aktuell runda",
 		"overall_score": "Totalpoäng",
+		"rules": "Regler",
 		"general_actions": "Allmänna åtgärder",
 		"undo_last_move": "Ångra senaste draget",
 		"save_game": "Spara spel",

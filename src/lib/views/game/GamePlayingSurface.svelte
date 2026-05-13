@@ -5,6 +5,7 @@
 	import UndoLastMoveDialog from '$lib/components/UndoLastMoveDialog.svelte';
 	import TurnTimerBorder from '$lib/components/TurnTimerBorder.svelte';
 	import GameActionButton from './GameActionButton.svelte';
+	import { game } from '$lib/game.svelte.js';
 
 	/**
 	 * @type {{
@@ -137,6 +138,7 @@
 			{streakColor}
 			{streakBurstKey}
 			{undoableBlobIndex}
+			volcanoRumbleEnabled={game.volcanoRumble}
 			onblobclick={streakCelebrationActive ? undefined : onblobclick}
 			onundoblobclick={streakCelebrationActive
 				? undefined

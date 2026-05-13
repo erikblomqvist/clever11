@@ -18,6 +18,7 @@
 	 *   streakColor?: string,
 	 *   streakBurstKey?: number,
 	 *   undoableBlobIndex?: number|null,
+	 *   volcanoRumbleEnabled?: boolean,
 	 *   onblobclick?: (index: number) => void,
 	 *   onundoblobclick?: (index: number) => void,
 	 * }}
@@ -36,11 +37,20 @@
 		streakColor = 'var(--orange-700)',
 		streakBurstKey = 0,
 		undoableBlobIndex = null,
+		volcanoRumbleEnabled = false,
 		onblobclick,
 		onundoblobclick,
 	} = $props();
 
 	const answerBlobs = $derived(blobs ?? answers.map(() => null));
+	const unrevealedIndices = $derived(
+		answerBlobs
+			.map((blob, i) => (blob === null ? i : null))
+			.filter((i) => i !== null),
+	);
+	const lastUnrevealedIndex = $derived(
+		unrevealedIndices.length === 1 ? unrevealedIndices[0] : null,
+	);
 	const questionTypeToken = $derived(
 		QUESTION_TYPES[questionType]?.cssToken ?? 'standard',
 	);
@@ -97,6 +107,8 @@
 <div
 	class="container"
 	class:container--streak={streakIsActive}
+	class:container--spotlight={lastUnrevealedIndex !== null &&
+		volcanoRumbleEnabled}
 	style="--seat-rotation:{seatRotation}turn;--rotation-duration-ms:{rotationDurationMs};--rotation-easing:{rotationEasing};--streak-color:{streakColor};--streak-intensity:{streakIntensity};--streak-ring-width:{streakRingWidth};--streak-spark-width:{streakSparkWidth};--streak-glow-opacity:{streakGlowOpacity};--streak-inner-glow-opacity:{streakInnerGlowOpacity};--streak-spark-opacity:{streakSparkOpacity};--streak-outer-blur:{streakOuterBlur};--streak-glow-blur:{streakGlowBlur};--streak-inset-glow-blur:{streakInsetGlowBlur}"
 >
 	{#if streakIsActive}
@@ -189,6 +201,8 @@
 				{questionType}
 				index={i + 1}
 				total={answerBlobs.length}
+				isLastUnrevealed={lastUnrevealedIndex === i &&
+					volcanoRumbleEnabled}
 				onreveal={blob === null ? () => onblobclick?.(i) : undefined}
 				onansweredclick={blob !== null && undoableBlobIndex === i
 					? () => onundoblobclick?.(i)
@@ -205,6 +219,7 @@
 				type="button"
 				popovertarget={getAnswerPopoverId(i)}
 				aria-label={`Show full answer: ${answer}`}
+				data-is-spotlight={lastUnrevealedIndex === i}
 				style="--index:{i + 1};--total:{answers.length}"
 			>
 				{#if usesImageOptions}
@@ -259,6 +274,31 @@
 		box-shadow:
 			inset -1px 2px 4px hsl(0 0% 0% / 0.25),
 			inset 3px -4px 10px 2px hsl(0 0% 0% / 0.25);
+	}
+
+	.container--spotlight {
+		background-color: hsl(0 0% 90%);
+	}
+
+	.container--spotlight :global(.blob:not([data-last-unrevealed='true'])) {
+		opacity: 0.4;
+		filter: grayscale(0.8) blur(0.5px);
+		transition:
+			opacity 0.5s ease,
+			filter 0.5s ease;
+	}
+
+	.container--spotlight .answer:not([data-is-spotlight='true']) {
+		opacity: 0.25;
+		filter: grayscale(1) blur(1px);
+		transition:
+			opacity 0.5s ease,
+			filter 0.5s ease;
+	}
+
+	.container--spotlight .answer[data-is-spotlight='true'] {
+		scale: 1.1;
+		transition: scale 0.5s ease;
 	}
 
 	.electric-filter-svg {

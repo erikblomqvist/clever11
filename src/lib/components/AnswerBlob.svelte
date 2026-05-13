@@ -9,6 +9,7 @@
 	 *   questionType?: import('$lib/data/questionTypes.js').QuestionType,
 	 *   index: number,
 	 *   total: number,
+	 *   isLastUnrevealed?: boolean,
 	 *   onreveal?: () => void,
 	 *   onansweredclick?: () => void,
 	 * }}
@@ -19,6 +20,7 @@
 		questionType,
 		index,
 		total,
+		isLastUnrevealed = false,
 		onreveal,
 		onansweredclick,
 	} = $props();
@@ -65,6 +67,7 @@
 			? 'color'
 			: 'text'}
 	data-question-type={questionType}
+	data-last-unrevealed={isLastUnrevealed}
 	style="--index:{index};--total:{total}{answerBackgroundColor
 		? `;--answer-background-color:${answerBackgroundColor}`
 		: ''}"
@@ -139,6 +142,59 @@
 				hsl(var(--hue) 10% 20%) 46%,
 				hsl(var(--hue) 10% 20% / 0) 50%
 			);
+	}
+
+	.blob[data-last-unrevealed='true']:not([data-answered='true']) {
+		z-index: 10;
+		scale: 1.15;
+		animation: volcano-rumble 0.6s linear infinite;
+	}
+
+	@keyframes volcano-rumble {
+		0% {
+			translate: 0 0;
+			rotate: 0deg;
+		}
+		10% {
+			translate: -4px -4px;
+			rotate: -3deg;
+		}
+		20% {
+			translate: 4px 0px;
+			rotate: 3deg;
+		}
+		30% {
+			translate: -4px 4px;
+			rotate: -1deg;
+		}
+		40% {
+			translate: 4px 4px;
+			rotate: 3deg;
+		}
+		50% {
+			translate: -4px -4px;
+			rotate: -3deg;
+		}
+		60% {
+			translate: 4px -4px;
+			rotate: 1deg;
+		}
+		70% {
+			translate: -4px 4px;
+			rotate: -3deg;
+		}
+		80% {
+			translate: 4px 0px;
+			rotate: 3deg;
+		}
+		90% {
+			translate: -4px -4px;
+			rotate: -1deg;
+		}
+		100% {
+			translate: 0 0;
+			rotate: 0deg;
+		}
 	}
 
 	.blob[data-answered='true'] {
