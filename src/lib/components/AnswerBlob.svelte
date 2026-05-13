@@ -115,8 +115,8 @@
 		color: inherit;
 		font: inherit;
 		line-height: 1;
-		width: calc(var(--container-size) / 8);
-		height: calc(var(--container-size) / 8);
+		width: calc(var(--container-size) / 6);
+		height: calc(var(--container-size) / 6);
 		transform: translate(-50%, -50%);
 		cursor: pointer;
 	}
