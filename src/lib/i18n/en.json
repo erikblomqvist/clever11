@@ -57,12 +57,12 @@
 		"rules_title": "Rules",
 		"turn_timer_label": "Turn timer",
 		"turn_timer_description": "Limit each turn to a fixed number of seconds. If time runs out, the player automatically passes.",
-		"turn_timer_seconds": "{n} seconds",
+		"turn_timer_seconds": "seconds",
 		"volcano_rumble_label": "Volcano Rumble",
 		"volcano_rumble_description": "When only one answer remains, the blob will shake intensely to build suspense.",
 		"win_score_label": "Winning score",
 		"win_score_description": "The first player to reach this many points wins the game.",
-		"win_score_points": "{n} points"
+		"win_score_points": "points"
 	},
 	"game": {
 		"save_alert": "Game code: {code} (copied to clipboard)\n\nYour game is saved automatically after each move.",

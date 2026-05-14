@@ -41,9 +41,7 @@
 					bind:value={winScore}
 				/>
 				<span class="seconds-field__unit"
-					>{$_('setup.win_score_points', {
-						values: { n: winScore },
-					})}</span
+					>{$_('setup.win_score_points')}</span
 				>
 			</label>
 		</div>
@@ -77,9 +75,7 @@
 						bind:value={timerSeconds}
 					/>
 					<span class="seconds-field__unit"
-						>{$_('setup.turn_timer_seconds', {
-							values: { n: timerSeconds },
-						})}</span
+						>{$_('setup.turn_timer_seconds')}</span
 					>
 				</label>
 			</div>

@@ -57,12 +57,12 @@
 		"rules_title": "Regler",
 		"turn_timer_label": "Tidsbegrensning per tur",
 		"turn_timer_description": "Begrens hver tur til et fast antall sekunder. Hvis tiden går ut, passer spilleren automatisk.",
-		"turn_timer_seconds": "{n} sekunder",
+		"turn_timer_seconds": "sekunder",
 		"volcano_rumble_label": "Vulkanrumling",
 		"volcano_rumble_description": "Når bare ett svar gjenstår, vil boblen riste intenst for å skape spenning.",
 		"win_score_label": "Vinnerpoeng",
 		"win_score_description": "Den første spilleren som når dette antall poeng vinner spillet.",
-		"win_score_points": "{n} poeng"
+		"win_score_points": "poeng"
 	},
 	"game": {
 		"save_alert": "Spillkode: {code} (kopiert til utklippstavlen)\n\nSpillet ditt lagres automatisk etter hvert trekk.",
