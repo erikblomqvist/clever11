@@ -6,3 +6,6 @@ self.addEventListener('install', () => {
 self.addEventListener('activate', (event) => {
 	event.waitUntil(self.clients.claim());
 });
+
+// No-op fetch handler — required by Chrome to qualify for the install prompt.
+self.addEventListener('fetch', () => {});
