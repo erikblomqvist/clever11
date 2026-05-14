@@ -1,6 +1,11 @@
 <script>
 	import { _ } from 'svelte-i18n';
-	import { PLAYER_ICONS, PLAYER_COLORS } from '$lib/playerIcons.js';
+	import {
+		BASE_PLAYER_ICONS,
+		PANTRY_ICONS,
+		MENAGERIE_ICONS,
+		PLAYER_COLORS,
+	} from '$lib/playerIcons.js';
 	import { supabase } from '$lib/supabase.js';
 	import SetupStepShell from '$lib/components/SetupStepShell.svelte';
 	import SetupPlayersStep from '$lib/components/SetupPlayersStep.svelte';
@@ -65,8 +70,19 @@
 	// --- Players step ---
 	let players = $state(/** @type {SetupPlayer[]} */ ([]));
 	let newName = $state('');
-	let newIcon = $state(PLAYER_ICONS[0].id);
+	let newIcon = $state(BASE_PLAYER_ICONS[0].id);
 	let newColor = $state(PLAYER_COLORS[0].id);
+
+	// Easter-egg unlock state — ephemeral, scoped to this setup session.
+	// Resets when SetupView unmounts (leaving setup); persists across
+	// step navigation within setup.
+	let pantryUnlocked = $state(false);
+	let menagerieUnlocked = $state(false);
+	const pickerIcons = $derived([
+		...BASE_PLAYER_ICONS,
+		...(pantryUnlocked ? PANTRY_ICONS : []),
+		...(menagerieUnlocked ? MENAGERIE_ICONS : []),
+	]);
 
 	const canAddPlayer = $derived(
 		newName.trim().length > 0 &&
@@ -105,10 +121,10 @@
 			},
 		];
 		newName = '';
-		const nextIcon = PLAYER_ICONS.find(
+		const nextIcon = pickerIcons.find(
 			(i) => !players.map((p) => p.icon).includes(i.id),
 		);
-		newIcon = nextIcon?.id ?? PLAYER_ICONS[0].id;
+		newIcon = nextIcon?.id ?? BASE_PLAYER_ICONS[0].id;
 		const nextColor = PLAYER_COLORS.find(
 			(c) => !players.map((p) => p.color).includes(c.id),
 		);
@@ -118,7 +134,7 @@
 	function removePlayer(/** @type {string} */ id) {
 		players = players.filter((p) => p.id !== id);
 		if (players.map((p) => p.icon).includes(newIcon)) {
-			const next = PLAYER_ICONS.find(
+			const next = pickerIcons.find(
 				(i) => !players.map((p) => p.icon).includes(i.id),
 			);
 			if (next) newIcon = next.id;
@@ -256,6 +272,8 @@
 			bind:newName
 			bind:newIcon
 			bind:newColor
+			bind:pantryUnlocked
+			bind:menagerieUnlocked
 			{canAddPlayer}
 			onaddplayer={addPlayer}
 			onremoveplayer={removePlayer}

@@ -5,10 +5,15 @@
 	import { Plus, X } from 'lucide-svelte';
 	import Button from './Button.svelte';
 	import {
-		PLAYER_ICONS,
+		BASE_PLAYER_ICONS,
+		PANTRY_ICONS,
+		MENAGERIE_ICONS,
 		PLAYER_COLORS,
 		getPlayerIconComponent,
 	} from '$lib/playerIcons.js';
+	import { pinchUnlock } from '$lib/actions/pinchUnlock.js';
+	import { secretCode } from '$lib/actions/secretCode.js';
+	import { playSparkleChime, playWhooshDing } from '$lib/celebrationAudio.js';
 
 	/**
 	 * @type {{
@@ -16,6 +21,8 @@
 	 *   newName: string,
 	 *   newIcon: string,
 	 *   newColor: string,
+	 *   pantryUnlocked: boolean,
+	 *   menagerieUnlocked: boolean,
 	 *   canAddPlayer: boolean,
 	 *   onaddplayer: () => void,
 	 *   onremoveplayer: (id: string) => void,
@@ -26,10 +33,73 @@
 		newName = $bindable(),
 		newIcon = $bindable(),
 		newColor = $bindable(),
+		pantryUnlocked = $bindable(),
+		menagerieUnlocked = $bindable(),
 		canAddPlayer,
 		onaddplayer,
 		onremoveplayer,
 	} = $props();
+
+	const MAGIC_CODE = ['Moon', 'Anchor', 'Ghost', 'IceCreamCone', 'Crown'];
+
+	const pickerIcons = $derived([
+		...BASE_PLAYER_ICONS,
+		...(pantryUnlocked ? PANTRY_ICONS : []),
+		...(menagerieUnlocked ? MENAGERIE_ICONS : []),
+	]);
+
+	/** @type {Set<string>} */
+	const newlyUnlockedIds = new SvelteSet();
+	let pickerGlow = $state(/** @type {null | 'gold' | 'iridescent'} */ (null));
+	let wiggleActivePlayer = $state(false);
+	/** @type {string | null} */
+	let shakeNoIconId = $state(null);
+
+	function celebrate(/** @type {'pinch' | 'magic'} */ kind) {
+		const newIds = (kind === 'pinch' ? PANTRY_ICONS : MENAGERIE_ICONS).map(
+			(i) => i.id,
+		);
+		newIds.forEach((id) => newlyUnlockedIds.add(id));
+		pickerGlow = kind === 'pinch' ? 'iridescent' : 'gold';
+		if (kind === 'pinch') playWhooshDing();
+		else playSparkleChime();
+
+		// Clear the "newly unlocked" cascade markers once the entrance
+		// animations have run.
+		setTimeout(() => {
+			newIds.forEach((id) => newlyUnlockedIds.delete(id));
+		}, 1200);
+		setTimeout(() => {
+			pickerGlow = null;
+		}, 1000);
+	}
+
+	function handlePinchUnlock() {
+		if (pantryUnlocked) return;
+		pantryUnlocked = true;
+		celebrate('pinch');
+	}
+
+	function handleMagicUnlock() {
+		if (menagerieUnlocked) return;
+		menagerieUnlocked = true;
+		celebrate('magic');
+		wiggleActivePlayer = true;
+		setTimeout(() => {
+			wiggleActivePlayer = false;
+		}, 600);
+	}
+
+	function handleSecretTap(/** @type {string} */ id) {
+		// If this tap targeted an icon that's already used by another player,
+		// give visual "I heard you but can't pick that" feedback.
+		if (usedIcons.includes(id)) {
+			shakeNoIconId = id;
+			setTimeout(() => {
+				if (shakeNoIconId === id) shakeNoIconId = null;
+			}, 300);
+		}
+	}
 
 	/** @type {string | null} */
 	let activePlayerId = $state(null);
@@ -67,7 +137,7 @@
 			const p = players.find((p) => p.id === activePlayerId);
 			if (p) p.icon = id;
 			if (newIcon === id) {
-				const next = PLAYER_ICONS.find(
+				const next = pickerIcons.find(
 					(i) => !players.some((pp) => pp.icon === i.id),
 				);
 				if (next) newIcon = next.id;
@@ -128,21 +198,45 @@
 	const NewIconComp = $derived(getPlayerIconComponent(newIcon));
 </script>
 
-<div class="icon-picker" role="group" aria-label="Choose icon">
-	{#each PLAYER_ICONS as { id, component: IconComp } (id)}
-		<button
-			class="icon-option"
-			class:icon-option--active={activeIcon === id}
-			class:icon-option--used={usedIcons.includes(id)}
-			onclick={() => selectIcon(id)}
-			type="button"
-			aria-label={id}
-			aria-pressed={activeIcon === id}
-			disabled={usedIcons.includes(id)}
-		>
-			<IconComp size={20} />
-		</button>
-	{/each}
+<div
+	class="icon-picker-wrap"
+	use:pinchUnlock={{ threshold: 2.0, onunlock: handlePinchUnlock }}
+	use:secretCode={{
+		code: MAGIC_CODE,
+		onmatch: handleMagicUnlock,
+		ontap: handleSecretTap,
+	}}
+>
+	<div
+		class="icon-picker"
+		class:icon-picker--glow-gold={pickerGlow === 'gold'}
+		class:icon-picker--glow-iridescent={pickerGlow === 'iridescent'}
+		role="group"
+		aria-label="Choose icon"
+	>
+		{#each pickerIcons as { id, component: IconComp } (id)}
+			<button
+				class="icon-option"
+				class:icon-option--active={activeIcon === id}
+				class:icon-option--used={usedIcons.includes(id)}
+				class:icon-option--unlocking={newlyUnlockedIds.has(id)}
+				class:icon-option--shake-no={shakeNoIconId === id}
+				style:--cascade-delay="{newlyUnlockedIds.has(id)
+					? PANTRY_ICONS.findIndex((p) => p.id === id) >= 0
+						? PANTRY_ICONS.findIndex((p) => p.id === id) * 50
+						: MENAGERIE_ICONS.findIndex((m) => m.id === id) * 50
+					: 0}ms"
+				onclick={() => selectIcon(id)}
+				type="button"
+				aria-label={id}
+				aria-pressed={activeIcon === id}
+				aria-disabled={usedIcons.includes(id)}
+				data-secret-id={id}
+			>
+				<IconComp size={20} />
+			</button>
+		{/each}
+	</div>
 </div>
 
 <div class="color-picker" role="group" aria-label="Choose color">
@@ -176,6 +270,7 @@
 		>
 			<button
 				class="player-avatar"
+				class:player-avatar--wiggle={wiggleActivePlayer && active}
 				style:--player-ring="var(--{player.color})"
 				onclick={() => (activePlayerId = player.id)}
 				type="button"
@@ -211,6 +306,8 @@
 		>
 			<button
 				class="player-avatar"
+				class:player-avatar--wiggle={wiggleActivePlayer &&
+					activePlayerId === null}
 				style:--player-ring="var(--{newColor})"
 				onclick={() => {
 					activePlayerId = null;
@@ -253,11 +350,38 @@
 {/if}
 
 <style>
+	.icon-picker-wrap {
+		/* Invisible expanded hit area around the picker so fingers that
+		   land just outside still trigger the pinch unlock. */
+		padding: 0.75rem;
+		margin: -0.75rem;
+		touch-action: none;
+	}
+
 	.icon-picker,
 	.color-picker {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5rem;
+	}
+
+	.icon-picker {
+		border-radius: 0.75rem;
+		padding: 0.25rem;
+		margin: -0.25rem;
+		transition: box-shadow 350ms ease-out;
+	}
+
+	.icon-picker--glow-gold {
+		box-shadow:
+			0 0 0 2px hsl(45 100% 60% / 0.6),
+			0 0 32px 4px hsl(45 100% 60% / 0.45);
+	}
+
+	.icon-picker--glow-iridescent {
+		box-shadow:
+			0 0 0 2px hsl(280 90% 70% / 0.6),
+			0 0 32px 4px hsl(280 90% 70% / 0.45);
 	}
 
 	.icon-option {
@@ -280,7 +404,7 @@
 			scale: 0.97;
 		}
 
-		&:not(:disabled) {
+		&:not([aria-disabled='true']) {
 			&:not(.icon-option--active):hover {
 				border-color: var(--palette-white);
 			}
@@ -301,6 +425,74 @@
 	.icon-option--used {
 		opacity: 0.3;
 		cursor: not-allowed;
+	}
+
+	.icon-option--unlocking {
+		animation: icon-cascade-in 400ms ease-out backwards;
+		animation-delay: var(--cascade-delay, 0ms);
+	}
+
+	@keyframes icon-cascade-in {
+		from {
+			opacity: 0;
+			scale: 0.4;
+		}
+		60% {
+			opacity: 1;
+			scale: 1.15;
+		}
+		to {
+			opacity: 1;
+			scale: 1;
+		}
+	}
+
+	.icon-option--shake-no {
+		animation: icon-shake-no 280ms ease-in-out;
+	}
+
+	@keyframes icon-shake-no {
+		0%,
+		100% {
+			translate: 0;
+		}
+		25% {
+			translate: -4px 0;
+		}
+		50% {
+			translate: 4px 0;
+		}
+		75% {
+			translate: -3px 0;
+		}
+	}
+
+	.player-avatar--wiggle {
+		animation: avatar-wiggle 500ms ease-in-out;
+	}
+
+	@keyframes avatar-wiggle {
+		0%,
+		100% {
+			rotate: 0deg;
+			scale: 1;
+		}
+		20% {
+			rotate: -14deg;
+			scale: 1.15;
+		}
+		40% {
+			rotate: 12deg;
+			scale: 1.15;
+		}
+		60% {
+			rotate: -10deg;
+			scale: 1.1;
+		}
+		80% {
+			rotate: 6deg;
+			scale: 1.05;
+		}
 	}
 
 	.color-option {
