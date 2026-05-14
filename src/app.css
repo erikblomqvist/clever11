@@ -82,6 +82,10 @@
 	--color-magenta: lch(60% 70 332);
 	--color-rose: lch(72% 48 5);
 
+	--color-gold: lch(85% 83 86);
+	--color-silver: lch(80% 0 0);
+	--color-bronze: lch(61% 60 62);
+
 	--player-color-1: var(--color-coral);
 	--player-color-2: var(--color-indigo);
 	--player-color-3: var(--color-mint);

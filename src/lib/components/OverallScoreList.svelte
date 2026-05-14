@@ -204,7 +204,7 @@
 		color: var(--grayscale-900);
 
 		&[data-podium-rank='first'] {
-			--podium-color: lch(85% 83 86);
+			--podium-color: var(--color-gold);
 			order: 2;
 
 			& .overall-score-list__podium-icon {
@@ -214,13 +214,13 @@
 		}
 
 		&[data-podium-rank='second'] {
-			--podium-color: lch(80% 0 0);
+			--podium-color: var(--color-silver);
 			order: 1;
 			margin-block-start: 0.5rem;
 		}
 
 		&[data-podium-rank='third'] {
-			--podium-color: lch(61% 60 62);
+			--podium-color: var(--color-bronze);
 			order: 3;
 			margin-block-start: 0.5rem;
 		}

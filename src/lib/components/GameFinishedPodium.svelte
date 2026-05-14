@@ -99,7 +99,7 @@
 		{#each sortedPlayers as player, i (player.id)}
 			{@const Icon = getPlayerIconComponent(player.icon)}
 			{@const rank = getRank(i)}
-			<li class="podium__list-item">
+			<li class="podium__list-item" data-rank={rank}>
 				<span class="podium__rank">#{rank}</span>
 				<span class="podium__icon" aria-hidden="true">
 					{#if Icon}<Icon size={16} />{/if}
@@ -226,13 +226,18 @@
 	}
 
 	.podium__list-item {
+		--podium-rank-color: hsl(0 0% 100% / 0.06);
 		display: grid;
 		grid-template-columns: 2rem 1.75rem 1fr auto;
 		align-items: center;
 		gap: 0.5rem;
 		padding: 0.6rem 0.875rem;
 		border-radius: 0.5rem;
-		background: hsl(0 0% 100% / 0.06);
+		background-color: color-mix(
+			in oklch,
+			hsl(0 0% 100% / 0.06) 72%,
+			var(--podium-rank-color)
+		);
 		font-family: var(--font-family-body);
 		font-size: var(--font-size-lg);
 		font-weight: 600;
@@ -253,5 +258,32 @@
 	.podium__score {
 		color: hsl(0 0% 100% / 0.5);
 		font-size: var(--font-size-md);
+	}
+
+	.podium__list-item[data-rank='1'] {
+		--podium-rank-color: var(--color-gold);
+	}
+
+	.podium__list-item[data-rank='2'] {
+		--podium-rank-color: var(--color-silver);
+	}
+
+	.podium__list-item[data-rank='3'] {
+		--podium-rank-color: var(--color-bronze);
+	}
+
+	.podium__list-item[data-rank='1']
+		:is(.podium__rank, .podium__icon, .podium__score) {
+		color: var(--color-gold);
+	}
+
+	.podium__list-item[data-rank='2']
+		:is(.podium__rank, .podium__icon, .podium__score) {
+		color: var(--color-silver);
+	}
+
+	.podium__list-item[data-rank='3']
+		:is(.podium__rank, .podium__icon, .podium__score) {
+		color: var(--color-bronze);
 	}
 </style>

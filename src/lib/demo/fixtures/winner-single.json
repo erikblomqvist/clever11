@@ -35,6 +35,17 @@
 			"totalScore": 30,
 			"roundScore": 0,
 			"status": "active"
+		},
+		{
+			"id": "player-3",
+			"name": "Daisy",
+			"icon": "Ghost",
+			"color": "player-color-4",
+			"seatPosition": 6,
+			"turnOrder": 3,
+			"totalScore": 20,
+			"roundScore": 0,
+			"status": "active"
 		}
 	],
 	"currentPlayerId": null,
