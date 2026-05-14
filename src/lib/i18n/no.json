@@ -143,6 +143,7 @@
 		"no": "Nei"
 	},
 	"app": {
+		"setup": "Spillinstillinger",
 		"loading_aria": "Laster",
 		"load_error": "Kunne ikke laste spillet."
 	}

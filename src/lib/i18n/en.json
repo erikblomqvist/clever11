@@ -143,6 +143,7 @@
 		"no": "No"
 	},
 	"app": {
+		"setup": "Game setup",
 		"loading_aria": "Loading",
 		"load_error": "Could not load game."
 	}

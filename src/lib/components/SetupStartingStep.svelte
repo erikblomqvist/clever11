@@ -21,8 +21,8 @@
 </script>
 
 <ul class="starting-list" role="list">
-	{#each sortedPlayers as player (player.name)}
-		{@const idx = players.findIndex((p) => p.name === player.name)}
+	{#each sortedPlayers as player (player.id)}
+		{@const idx = players.findIndex((p) => p.id === player.id)}
 		{@const Icon = getPlayerIconComponent(player.icon)}
 		<li>
 			<button

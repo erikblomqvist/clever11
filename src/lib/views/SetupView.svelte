@@ -13,7 +13,7 @@
 	let { oninit, onback } = $props();
 
 	/**
-	 * @typedef {{ name: string, icon: string, color: string, seatPosition: number|null, turnOrder: number|null }} SetupPlayer
+	 * @typedef {{ id: string, name: string, icon: string, color: string, seatPosition: number|null, turnOrder: number|null }} SetupPlayer
 	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds: number|null, volcanoRumble: boolean, winScore: number }} GameSetup
 	 */
 
@@ -68,14 +68,26 @@
 	let newIcon = $state(PLAYER_ICONS[0].id);
 	let newColor = $state(PLAYER_COLORS[0].id);
 
-	const usedIcons = $derived(players.map((p) => p.icon));
-	const usedColors = $derived(players.map((p) => p.color));
 	const canAddPlayer = $derived(
 		newName.trim().length > 0 &&
 			!players.some(
-				(p) => p.name.toLowerCase() === newName.trim().toLowerCase(),
+				(p) =>
+					p.name.trim().toLowerCase() ===
+					newName.trim().toLowerCase(),
 			) &&
 			players.length < 8,
+	);
+	const allPlayersValid = $derived(
+		players.every((p) => {
+			const trimmed = p.name.trim();
+			if (!trimmed) return false;
+			const lower = trimmed.toLowerCase();
+			return !players.some(
+				(other) =>
+					other.id !== p.id &&
+					other.name.trim().toLowerCase() === lower,
+			);
+		}),
 	);
 
 	function addPlayer() {
@@ -84,6 +96,7 @@
 		players = [
 			...players,
 			{
+				id: crypto.randomUUID(),
 				name,
 				icon: newIcon,
 				color: newColor,
@@ -102,8 +115,8 @@
 		newColor = nextColor?.id ?? PLAYER_COLORS[0].id;
 	}
 
-	function removePlayer(/** @type {string} */ name) {
-		players = players.filter((p) => p.name !== name);
+	function removePlayer(/** @type {string} */ id) {
+		players = players.filter((p) => p.id !== id);
 		if (players.map((p) => p.icon).includes(newIcon)) {
 			const next = PLAYER_ICONS.find(
 				(i) => !players.map((p) => p.icon).includes(i.id),
@@ -144,7 +157,7 @@
 			);
 			players = players.map((p) => ({
 				...p,
-				turnOrder: sorted.findIndex((s) => s.name === p.name),
+				turnOrder: sorted.findIndex((s) => s.id === p.id),
 			}));
 			navigateStep('decks');
 		}
@@ -236,15 +249,13 @@
 		onback={goBack}
 		primaryLabel={$_('setup.continue')}
 		onprimary={goToSeating}
-		primaryDisabled={players.length < 2}
+		primaryDisabled={players.length < 2 || !allPlayersValid}
 	>
 		<SetupPlayersStep
-			{players}
+			bind:players
 			bind:newName
 			bind:newIcon
 			bind:newColor
-			{usedIcons}
-			{usedColors}
 			{canAddPlayer}
 			onaddplayer={addPlayer}
 			onremoveplayer={removePlayer}

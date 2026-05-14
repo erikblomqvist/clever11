@@ -143,6 +143,7 @@
 		"no": "Nej"
 	},
 	"app": {
+		"setup": "Spelinställningar",
 		"loading_aria": "Laddar",
 		"load_error": "Kunde inte ladda spelet."
 	}
