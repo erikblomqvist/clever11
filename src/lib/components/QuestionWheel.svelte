@@ -693,8 +693,9 @@
 		max-width: 100%;
 		padding-inline: 0.35em;
 
-		font-size: clamp(0.75rem, calc(var(--container-size) * 0.035), 1rem);
+		font-size: clamp(0.75rem, calc(var(--container-size) * 0.035), 0.875rem);
 		line-height: 1.1;
+		hyphens: manual;
 		text-wrap: balance;
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
