@@ -146,54 +146,28 @@
 
 	.blob[data-last-unrevealed='true']:not([data-answered='true']) {
 		z-index: 10;
+
 		scale: 1.15;
-		animation: volcano-rumble 0.6s linear infinite;
+		animation: volcano-rumble 1.5s ease-in-out infinite;
+		transform-origin: top left;
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: -2cqi;
+			z-index: -1;
+
+			border-radius: inherit;
+			border: 1px dashed color-mix(in oklab, var(--color-amber) 70%, transparent);
+		}
 	}
 
 	@keyframes volcano-rumble {
-		0% {
-			translate: 0 0;
-			rotate: 0deg;
-		}
-		10% {
-			translate: -4px -4px;
-			rotate: -3deg;
-		}
-		20% {
-			translate: 4px 0px;
-			rotate: 3deg;
-		}
-		30% {
-			translate: -4px 4px;
-			rotate: -1deg;
-		}
-		40% {
-			translate: 4px 4px;
-			rotate: 3deg;
+		0%, 100% {
+			scale: 1;
 		}
 		50% {
-			translate: -4px -4px;
-			rotate: -3deg;
-		}
-		60% {
-			translate: 4px -4px;
-			rotate: 1deg;
-		}
-		70% {
-			translate: -4px 4px;
-			rotate: -3deg;
-		}
-		80% {
-			translate: 4px 0px;
-			rotate: 3deg;
-		}
-		90% {
-			translate: -4px -4px;
-			rotate: -1deg;
-		}
-		100% {
-			translate: 0 0;
-			rotate: 0deg;
+			scale: 1.10;
 		}
 	}
 
