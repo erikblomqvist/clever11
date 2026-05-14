@@ -53,11 +53,13 @@
 				{#each winners as winner, i (winner.id)}
 					{@const WinnerIcon = getPlayerIconComponent(winner.icon)}
 					{@const position =
-						i === activeIdx
-							? 'left'
-							: i === (activeIdx + 1) % winners.length
-								? 'right'
-								: 'hidden'}
+						winners.length === 1
+							? 'center'
+							: i === activeIdx
+								? 'left'
+								: i === (activeIdx + 1) % winners.length
+									? 'right'
+									: 'hidden'}
 
 					<div
 						class="podium__winner-icon"
@@ -169,6 +171,12 @@
 			z-index 0.8s;
 		transition-behavior: allow-discrete;
 		pointer-events: none;
+
+		&[data-position='center'] {
+			opacity: 1;
+			transform: scale(1) translateZ(0);
+			z-index: 10;
+		}
 
 		&[data-position='left'] {
 			opacity: 1;
