@@ -18,6 +18,8 @@
 	let i18nReady = $state(import.meta.env.SSR); // Ready by default on server
 
 	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
+	const isInbox = $derived(page.url.pathname.startsWith('/inbox'));
+	const skipShell = $derived(isAdmin || isInbox);
 
 	$effect(() => {
 		const {
@@ -40,7 +42,7 @@
 
 {#if i18nReady}
 	<GameToaster />
-	{#if isAdmin}
+	{#if skipShell}
 		{@render children()}
 	{:else}
 		<div class="main-app">
