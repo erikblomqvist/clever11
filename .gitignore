@@ -29,6 +29,9 @@ pnpm-debug.log*
 # Claude Code local settings
 .claude/settings.local.json
 
+# Regenerable hyphenation discovery output (see scripts/hyphenation/README.md)
+scripts/hyphenation/words.csv
+
 # Editor and OS files
 .DS_Store
 Thumbs.db
