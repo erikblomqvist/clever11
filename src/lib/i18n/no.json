@@ -59,7 +59,10 @@
 		"turn_timer_description": "Begrens hver tur til et fast antall sekunder. Hvis tiden går ut, passer spilleren automatisk.",
 		"turn_timer_seconds": "{n} sekunder",
 		"volcano_rumble_label": "Vulkanrumling",
-		"volcano_rumble_description": "Når bare ett svar gjenstår, vil boblen riste intenst for å skape spenning."
+		"volcano_rumble_description": "Når bare ett svar gjenstår, vil boblen riste intenst for å skape spenning.",
+		"win_score_label": "Vinnerpoeng",
+		"win_score_description": "Den første spilleren som når dette antall poeng vinner spillet.",
+		"win_score_points": "{n} poeng"
 	},
 	"game": {
 		"save_alert": "Spillkode: {code} (kopiert til utklippstavlen)\n\nSpillet ditt lagres automatisk etter hvert trekk.",
@@ -71,8 +74,11 @@
 		"next_round": "Neste runde",
 		"game_over": "Spillet er over",
 		"wins": "{name} vinner",
+		"wins_joint": "{names} vinner!",
+		"standings_tied": "delt",
 		"pts": "{n} poeng",
 		"pts_short": "p",
+		"pts_out_of": "av {n} p",
 		"new_game": "Nytt spill",
 		"times_up": "Tiden er ute, {name}!",
 		"question_vote_aria": "Vurder spørsmålet",

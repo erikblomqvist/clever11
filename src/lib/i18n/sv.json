@@ -59,7 +59,10 @@
 		"turn_timer_description": "Begränsa varje tur till ett fast antal sekunder. Om tiden tar slut passar spelaren automatiskt.",
 		"turn_timer_seconds": "{n} sekunder",
 		"volcano_rumble_label": "Vulkanrummel",
-		"volcano_rumble_description": "När bara ett svar återstår börjar bubblan skaka intensivt för att öka spänningen."
+		"volcano_rumble_description": "När bara ett svar återstår börjar bubblan skaka intensivt för att öka spänningen.",
+		"win_score_label": "Vinstpoäng",
+		"win_score_description": "Den första spelaren som når detta antal poäng vinner spelet.",
+		"win_score_points": "{n} poäng"
 	},
 	"game": {
 		"save_alert": "Spelkod: {code} (kopierad till urklipp)\n\nDitt spel sparas automatiskt efter varje drag.",
@@ -71,8 +74,11 @@
 		"next_round": "Nästa runda",
 		"game_over": "Spelet slut",
 		"wins": "{name} vinner",
+		"wins_joint": "{names} vinner!",
+		"standings_tied": "delad",
 		"pts": "{n} poäng",
 		"pts_short": "p",
+		"pts_out_of": "av {n} p",
 		"new_game": "Nytt spel",
 		"times_up": "Tiden är ute, {name}!",
 		"question_vote_aria": "Betygsätt frågan",

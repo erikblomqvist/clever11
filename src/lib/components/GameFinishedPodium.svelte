@@ -11,34 +11,94 @@
 	 */
 	let { players, onstartover } = $props();
 
-	const podiumPlayers = $derived(
+	const sortedPlayers = $derived(
 		[...players].sort((a, b) => b.totalScore - a.totalScore),
 	);
+
+	const winners = $derived(
+		sortedPlayers.filter(
+			(p) => p.totalScore === sortedPlayers[0]?.totalScore,
+		),
+	);
+
+	const getRank = (/** @type {number} */ index) => {
+		if (index === 0) return 1;
+		if (
+			sortedPlayers[index].totalScore ===
+			sortedPlayers[index - 1].totalScore
+		) {
+			return getRank(index - 1);
+		}
+		return index + 1;
+	};
+
+	// --- Premium Shuffle State ---
+	let activeIdx = $state(0);
+
+	$effect(() => {
+		if (winners.length <= 1) return;
+		const interval = setInterval(() => {
+			activeIdx = (activeIdx + 1) % winners.length;
+		}, 3000);
+		return () => clearInterval(interval);
+	});
 </script>
 
 <div class="podium">
 	<p class="podium__label">{$_('game.game_over')}</p>
 
-	{#if podiumPlayers[0]}
-		{@const WinnerIcon = getPlayerIconComponent(podiumPlayers[0].icon)}
+	{#if winners.length > 0}
 		<div class="podium__winner">
-			<div class="podium__winner-icon">
-				{#if WinnerIcon}<WinnerIcon size={56} />{/if}
+			<div class="podium__winner-icons">
+				{#each winners as winner, i (winner.id)}
+					{@const WinnerIcon = getPlayerIconComponent(winner.icon)}
+					{@const position =
+						i === activeIdx
+							? 'left'
+							: i === (activeIdx + 1) % winners.length
+								? 'right'
+								: 'hidden'}
+
+					<div
+						class="podium__winner-icon"
+						data-position={position}
+						style:--player-color="var(--{winner.color})"
+					>
+						{#if WinnerIcon}<WinnerIcon
+								size={winners.length > 2 ? 32 : 56}
+							/>{/if}
+					</div>
+				{/each}
 			</div>
 			<p class="podium__winner-name">
-				{$_('game.wins', { values: { name: podiumPlayers[0].name } })}
+				{#if winners.length === 1}
+					{$_('game.wins', { values: { name: winners[0].name } })}
+				{:else}
+					{$_('game.wins_joint', {
+						values: {
+							names:
+								winners
+									.slice(0, -1)
+									.map((w) => w.name)
+									.join(', ') +
+								' & ' +
+								winners[winners.length - 1].name,
+						},
+					})}
+				{/if}
 			</p>
 			<p class="podium__winner-score">
-				{$_('game.pts', { values: { n: podiumPlayers[0].totalScore } })}
+				{$_('game.pts', { values: { n: winners[0].totalScore } })}
 			</p>
 		</div>
 	{/if}
 
 	<ol class="podium__list">
-		{#each podiumPlayers as player, i (player.id)}
+		{#each sortedPlayers as player, i (player.id)}
 			{@const Icon = getPlayerIconComponent(player.icon)}
+			{@const rank = getRank(i)}
 			<li class="podium__list-item">
-				<span class="podium__rank">#{i + 1}</span>
+				<span class="podium__rank">#{rank}</span>
 				<span class="podium__icon" aria-hidden="true">
 					{#if Icon}<Icon size={16} />{/if}
 				</span>
@@ -77,14 +137,56 @@
 		gap: 0.5rem;
 	}
 
+	.podium__winner-icons {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 0.5rem;
+		position: relative;
+		height: 6.5rem;
+		width: 100%;
+		perspective: 1000px;
+	}
+
 	.podium__winner-icon {
+		position: absolute;
 		display: grid;
 		place-items: center;
 		width: 6rem;
 		height: 6rem;
 		border-radius: 50%;
-		background: var(--question-color, var(--orange-600));
+		background: var(--player-color, var(--orange-600));
 		color: var(--white);
+		box-shadow:
+			0 0 0 4px var(--palette-purple-dark),
+			0 10px 30px hsl(0 0% 0% / 0.3);
+
+		opacity: 0;
+		transform: scale(0.6) translateZ(-150px);
+		z-index: 1;
+		transition:
+			opacity 0.8s,
+			transform 0.8s,
+			z-index 0.8s;
+		transition-behavior: allow-discrete;
+		pointer-events: none;
+
+		&[data-position='left'] {
+			opacity: 1;
+			transform: translateX(-2rem) scale(1) translateZ(0);
+			z-index: 10;
+		}
+
+		&[data-position='right'] {
+			opacity: 1;
+			transform: translateX(2rem) scale(1) translateZ(0);
+			z-index: 5;
+		}
+
+		&[data-position='hidden'] {
+			opacity: 0;
+			transform: scale(0.6) translateZ(-150px) blur(4px);
+			z-index: 1;
+		}
 	}
 
 	.podium__winner-name {

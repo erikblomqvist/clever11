@@ -14,7 +14,7 @@
 
 	/**
 	 * @typedef {{ name: string, icon: string, color: string, seatPosition: number|null, turnOrder: number|null }} SetupPlayer
-	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds: number|null, volcanoRumble: boolean }} GameSetup
+	 * @typedef {{ players: SetupPlayer[], selectedDeckIds: string[], startingPlayerIndex: number, turnTimerSeconds: number|null, volcanoRumble: boolean, winScore: number }} GameSetup
 	 */
 
 	// --- Navigation ---
@@ -204,6 +204,7 @@
 	let timerEnabled = $state(false);
 	let timerSeconds = $state(60);
 	let volcanoRumble = $state(false);
+	let winScore = $state(50);
 
 	// --- Starting player step ---
 	let startingPlayerIdx = $state(/** @type {number|null} */ (null));
@@ -224,6 +225,7 @@
 			startingPlayerIndex: idx,
 			turnTimerSeconds: timerEnabled ? timerSeconds : null,
 			volcanoRumble,
+			winScore,
 		});
 	}
 </script>
@@ -277,13 +279,17 @@
 		onback={goBack}
 		primaryLabel={$_('setup.continue')}
 		onprimary={() => navigateStep('starting')}
-		primaryDisabled={timerEnabled &&
-			(!timerSeconds || timerSeconds < 10 || timerSeconds > 600)}
+		primaryDisabled={(timerEnabled &&
+			(!timerSeconds || timerSeconds < 10 || timerSeconds > 600)) ||
+			!winScore ||
+			winScore < 10 ||
+			winScore > 1000}
 	>
 		<SetupRulesStep
 			bind:timerEnabled
 			bind:timerSeconds
 			bind:volcanoRumble
+			bind:winScore
 		/>
 	</SetupStepShell>
 {:else if step === 'starting'}

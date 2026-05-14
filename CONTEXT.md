@@ -23,7 +23,7 @@ An optional game-wide setting that limits each **Turn** to a fixed number of sec
 _Avoid_: Clock, Countdown, Time limit
 
 **Win Score**:
-The point threshold to win the game (fixed at 50). First player to reach it after a round ends wins.
+The point threshold to win the game (default 50, range 10–1000). Configured during **Setup**. First player to reach it after a round ends wins.
 _Avoid_: Target score, Goal
 
 ### Players
@@ -108,6 +108,7 @@ _Avoid_: Category, Pack
 
 **Question Type**:
 One of 7 types that determine how answers are structured and how the correct answer is validated in the UI:
+
 - `boolean` — Yes/No (e.g. "Is X a Netflix original?")
 - `standard` — Free text (e.g. "Home stadium of which team?")
 - `rank` — Number 1-10 (e.g. "Actors by height, 1 = tallest")

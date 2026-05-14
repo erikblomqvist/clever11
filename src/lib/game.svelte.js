@@ -312,7 +312,7 @@ export class Game {
 			this.status = 'playing';
 			this.code = code;
 			this.dbGameId = null;
-			this.winScore = 50;
+			this.winScore = setup.winScore ?? 50;
 			this.players = gamePlayers;
 			this.currentPlayerId = startingPlayer.id;
 			this.startingTurnOrderIndex = startingPlayer.turnOrder;

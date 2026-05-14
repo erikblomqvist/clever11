@@ -3,6 +3,9 @@ import threeCorrect from './fixtures/three-correct.json';
 import streakActive from './fixtures/streak-active.json';
 import lastAnswer from './fixtures/last-answer.json';
 import finishedRound from './fixtures/finished-round.json';
+import winnerSingle from './fixtures/winner-single.json';
+import winnersJoint from './fixtures/winners-joint.json';
+import winnersFourWay from './fixtures/winners-four-way.json';
 
 export const DEMO_SCENARIOS = [
 	{
@@ -38,5 +41,23 @@ export const DEMO_SCENARIOS = [
 		description:
 			'All answers are revealed and the real round review panel is shown.',
 		snapshot: finishedRound,
+	},
+	{
+		id: 'winner-single',
+		title: 'Game Over: Single Winner',
+		description: 'A clear champion has emerged!',
+		snapshot: winnerSingle,
+	},
+	{
+		id: 'winners-joint',
+		title: 'Game Over: Joint Winners',
+		description: 'A tie at the top! Multiple players shared the victory.',
+		snapshot: winnersJoint,
+	},
+	{
+		id: 'winners-four-way',
+		title: 'Game Over: 4-way Tie',
+		description: 'Chaos! Four players reached the finish line together.',
+		snapshot: winnersFourWay,
 	},
 ];

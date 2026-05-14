@@ -1,6 +1,6 @@
 # Clever 11
 
-A digital adaptation of a trivia board game. Players take turns revealing blobs on a 10-option wheel, building a round score with each correct answer. Bust (wrong answer) and your round score resets to zero. Pass to bank what you have. First to 50 total points wins.
+A digital adaptation of a trivia board game. Players take turns revealing blobs on a 10-option wheel, building a round score with each correct answer. Bust (wrong answer) and your round score resets to zero. Pass to bank what you have. First player to reach the winning score (default 50) wins.
 
 ## Tech stack
 
@@ -22,11 +22,11 @@ The admin interface is served at `/admin`.
 
 ### Environment variables
 
-| Variable | Description |
-|---|---|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/public key |
-| `SUPABASE_SECRET_KEY` | Supabase service role key (server-only, used by API routes) |
+| Variable                        | Description                                                 |
+| ------------------------------- | ----------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Your Supabase project URL                                   |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/public key                                    |
+| `SUPABASE_SECRET_KEY`           | Supabase service role key (server-only, used by API routes) |
 
 ### Database migrations
 
@@ -34,12 +34,12 @@ Migrations live in `supabase/migrations/`. Apply them via the Supabase CLI or th
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `bun run dev` | Start dev server |
-| `bun run build` | Production build |
-| `bun run test` | Run tests (vitest) |
-| `bun run lint` | Lint with ESLint |
+| Command          | Description          |
+| ---------------- | -------------------- |
+| `bun run dev`    | Start dev server     |
+| `bun run build`  | Production build     |
+| `bun run test`   | Run tests (vitest)   |
+| `bun run lint`   | Lint with ESLint     |
 | `bun run format` | Format with Prettier |
 
 ## Project structure

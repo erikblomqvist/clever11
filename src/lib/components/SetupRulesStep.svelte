@@ -1,21 +1,54 @@
 <script>
 	import { _ } from 'svelte-i18n';
+	import Toggle from './Toggle.svelte';
 
 	/**
 	 * @type {{
 	 *   timerEnabled: boolean,
 	 *   timerSeconds: number,
 	 *   volcanoRumble: boolean,
+	 *   winScore: number,
 	 * }}
 	 */
 	let {
 		timerEnabled = $bindable(),
 		timerSeconds = $bindable(),
 		volcanoRumble = $bindable(),
+		winScore = $bindable(),
 	} = $props();
 </script>
 
 <div class="rules-stack">
+	<div class="rule-card">
+		<div class="rule-card__header">
+			<div class="rule-card__text">
+				<span class="rule-card__label"
+					>{$_('setup.win_score_label')}</span
+				>
+				<span class="rule-card__desc"
+					>{$_('setup.win_score_description')}</span
+				>
+			</div>
+		</div>
+		<div class="rule-card__body">
+			<label class="seconds-field">
+				<input
+					class="seconds-field__input"
+					type="number"
+					min="10"
+					max="1000"
+					required
+					bind:value={winScore}
+				/>
+				<span class="seconds-field__unit"
+					>{$_('setup.win_score_points', {
+						values: { n: winScore },
+					})}</span
+				>
+			</label>
+		</div>
+	</div>
+
 	<div class="rule-card">
 		<div class="rule-card__header">
 			<div class="rule-card__text">
@@ -26,17 +59,10 @@
 					>{$_('setup.turn_timer_description')}</span
 				>
 			</div>
-			<button
-				class="toggle"
-				class:toggle--on={timerEnabled}
-				type="button"
-				role="switch"
-				aria-checked={timerEnabled}
-				aria-label={$_('setup.turn_timer_label')}
-				onclick={() => (timerEnabled = !timerEnabled)}
-			>
-				<span class="toggle__thumb"></span>
-			</button>
+			<Toggle
+				bind:checked={timerEnabled}
+				ariaLabel={$_('setup.turn_timer_label')}
+			/>
 		</div>
 
 		{#if timerEnabled}
@@ -70,17 +96,10 @@
 					>{$_('setup.volcano_rumble_description')}</span
 				>
 			</div>
-			<button
-				class="toggle"
-				class:toggle--on={volcanoRumble}
-				type="button"
-				role="switch"
-				aria-checked={volcanoRumble}
-				aria-label={$_('setup.volcano_rumble_label')}
-				onclick={() => (volcanoRumble = !volcanoRumble)}
-			>
-				<span class="toggle__thumb"></span>
-			</button>
+			<Toggle
+				bind:checked={volcanoRumble}
+				ariaLabel={$_('setup.volcano_rumble_label')}
+			/>
 		</div>
 	</div>
 </div>
@@ -123,38 +142,6 @@
 		font-size: var(--font-size-sm);
 		color: hsl(0 0% 100% / 0.7);
 		line-height: 1.4;
-	}
-
-	/* Toggle switch */
-	.toggle {
-		position: relative;
-		flex-shrink: 0;
-		width: 3rem;
-		height: 1.75rem;
-		border: none;
-		border-radius: 999px;
-		background: var(--palette-gray-muted);
-		cursor: pointer;
-		transition: background-color 0.2s;
-	}
-
-	.toggle--on {
-		background-color: var(--palette-purple-start);
-	}
-
-	.toggle__thumb {
-		position: absolute;
-		top: 4px;
-		left: 4px;
-		width: 1.25rem;
-		height: 1.25rem;
-		border-radius: 50%;
-		background: var(--palette-white);
-		transition: transform 0.2s;
-	}
-
-	.toggle--on .toggle__thumb {
-		transform: translateX(1.25rem);
 	}
 
 	/* Seconds input */

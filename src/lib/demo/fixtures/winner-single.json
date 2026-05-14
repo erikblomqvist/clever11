@@ -1,0 +1,45 @@
+{
+	"status": "finished",
+	"code": "WIN1",
+	"winScore": 50,
+	"players": [
+		{
+			"id": "player-0",
+			"name": "Ava",
+			"icon": "Crown",
+			"color": "player-color-1",
+			"seatPosition": 0,
+			"turnOrder": 0,
+			"totalScore": 52,
+			"roundScore": 0,
+			"status": "active"
+		},
+		{
+			"id": "player-1",
+			"name": "Bo",
+			"icon": "Car",
+			"color": "player-color-2",
+			"seatPosition": 2,
+			"turnOrder": 1,
+			"totalScore": 45,
+			"roundScore": 0,
+			"status": "active"
+		},
+		{
+			"id": "player-2",
+			"name": "Cleo",
+			"icon": "Dog",
+			"color": "player-color-3",
+			"seatPosition": 4,
+			"turnOrder": 2,
+			"totalScore": 30,
+			"roundScore": 0,
+			"status": "active"
+		}
+	],
+	"currentPlayerId": null,
+	"startingTurnOrderIndex": 0,
+	"selectedDeckIds": [],
+	"usedQuestionIds": [],
+	"currentRound": null
+}

@@ -17,6 +17,7 @@
 	import OverallScoreList from './OverallScoreList.svelte';
 	import ScoreList from './ScoreList.svelte';
 	import Button from './Button.svelte';
+	import Toggle from './Toggle.svelte';
 
 	/**
 	 * @type {{
@@ -124,7 +125,14 @@
 			</section>
 
 			<section class="game-menu__section">
-				<h2 class="game-menu__heading">{$_('menu.overall_score')}</h2>
+				<h2 class="game-menu__heading">
+					{$_('menu.overall_score')}
+					<span class="game-menu__win-score">
+						({$_('game.pts_out_of', {
+							values: { n: game.winScore },
+						})})
+					</span>
+				</h2>
 				<OverallScoreList {players} />
 			</section>
 
@@ -134,17 +142,10 @@
 					<span class="rule-toggle__label"
 						>{$_('setup.volcano_rumble_label')}</span
 					>
-					<button
-						class="toggle"
-						class:toggle--on={game.volcanoRumble}
-						type="button"
-						role="switch"
-						aria-checked={game.volcanoRumble}
-						aria-label={$_('setup.volcano_rumble_label')}
-						onclick={() => game.toggleVolcanoRumble()}
-					>
-						<span class="toggle__thumb"></span>
-					</button>
+					<Toggle
+						bind:checked={game.volcanoRumble}
+						ariaLabel={$_('setup.volcano_rumble_label')}
+					/>
 				</div>
 			</section>
 
@@ -314,6 +315,16 @@
 		font-family: var(--font-family-display);
 		font-size: var(--font-size-sm);
 		font-weight: 400;
+
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+	}
+
+	.game-menu__win-score {
+		font-family: var(--font-family-body);
+		font-size: 0.75rem;
+		opacity: 0.8;
 	}
 
 	.rule-toggle {
@@ -331,34 +342,4 @@
 	}
 
 	/* Toggle switch (reused from SetupRulesStep) */
-	.toggle {
-		position: relative;
-		flex-shrink: 0;
-		width: 2.5rem;
-		height: 1.45rem;
-		border: none;
-		border-radius: 999px;
-		background: var(--palette-gray-muted);
-		cursor: pointer;
-		transition: background-color 0.2s;
-	}
-
-	.toggle--on {
-		background-color: var(--palette-purple-start);
-	}
-
-	.toggle__thumb {
-		position: absolute;
-		top: 3px;
-		left: 3px;
-		width: 1.1rem;
-		height: 1.1rem;
-		border-radius: 50%;
-		background: var(--palette-white);
-		transition: transform 0.2s;
-	}
-
-	.toggle--on .toggle__thumb {
-		transform: translateX(1rem);
-	}
 </style>
