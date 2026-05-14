@@ -265,6 +265,32 @@
 			return;
 		}
 
+		if (type === 'rank') {
+			const seen = [];
+			for (let i = 0; i < NUM_BLOBS; i++) {
+				const val = Number(correctAnswers[i]);
+				if (correctAnswers[i] === '' || isNaN(val)) {
+					error = `Rank for option ${i + 1} is required.`;
+					return;
+				}
+				if (val < 1 || val > 10) {
+					error = `Rank for option ${i + 1} must be between 1 and 10.`;
+					return;
+				}
+				if (seen.includes(val)) {
+					error = `Rank ${val} is used more than once.`;
+					return;
+				}
+				seen.push(val);
+			}
+			for (let n = 1; n <= 10; n++) {
+				if (!seen.includes(n)) {
+					error = `Rank ${n} is missing.`;
+					return;
+				}
+			}
+		}
+
 		// Serialize correct answers for colors
 		const finalAnswers =
 			type === 'colors'
@@ -507,8 +533,6 @@
 		<p class="admin-hint">Loading…</p>
 	{:else}
 		<form class="admin-form admin-form--wide" onsubmit={handleSubmit}>
-			{#if error}<p class="admin-form-error">{error}</p>{/if}
-
 			<div class="admin-form-row">
 				<label class="admin-label">
 					Deck *
@@ -922,6 +946,8 @@
 					{/each}
 				</div>
 			</div>
+
+			{#if error}<p class="admin-form-error">{error}</p>{/if}
 
 			<div class="admin-form-actions">
 				<button
