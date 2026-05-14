@@ -9,6 +9,7 @@
 	 *   players: import('$lib/game.svelte.js').GamePlayer[],
 	 *   roundNumber?: number,
 	 *   vote?: boolean|null,
+	 *   isFinished?: boolean,
 	 *   onvote?: (vote: boolean|null) => void,
 	 *   onnext: () => void,
 	 *   onmanageplayers: () => void,
@@ -18,6 +19,7 @@
 		players,
 		roundNumber,
 		vote = null,
+		isFinished = false,
 		onvote,
 		onnext,
 		onmanageplayers,
@@ -117,7 +119,10 @@
 				<ThumbsDown size={16} />
 			</button>
 		</div>
-		<Button text={$_('game.next_round')} onclick={onnext} />
+		<Button
+			text={isFinished ? $_('game.finish_game') : $_('game.next_round')}
+			onclick={onnext}
+		/>
 	</div>
 </div>
 

@@ -35,6 +35,8 @@
 		onnext,
 	} = $props();
 
+	const isFinished = $derived(game.isFinished);
+
 	const SPRING_DRAG_IGNORE_SELECTOR =
 		'button, a, input, select, textarea, [role="button"], [popover], [data-game-scroll-lock-allow]';
 
@@ -104,6 +106,7 @@
 		{players}
 		{roundNumber}
 		{vote}
+		{isFinished}
 		{onvote}
 		{onnext}
 		onmanageplayers={() => (showManagePlayers = true)}

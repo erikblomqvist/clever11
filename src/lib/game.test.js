@@ -209,10 +209,20 @@ describe('Game Class - Actions', () => {
 			expect(game.adapter.syncGameState).toHaveBeenCalled();
 		});
 
-		it('transitions to finished if a player wins', () => {
+		it('stays in round_review even if a player wins (podium happens after review)', () => {
 			const game = createTestGame({ winScore: 10 });
 			game.players[0].roundScore = 15;
 			game.endRound();
+			expect(game.status).toBe('round_review');
+		});
+	});
+
+	describe('startNextRound', () => {
+		it('transitions to finished if a winner exists', () => {
+			const game = createTestGame({ winScore: 10 });
+			game.players[0].totalScore = 15;
+			game.status = 'round_review';
+			game.startNextRound();
 			expect(game.status).toBe('finished');
 		});
 	});

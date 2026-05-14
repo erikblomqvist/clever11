@@ -154,6 +154,12 @@ export class Game {
 			: null;
 	}
 
+	get isFinished() {
+		return !!this.players.find(
+			(p) => p.status !== 'removed' && p.totalScore >= this.winScore,
+		);
+	}
+
 	get canSkipRound() {
 		if (!this.currentRound) return false;
 		if (this.currentRound.answeredBlobs.length !== 0) return false;
@@ -508,10 +514,7 @@ export class Game {
 			}
 		});
 
-		const winner = this.players.find(
-			(p) => p.status !== 'removed' && p.totalScore >= this.winScore,
-		);
-		this.status = winner ? 'finished' : 'round_review';
+		this.status = 'round_review';
 		this.isSyncing = true;
 		this.adapter
 			.syncGameState(this)
@@ -643,6 +646,18 @@ export class Game {
 				});
 		}
 		this.roundVote = null;
+
+		if (this.isFinished) {
+			this.status = 'finished';
+			this.isSyncing = true;
+			this.adapter
+				.syncGameState(this)
+				.catch(console.error)
+				.finally(() => {
+					this.isSyncing = false;
+				});
+			return;
+		}
 
 		const question = this.pickNextQuestion();
 		const activePlayers = this.players.filter(

@@ -72,6 +72,7 @@
 		"round_heading": "Round {n}",
 		"standings": "Standings",
 		"next_round": "Next round",
+		"finish_game": "Finish game",
 		"game_over": "Game over",
 		"wins": "{name} wins",
 		"wins_joint": "{names} win!",

@@ -24,7 +24,7 @@
 	.answer-text-popover {
 		border: 3px solid var(--orange-700);
 		border-radius: 1rem;
-		max-width: min(26rem, calc(100vw - 6rem));
+		width: max(18ch, 80vw);
 		padding: 1.25rem 1.75rem;
 		background-color: var(--white);
 		color: var(--grayscale-900);
@@ -35,6 +35,7 @@
 		text-align: center;
 		box-shadow: 0 1rem 2rem hsl(0 0% 0% / 0.25);
 		cursor: pointer;
+		word-break: auto-phrase;
 	}
 
 	.answer-text-popover::backdrop {

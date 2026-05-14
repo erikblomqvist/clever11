@@ -72,6 +72,7 @@
 		"round_heading": "Runda {n}",
 		"standings": "Poängställning",
 		"next_round": "Nästa runda",
+		"finish_game": "Avsluta spelet",
 		"game_over": "Spelet slut",
 		"wins": "{name} vinner",
 		"wins_joint": "{names} vinner!",
