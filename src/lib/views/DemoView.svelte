@@ -2,12 +2,18 @@
 	import GameView from './GameView.svelte';
 	import { game } from '$lib/game.svelte.js';
 	import { DEMO_SCENARIOS } from '$lib/demo/scenarios.js';
+	import SetupStepShell from '$lib/components/SetupStepShell.svelte';
+	import Button from '$lib/components/Button.svelte';
+	import { ChevronLeft } from 'lucide-svelte';
 
 	/** @type {{ onback: () => void }} */
 	let { onback } = $props();
 
 	/** @type {string|null} */
 	let activeScenarioId = $state(null);
+
+	/** @type {string|null} */
+	let selectedScenarioId = $state(null);
 
 	const activeScenario = $derived(
 		DEMO_SCENARIOS.find((scenario) => scenario.id === activeScenarioId) ??
@@ -21,6 +27,15 @@
 		activeScenarioId = scenario.id;
 	}
 
+	function startSelectedScenario() {
+		const scenario = DEMO_SCENARIOS.find(
+			(s) => s.id === selectedScenarioId,
+		);
+		if (scenario) {
+			openScenario(scenario);
+		}
+	}
+
 	function backToSelector() {
 		activeScenarioId = null;
 	}
@@ -29,51 +44,61 @@
 {#if activeScenario}
 	<div class="demo-game-shell">
 		<div class="demo-game-toolbar">
-			<button
-				class="demo-game-toolbar__btn"
-				type="button"
+			<Button
+				variant="secondary"
+				size="sm"
+				icon={ChevronLeft}
+				text="Back to scenarios"
 				onclick={backToSelector}
-			>
-				Back to demo states
-			</button>
+				style="--btn-padding: 0.375rem 0.625rem"
+			/>
 			<span class="demo-game-toolbar__label">{activeScenario.title}</span>
 		</div>
 		<GameView onstartover={backToSelector} />
 	</div>
 {:else}
-	<main class="main--demo-selector">
-		<section class="demo-selector" aria-labelledby="demo-selector-title">
-			<div class="demo-selector__header">
-				<p class="demo-selector__eyebrow">Clever 11 Demo</p>
-				<h1 id="demo-selector-title" class="demo-selector__title">
-					Pick a game state
-				</h1>
-				<p class="demo-selector__description">
-					These examples use local fixture data and render through the
-					real game views.
-				</p>
-			</div>
+	<SetupStepShell
+		title="Pick a game state"
+		{onback}
+		primaryLabel="Start Demo"
+		onprimary={startSelectedScenario}
+		primaryDisabled={!selectedScenarioId}
+	>
+		<p class="setup-hint">
+			These examples use local fixture data and render through the real
+			game views.
+		</p>
 
-			<div class="demo-selector__actions">
-				{#each DEMO_SCENARIOS as scenario (scenario.title)}
+		<ul class="scenario-list" role="list">
+			{#each DEMO_SCENARIOS as scenario (scenario.id)}
+				{@const isSelected = selectedScenarioId === scenario.id}
+				<li>
 					<button
-						class="demo-card"
+						class="scenario-card"
+						class:scenario-card--selected={isSelected}
+						onclick={() => (selectedScenarioId = scenario.id)}
 						type="button"
-						onclick={() => openScenario(scenario)}
+						role="radio"
+						aria-checked={isSelected}
 					>
-						<span class="demo-card__title">{scenario.title}</span>
-						<span class="demo-card__description"
-							>{scenario.description}</span
-						>
+						<span class="scenario-card__info">
+							<span class="scenario-card__title"
+								>{scenario.title}</span
+							>
+							{#if scenario.description}
+								<span class="scenario-card__desc"
+									>{scenario.description}</span
+								>
+							{/if}
+						</span>
+						<span class="scenario-card__check" aria-hidden="true">
+							{#if isSelected}✓{/if}
+						</span>
 					</button>
-				{/each}
-			</div>
-
-			<button class="demo-selector__back" type="button" onclick={onback}>
-				Back to app
-			</button>
-		</section>
-	</main>
+				</li>
+			{/each}
+		</ul>
+	</SetupStepShell>
 {/if}
 
 <style>
@@ -97,24 +122,6 @@
 		max-width: calc(100vw - 1.5rem);
 	}
 
-	.demo-game-toolbar__btn,
-	.demo-selector__back {
-		border: 1px solid hsl(0 0% 100% / 0.18);
-		border-radius: 999px;
-		background: hsl(0 0% 0% / 0.45);
-		color: var(--white);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-		cursor: pointer;
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-	}
-
-	.demo-game-toolbar__btn {
-		padding: 0.55rem 0.9rem;
-	}
-
 	.demo-game-toolbar__label {
 		overflow: hidden;
 		border-radius: 999px;
@@ -130,100 +137,80 @@
 		-webkit-backdrop-filter: blur(12px);
 	}
 
-	.main--demo-selector {
-		padding: max(2rem, env(safe-area-inset-top)) 1rem
-			max(2rem, env(safe-area-inset-bottom));
-		background:
-			radial-gradient(
-				circle at top,
-				hsl(32 95% 58% / 0.35),
-				transparent 34rem
-			),
-			linear-gradient(160deg, hsl(0 0% 12%) 0%, hsl(0 0% 5%) 100%);
-	}
-
-	.demo-selector {
-		width: min(44rem, 100%);
-		border: 1px solid hsl(0 0% 100% / 0.12);
-		border-radius: 1.5rem;
-		padding: clamp(1.25rem, 4vw, 2rem);
-		background: hsl(0 0% 0% / 0.28);
-		box-shadow: 0 1.5rem 4rem hsl(0 0% 0% / 0.28);
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
-	}
-
-	.demo-selector__header {
-		margin-bottom: 1.5rem;
-		color: var(--white);
-	}
-
-	.demo-selector__eyebrow {
-		margin: 0 0 0.4rem;
-		color: hsl(0 0% 100% / 0.55);
-		font-family: var(--font-family-display);
-		font-size: var(--font-size-sm);
-		font-weight: 600;
-	}
-
-	.demo-selector__title {
+	.setup-hint {
 		margin: 0;
-		font-family: var(--font-family-display);
-		font-size: clamp(2.4rem, 8vw, 4.5rem);
-		line-height: 0.92;
+		color: hsl(0 0% 100% / 0.7);
+		font-size: var(--font-size-base);
+		text-align: center;
 	}
 
-	.demo-selector__description {
-		max-width: 32rem;
-		margin: 0.9rem 0 0;
-		color: hsl(0 0% 100% / 0.72);
-		font-family: var(--font-family-body);
-		font-size: var(--font-size-xl);
-		line-height: 1.15;
+	.scenario-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
 
-	.demo-selector__actions {
-		display: grid;
-		gap: 0.75rem;
-	}
-
-	.demo-card {
-		display: grid;
-		gap: 0.25rem;
-		width: 100%;
-		border: 1px solid hsl(0 0% 100% / 0.12);
-		border-radius: 1rem;
-		padding: 1rem;
-		background: hsl(0 0% 100% / 0.08);
-		color: var(--white);
-		text-align: left;
+	.scenario-card {
 		cursor: pointer;
-		transition:
-			transform 0.15s ease,
-			background-color 0.15s ease,
-			border-color 0.15s ease;
+		display: flex;
+		align-items: center;
+		gap: 0.875rem;
+
+		border: 2px solid lch(from var(--palette-purple-dark) calc(l + 5) c h);
+		border-radius: 0.625rem;
+		width: 100%;
+		min-height: 5rem;
+		padding: 0.875rem 1rem;
+		background-color: var(--palette-purple-dark);
+
+		text-align: start;
+		color: var(--palette-white);
+
+		&:hover {
+			background-color: lch(
+				from var(--palette-purple-dark) calc(l + 5) c h
+			);
+		}
 	}
 
-	.demo-card:hover {
-		border-color: hsl(0 0% 100% / 0.24);
-		background: hsl(0 0% 100% / 0.12);
-		transform: translateY(-1px);
+	.scenario-card--selected {
+		background-color: var(--palette-purple-mid);
+		border-color: var(--palette-purple-start);
+
+		&:hover {
+			background-color: lch(
+				from var(--palette-purple-mid) calc(l + 5) c h
+			);
+		}
 	}
 
-	.demo-card__title {
+	.scenario-card__info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	.scenario-card__title {
 		font-family: var(--font-family-display);
-		font-size: var(--font-size-xl);
+		font-size: var(--font-size-md);
 		font-weight: 600;
 	}
 
-	.demo-card__description {
-		color: hsl(0 0% 100% / 0.68);
+	.scenario-card__desc {
 		font-family: var(--font-family-body);
-		font-size: var(--font-size-lg);
+		font-size: var(--font-size-sm);
+		color: var(--color-muted);
 	}
 
-	.demo-selector__back {
-		margin-top: 1.5rem;
-		padding: 0.65rem 1rem;
+	.scenario-card__check {
+		font-size: var(--font-size-lg);
+		font-weight: 700;
+		width: 1.5rem;
+		text-align: center;
+		flex-shrink: 0;
 	}
 </style>
