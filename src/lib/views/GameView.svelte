@@ -33,6 +33,16 @@
 		question ? (QUESTION_TYPES[question.type] ?? null) : null,
 	);
 
+	const usesImageOptions = $derived(
+		question?.options?.length > 0 &&
+			question?.options?.length === question?.answerMedia?.length &&
+			question?.answerMedia?.every(
+				(media) =>
+					typeof media?.option_image_url === 'string' &&
+					media.option_image_url.trim() !== '',
+			),
+	);
+
 	const reviewBlobStates = $derived(
 		question
 			? question.options.map((_, i) => {
@@ -283,6 +293,12 @@
 			: null,
 	);
 
+	const pendingBlobImageUrl = $derived(
+		pendingBlobIndex !== null && question
+			? (question.answerMedia?.[pendingBlobIndex]?.option_image_url ?? '')
+			: '',
+	);
+
 	function handleBlobClick(/** @type {number} */ blobIndex) {
 		if (streakCelebrationActive) return;
 		pendingBlobIndex = blobIndex;
@@ -388,6 +404,8 @@
 		{dialogOpen}
 		{pendingBlobLabel}
 		{pendingBlobAnswer}
+		{pendingBlobImageUrl}
+		{usesImageOptions}
 		{undoDialogOpen}
 		turnTimerSeconds={game.turnTimerSeconds}
 		turnTimerRemaining={timerRemaining}

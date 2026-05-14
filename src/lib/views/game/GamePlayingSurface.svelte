@@ -33,6 +33,8 @@
 	 *   dialogOpen: boolean,
 	 *   pendingBlobLabel: string,
 	 *   pendingBlobAnswer: import('$lib/data/game.js').CorrectAnswer|null,
+	 *   pendingBlobImageUrl: string,
+	 *   usesImageOptions: boolean,
 	 *   undoDialogOpen: boolean,
 	 *   turnTimerSeconds: number|null,
 	 *   turnTimerRemaining: number,
@@ -77,6 +79,8 @@
 		dialogOpen,
 		pendingBlobLabel,
 		pendingBlobAnswer,
+		pendingBlobImageUrl,
+		usesImageOptions,
 		undoDialogOpen,
 		turnTimerSeconds,
 		turnTimerRemaining,
@@ -158,6 +162,8 @@
 		blobLabel={pendingBlobLabel}
 		correctAnswer={pendingBlobAnswer}
 		questionType={question?.type ?? 'standard'}
+		{usesImageOptions}
+		optionImageUrl={pendingBlobImageUrl}
 		{seatRotation}
 		{rotationDurationMs}
 		{rotationEasing}

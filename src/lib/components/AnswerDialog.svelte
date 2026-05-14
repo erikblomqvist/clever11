@@ -9,6 +9,8 @@
 	 *   blobLabel: string,
 	 *   correctAnswer: import('$lib/data/game.js').CorrectAnswer | null,
 	 *   questionType: import('$lib/data/questionTypes.js').QuestionType,
+	 *   usesImageOptions?: boolean,
+	 *   optionImageUrl?: string,
 	 *   seatRotation?: number, // turns
 	 *   rotationDurationMs?: number,
 	 *   rotationEasing?: string,
@@ -20,6 +22,8 @@
 		blobLabel,
 		correctAnswer,
 		questionType,
+		usesImageOptions = false,
+		optionImageUrl = '',
 		seatRotation = 0,
 		rotationDurationMs = 500,
 		rotationEasing = 'cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -61,7 +65,15 @@
 	onkeydown={(e) => e.key === 'Escape' && e.preventDefault()}
 	onclick={(e) => e.stopPropagation()}
 >
-	<p class="answer-dialog__label">{blobLabel}</p>
+	{#if usesImageOptions}
+		<img
+			src={optionImageUrl}
+			alt={blobLabel}
+			class="answer-dialog__image"
+		/>
+	{:else}
+		<p class="answer-dialog__label">{blobLabel}</p>
+	{/if}
 
 	{#if revealed}
 		{#if isColor}
@@ -151,6 +163,16 @@
 		font-size: var(--font-size-sm);
 		font-weight: 400;
 		color: var(--grayscale-600);
+		border-bottom: 1px solid var(--grayscale-200);
+		padding-bottom: 0.75rem;
+	}
+
+	.answer-dialog__image {
+		display: block;
+		margin: 0 auto 0.75rem;
+		max-width: 100%;
+		height: clamp(4rem, 20vw, 8rem);
+		object-fit: contain;
 		border-bottom: 1px solid var(--grayscale-200);
 		padding-bottom: 0.75rem;
 	}
