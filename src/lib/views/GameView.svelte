@@ -441,6 +441,7 @@
 	<GameFinishedSurface
 		questionTypeToken={questionTypeConfig?.cssToken}
 		players={game.players}
+		playedQuestions={game.playedQuestions}
 		onstartover={handleStartOver}
 	/>
 {/if}

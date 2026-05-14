@@ -160,6 +160,12 @@ export class Game {
 		);
 	}
 
+	get playedQuestions() {
+		return this.usedQuestionIds
+			.map((id) => questionPool.find((q) => q.id === id))
+			.filter(/** @returns {q is GameQuestion} */ (q) => Boolean(q));
+	}
+
 	get canSkipRound() {
 		if (!this.currentRound) return false;
 		if (this.currentRound.answeredBlobs.length !== 0) return false;

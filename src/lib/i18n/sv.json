@@ -84,7 +84,8 @@
 		"times_up": "Tiden är ute, {name}!",
 		"question_vote_aria": "Betygsätt frågan",
 		"thumbs_up_aria": "Bra fråga",
-		"thumbs_down_aria": "Dålig fråga"
+		"thumbs_down_aria": "Dålig fråga",
+		"questions": "Frågor"
 	},
 	"menu": {
 		"turn": "{name}s tur",

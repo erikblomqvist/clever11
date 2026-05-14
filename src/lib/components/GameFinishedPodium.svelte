@@ -1,15 +1,35 @@
 <script>
 	import { _ } from 'svelte-i18n';
+	import { ChevronDown } from 'lucide-svelte';
 	import { getPlayerIconComponent } from '$lib/playerIcons.js';
 	import Button from './Button.svelte';
 
 	/**
 	 * @type {{
 	 *   players: import('$lib/game.svelte.js').GamePlayer[],
+	 *   playedQuestions: import('$lib/game.svelte.js').GameQuestion[],
 	 *   onstartover: () => void,
 	 * }}
 	 */
-	let { players, onstartover } = $props();
+	let { players, playedQuestions, onstartover } = $props();
+
+	/**
+	 * @param {import('$lib/data/game.js').CorrectAnswer} answer
+	 * @param {import('$lib/data/questionTypes.js').QuestionType} type
+	 */
+	const formatCorrectAnswer = (answer, type) => {
+		if (typeof answer === 'boolean') {
+			return answer ? $_('answer_dialog.yes') : $_('answer_dialog.no');
+		}
+		if (type === 'centuryDecade') {
+			const str = String(answer);
+			return str.includes('-talet') ? str : `${str}-talet`;
+		}
+		if (typeof answer === 'object' && answer !== null && 'text' in answer) {
+			return answer.text;
+		}
+		return String(answer);
+	};
 
 	const sortedPlayers = $derived(
 		[...players].sort((a, b) => b.totalScore - a.totalScore),
@@ -112,6 +132,43 @@
 		{/each}
 	</ol>
 
+	{#if playedQuestions.length > 0}
+		<section class="podium__questions">
+			<p class="podium__label">{$_('game.questions')}</p>
+			{#each playedQuestions as question, i (question.id)}
+				<details class="podium__question">
+					<summary class="podium__question-summary">
+						<span class="podium__question-title">
+							<span class="podium__question-index">#{i + 1}</span>
+							<span class="podium__question-text"
+								>{question.text}</span
+							>
+						</span>
+						<ChevronDown
+							class="podium__question-chevron"
+							size={18}
+						/>
+					</summary>
+					<ul class="podium__question-answers">
+						{#each question.options as option, optIdx (optIdx)}
+							<li class="podium__question-answer">
+								<span class="podium__question-option"
+									>{option}</span
+								>
+								<span class="podium__question-correct">
+									{formatCorrectAnswer(
+										question.correctAnswers[optIdx],
+										question.type,
+									)}
+								</span>
+							</li>
+						{/each}
+					</ul>
+				</details>
+			{/each}
+		</section>
+	{/if}
+
 	<Button size="lg" text={$_('game.new_game')} onclick={onstartover} />
 </div>
 
@@ -121,8 +178,10 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1.5rem;
+
 		width: 100%;
 		max-width: 28rem;
+		padding-block: 2rem;
 	}
 
 	.podium__label {
@@ -285,5 +344,122 @@
 	.podium__list-item[data-rank='3']
 		:is(.podium__rank, .podium__icon, .podium__score) {
 		color: var(--color-bronze);
+	}
+
+	.podium__questions {
+		interpolate-size: allow-keywords;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		align-items: stretch;
+	}
+
+	.podium__questions .podium__label {
+		align-self: center;
+		margin-bottom: 0.25rem;
+	}
+
+	.podium__question {
+		background-color: hsl(0 0% 100% / 0.04);
+		border-radius: 0.5rem;
+		overflow: hidden;
+	}
+
+	.podium__question-summary {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.875rem;
+		cursor: pointer;
+		list-style: none;
+		user-select: none;
+		color: var(--white);
+		font-family: var(--font-family-body);
+		font-size: var(--font-size-md);
+		font-weight: 600;
+	}
+
+	.podium__question-summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.podium__question-summary:hover {
+		background-color: hsl(0 0% 100% / 0.03);
+	}
+
+	.podium__question-title {
+		flex: 1;
+		display: flex;
+		gap: 0.5rem;
+		align-items: baseline;
+		min-width: 0;
+	}
+
+	.podium__question-index {
+		color: hsl(0 0% 100% / 0.35);
+		font-size: var(--font-size-sm);
+		flex-shrink: 0;
+	}
+
+	.podium__question-text {
+		text-align: start;
+		font-size: var(--font-size-base);
+		line-height: 1.25;
+	}
+
+	.podium__question :global(.podium__question-chevron) {
+		flex-shrink: 0;
+		color: hsl(0 0% 100% / 0.5);
+		transition: transform 0.3s ease;
+	}
+
+	.podium__question[open] :global(.podium__question-chevron) {
+		transform: rotate(180deg);
+	}
+
+	.podium__question::details-content {
+		block-size: 0;
+		opacity: 0;
+		overflow: clip;
+		transition:
+			block-size 0.3s ease,
+			opacity 0.3s ease,
+			content-visibility 0.3s ease allow-discrete;
+	}
+
+	.podium__question[open]::details-content {
+		block-size: auto;
+		opacity: 1;
+	}
+
+	.podium__question-answers {
+		margin: 0;
+		padding: 0 0.875rem 0.75rem;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.podium__question-answer {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 0.75rem;
+		align-items: baseline;
+		padding-block: 0.6rem 0.3rem;
+		border-top: 1px solid hsl(0 0% 100% / 0.06);
+		font-size: var(--font-size-sm);
+	}
+
+	.podium__question-option {
+		color: hsl(0 0% 100% / 0.7);
+		line-height: 1.3;
+	}
+
+	.podium__question-correct {
+		color: var(--white);
+		font-weight: 600;
+		text-align: end;
 	}
 </style>

@@ -84,7 +84,8 @@
 		"times_up": "Time's up, {name}!",
 		"question_vote_aria": "Rate this question",
 		"thumbs_up_aria": "Good question",
-		"thumbs_down_aria": "Bad question"
+		"thumbs_down_aria": "Bad question",
+		"questions": "Questions"
 	},
 	"menu": {
 		"turn": "{name}'s turn",
