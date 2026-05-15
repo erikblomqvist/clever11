@@ -237,7 +237,11 @@
 	</div>
 
 	{#each answers as answer, i (i)}
-		<AnswerTextPopover id={getAnswerPopoverId(i)} text={answer} />
+		<AnswerTextPopover
+			id={getAnswerPopoverId(i)}
+			text={answer}
+			{seatRotation}
+		/>
 	{/each}
 </div>
 
@@ -693,7 +697,11 @@
 		max-width: 100%;
 		padding-inline: 0.35em;
 
-		font-size: clamp(0.75rem, calc(var(--container-size) * 0.035), 0.875rem);
+		font-size: clamp(
+			0.75rem,
+			calc(var(--container-size) * 0.035),
+			0.875rem
+		);
 		line-height: 1.1;
 		hyphens: manual;
 		text-wrap: balance;
