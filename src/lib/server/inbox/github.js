@@ -38,6 +38,17 @@ export async function createIssue({ title, body, labels = [] }) {
 	});
 }
 
+/**
+ * @param {number} number
+ * @param {{ title?: string, body?: string }} patch
+ */
+export async function updateIssue(number, patch) {
+	return gh(`/repos/${repo()}/issues/${number}`, {
+		method: 'PATCH',
+		body: JSON.stringify(patch),
+	});
+}
+
 export async function addLabel(number, label) {
 	return gh(`/repos/${repo()}/issues/${number}/labels`, {
 		method: 'POST',
