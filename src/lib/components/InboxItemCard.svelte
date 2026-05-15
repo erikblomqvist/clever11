@@ -19,6 +19,7 @@
 	 *     age_label: string,
 	 *     follow_up_question: string,
 	 *     follow_up_answered: boolean,
+	 *     possibly_shipped_sha?: string,
 	 *   },
 	 *   busy?: boolean,
 	 *   onaction: (action: string, payload?: Record<string, unknown>) => void,
@@ -106,6 +107,13 @@
 				<li class="card__chip">{area}</li>
 			{/each}
 		</ul>
+	{/if}
+
+	{#if item.possibly_shipped_sha}
+		<p class="card__shipped">
+			💡 Possibly shipped (commit
+			<code>{item.possibly_shipped_sha.slice(0, 7)}</code>)
+		</p>
 	{/if}
 
 	<div class="card__actions">
@@ -242,6 +250,17 @@
 		color: var(--color-muted);
 		border: 1px solid
 			lch(from var(--palette-purple-neutral) calc(l + 12) c h);
+	}
+
+	.card__shipped {
+		margin: 0;
+		font-size: var(--font-size-xs);
+		color: var(--color-amber);
+	}
+
+	.card__shipped code {
+		font-family: var(--font-family-mono, monospace);
+		font-size: var(--font-size-xs);
 	}
 
 	.card__actions {

@@ -129,6 +129,62 @@ function buildPrompt(noteBody, menu) {
 	].join('\n');
 }
 
+/**
+ * Generate a short digest line (≤60 chars) describing the stale inbox queue
+ * for a push notification body.
+ *
+ * @param {{ count: number, areaCounts: Record<string, number> }} input
+ * @returns {Promise<string>}
+ */
+export async function generateDigestLine({ count, areaCounts }) {
+	const apiKey = env.GEMINI_API_KEY;
+	if (!apiKey) throw new Error('GEMINI_API_KEY is not configured.');
+
+	const distribution =
+		Object.entries(areaCounts)
+			.sort((a, b) => b[1] - a[1])
+			.map(([area, n]) => `${area}: ${n}`)
+			.join(', ') || 'no tags';
+
+	const prompt = [
+		`You are writing a single push-notification phrase for ${count} stale inbox items waiting for triage.`,
+		'Return ONE phrase, at most 60 characters, no quotes, no trailing punctuation.',
+		'Group by area tag where it tightens the phrase; otherwise just give the count.',
+		'',
+		`Distribution: ${distribution}`,
+		'',
+		'Example: "3 wheel ideas + 1 podium tweak waiting"',
+	].join('\n');
+
+	const res = await fetch(
+		`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent`,
+		{
+			method: 'POST',
+			headers: {
+				'x-goog-api-key': apiKey,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				contents: [{ role: 'user', parts: [{ text: prompt }] }],
+				generationConfig: { temperature: 0.4 },
+			}),
+		},
+	);
+	const json = await res.json();
+	if (!res.ok) {
+		throw new Error(
+			json?.error?.message || 'Gemini digest request failed.',
+		);
+	}
+	const text = findOutputText(json)
+		.trim()
+		.replace(/^["']|["']$/g, '');
+	if (!text) {
+		return `${count} inbox ${count === 1 ? 'item' : 'items'} waiting`;
+	}
+	return text.length > 60 ? text.slice(0, 60).trimEnd() : text;
+}
+
 /** @param {any} json */
 function findOutputText(json) {
 	for (const candidate of json.candidates ?? []) {

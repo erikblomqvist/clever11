@@ -84,3 +84,18 @@ export async function getOpenIssues({ label } = {}) {
 	if (label) params.set('labels', label);
 	return gh(`/repos/${repo()}/issues?${params}`);
 }
+
+/**
+ * @param {{ since: string }} opts ISO timestamp; commits at or after this time.
+ * @returns {Promise<Array<{ sha: string, message: string }>>}
+ */
+export async function getRecentCommits({ since }) {
+	const params = new URLSearchParams({ since, per_page: '100' });
+	const commits = await gh(`/repos/${repo()}/commits?${params}`);
+	return (commits ?? []).map(
+		(/** @type {{ sha: string, commit: { message: string } }} */ c) => ({
+			sha: c.sha,
+			message: c.commit?.message ?? '',
+		}),
+	);
+}

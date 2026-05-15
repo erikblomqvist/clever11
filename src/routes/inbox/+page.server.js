@@ -16,14 +16,14 @@ export async function load() {
 		.map((/** @type {{ number: number }} */ i) => i.number)
 		.filter((n) => Number.isInteger(n));
 
-	/** @type {Map<number, { area: string[] | null, snooze_until: string | null, follow_up_question: string | null, follow_up_answered: boolean }>} */
+	/** @type {Map<number, { area: string[] | null, snooze_until: string | null, follow_up_question: string | null, follow_up_answered: boolean, possibly_shipped_sha: string | null }>} */
 	const itemsByNumber = new Map();
 
 	if (issueNumbers.length > 0) {
 		const { data, error: selectError } = await supabase
 			.from('inbox_items')
 			.select(
-				'issue_number, area, snooze_until, follow_up_question, follow_up_answered',
+				'issue_number, area, snooze_until, follow_up_question, follow_up_answered, possibly_shipped_sha',
 			)
 			.in('issue_number', issueNumbers);
 		if (selectError) throw error(500, selectError.message);
@@ -53,6 +53,7 @@ export async function load() {
 			area: meta?.area && meta.area.length ? meta.area : [],
 			follow_up_question: meta?.follow_up_question || '',
 			follow_up_answered: meta?.follow_up_answered ?? true,
+			possibly_shipped_sha: meta?.possibly_shipped_sha || '',
 			created_at: issue.created_at,
 			age_label: formatAge(ageMs),
 			body_length: body.length,
