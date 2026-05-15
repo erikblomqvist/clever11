@@ -4,6 +4,7 @@
 	import { ChevronLeft, ChevronRight, Inbox, Plus } from 'lucide-svelte';
 	import Button from '$lib/components/Button.svelte';
 	import InboxItemCard from '$lib/components/InboxItemCard.svelte';
+	import InboxNudgeToggle from '$lib/components/InboxNudgeToggle.svelte';
 
 	/** @type {{ data: import('./$types').PageData }} */
 	let { data } = $props();
@@ -84,6 +85,10 @@
 			{data.items.length === 1 ? 'item' : 'items'}</span
 		>
 	</header>
+
+	<div class="inbox__nudge">
+		<InboxNudgeToggle vapidPublicKey={data.vapidPublicKey} />
+	</div>
 
 	{#if data.items.length === 0}
 		<p class="inbox__empty">Nothing to triage. 🎉</p>
@@ -198,6 +203,11 @@
 	.inbox__count {
 		font-size: var(--font-size-sm);
 		color: var(--color-muted);
+	}
+
+	.inbox__nudge {
+		max-width: 1200px;
+		margin: 0 auto 1.25rem;
 	}
 
 	.inbox__empty {

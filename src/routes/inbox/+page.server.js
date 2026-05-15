@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 import { getOpenIssues } from '$lib/server/inbox/github.js';
 import { getSupabaseAdmin } from '$lib/server/adminSupabase.js';
 
@@ -67,7 +68,12 @@ export async function load() {
 		return a.body_length - b.body_length;
 	});
 
-	return { items, clusters, flat };
+	return {
+		items,
+		clusters,
+		flat,
+		vapidPublicKey: env.VAPID_PUBLIC_KEY ?? '',
+	};
 }
 
 function todayIso() {
