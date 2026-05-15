@@ -9,12 +9,39 @@
 	/** @type {{ data: import('./$types').PageData }} */
 	let { data } = $props();
 
+	// Actions that remove the item from the current view. We hide
+	// optimistically because GitHub's list endpoint is eventually consistent
+	// and the post-action invalidateAll() often returns stale data for a beat.
+	const HIDE_ACTIONS = new Set([
+		'ready',
+		'snooze3',
+		'snooze7',
+		'done',
+		'wontfix',
+	]);
+
 	let isMobile = $state(false);
 	let mobileIndex = $state(0);
 	let busyIssue = $state(/** @type {number | null} */ (null));
+	let hiddenIssues = $state(/** @type {Set<number>} */ (new Set()));
 	let toast = $state('');
 	/** @type {number | undefined} */
 	let toastTimer;
+
+	const visibleItems = $derived(
+		data.items.filter((i) => !hiddenIssues.has(i.issue_number)),
+	);
+	const visibleFlat = $derived(
+		data.flat.filter((i) => !hiddenIssues.has(i.issue_number)),
+	);
+	const visibleClusters = $derived(
+		data.clusters
+			.map((c) => ({
+				...c,
+				items: c.items.filter((i) => !hiddenIssues.has(i.issue_number)),
+			}))
+			.filter((c) => c.items.length > 0),
+	);
 
 	onMount(() => {
 		const mq = window.matchMedia('(max-width: 768px)');
@@ -27,8 +54,8 @@
 	});
 
 	$effect(() => {
-		if (mobileIndex >= data.flat.length) {
-			mobileIndex = Math.max(0, data.flat.length - 1);
+		if (mobileIndex >= visibleFlat.length) {
+			mobileIndex = Math.max(0, visibleFlat.length - 1);
 		}
 	});
 
@@ -40,6 +67,13 @@
 		}, 1800);
 	}
 
+	/** @param {number} issueNumber */
+	function unhide(issueNumber) {
+		const next = new Set(hiddenIssues);
+		next.delete(issueNumber);
+		hiddenIssues = next;
+	}
+
 	/**
 	 * @param {number} issueNumber
 	 * @param {string} action
@@ -47,6 +81,10 @@
 	 */
 	async function runAction(issueNumber, action, payload) {
 		busyIssue = issueNumber;
+		const shouldHide = HIDE_ACTIONS.has(action);
+		if (shouldHide) {
+			hiddenIssues = new Set([...hiddenIssues, issueNumber]);
+		}
 		try {
 			const res = await fetch('/api/inbox/action', {
 				method: 'POST',
@@ -58,11 +96,13 @@
 				}),
 			});
 			if (!res.ok) {
+				if (shouldHide) unhide(issueNumber);
 				showToast(`Action failed (${res.status})`);
 				return;
 			}
 			await invalidateAll();
 		} catch {
+			if (shouldHide) unhide(issueNumber);
 			showToast('Network error');
 		} finally {
 			busyIssue = null;
@@ -81,8 +121,8 @@
 			Inbox
 		</h1>
 		<span class="inbox__count"
-			>{data.items.length}
-			{data.items.length === 1 ? 'item' : 'items'}</span
+			>{visibleItems.length}
+			{visibleItems.length === 1 ? 'item' : 'items'}</span
 		>
 	</header>
 
@@ -90,10 +130,10 @@
 		<InboxNudgeToggle vapidPublicKey={data.vapidPublicKey} />
 	</div>
 
-	{#if data.items.length === 0}
+	{#if visibleItems.length === 0}
 		<p class="inbox__empty">Nothing to triage. 🎉</p>
 	{:else if isMobile}
-		{@const current = data.flat[mobileIndex]}
+		{@const current = visibleFlat[mobileIndex]}
 		{#if current}
 			<div class="inbox__stack">
 				<InboxItemCard
@@ -112,13 +152,13 @@
 						onclick={() => (mobileIndex -= 1)}
 					/>
 					<span class="inbox__progress"
-						>{mobileIndex + 1} / {data.flat.length}</span
+						>{mobileIndex + 1} / {visibleFlat.length}</span
 					>
 					<Button
 						variant="secondary"
 						icon={ChevronRight}
 						text="Next"
-						disabled={mobileIndex >= data.flat.length - 1}
+						disabled={mobileIndex >= visibleFlat.length - 1}
 						onclick={() => (mobileIndex += 1)}
 					/>
 				</div>
@@ -126,7 +166,7 @@
 		{/if}
 	{:else}
 		<div class="inbox__clusters">
-			{#each data.clusters as cluster (cluster.area)}
+			{#each visibleClusters as cluster (cluster.area)}
 				<section class="cluster">
 					<h2 class="cluster__heading">
 						{cluster.area}
