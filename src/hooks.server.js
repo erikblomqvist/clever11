@@ -46,9 +46,17 @@ export const handle = async ({ event, resolve }) => {
 		path.startsWith('/api/inbox');
 	if (needsAuth) {
 		// Use getUser() for security as it validates the session with the Supabase API
-		const {
-			data: { user },
-		} = await event.locals.supabase.auth.getUser();
+		const { data, error: authError } =
+			await event.locals.supabase.auth.getUser();
+		const user = data?.user ?? null;
+
+		// If the refresh token is missing or invalid, sign out so the stale
+		// session cookies are cleared. Otherwise the bad cookies linger and
+		// every subsequent request re-throws the same auth error.
+		if (!user && authError?.code === 'refresh_token_not_found') {
+			await event.locals.supabase.auth.signOut();
+		}
+
 		if (!user) {
 			if (path.startsWith('/api/')) {
 				return new Response('unauthenticated', { status: 401 });
