@@ -34,16 +34,21 @@ export const handle = async ({ event, resolve }) => {
 		return session;
 	};
 
-	// Auth guard for /admin
-	if (
-		event.url.pathname.startsWith('/admin') &&
-		event.url.pathname !== '/admin/login'
-	) {
+	// Auth guard for /admin and /inbox (incl. /api/inbox)
+	const path = event.url.pathname;
+	const needsAuth =
+		(path.startsWith('/admin') && path !== '/admin/login') ||
+		path.startsWith('/inbox') ||
+		path.startsWith('/api/inbox');
+	if (needsAuth) {
 		// Use getUser() for security as it validates the session with the Supabase API
 		const {
 			data: { user },
 		} = await event.locals.supabase.auth.getUser();
 		if (!user) {
+			if (path.startsWith('/api/')) {
+				return new Response('unauthenticated', { status: 401 });
+			}
 			throw redirect(303, '/admin/login');
 		}
 	}
