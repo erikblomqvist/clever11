@@ -114,7 +114,7 @@
 		background-color: var(--player-ring, hsl(0 0% 100% / 0.4));
 		flex-shrink: 0;
 
-		svg {
+		:global(svg) {
 			height: 5cqi;
 		}
 	}
