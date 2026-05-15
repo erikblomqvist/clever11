@@ -14,7 +14,14 @@ import SetupPlayersStep from './SetupPlayersStep.svelte';
 
 /** @returns {import('$lib/views/SetupView.svelte').SetupPlayer} */
 function makePlayer(name, icon, color) {
-	return { name, icon, color, seatPosition: null, turnOrder: null };
+	return {
+		id: crypto.randomUUID(),
+		name,
+		icon,
+		color,
+		seatPosition: null,
+		turnOrder: null,
+	};
 }
 
 describe('SetupPlayersStep', () => {
@@ -38,8 +45,8 @@ describe('SetupPlayersStep', () => {
 
 		render(SetupPlayersStep, { props: { ...defaults, players } });
 
-		expect(screen.getByText('Alice')).toBeTruthy();
-		expect(screen.getByText('Bob')).toBeTruthy();
-		expect(screen.getByText('Charlie')).toBeTruthy();
+		expect(screen.getByDisplayValue('Alice')).toBeTruthy();
+		expect(screen.getByDisplayValue('Bob')).toBeTruthy();
+		expect(screen.getByDisplayValue('Charlie')).toBeTruthy();
 	});
 });
