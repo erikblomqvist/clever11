@@ -1,5 +1,7 @@
 <script>
 	import { onMount, tick } from 'svelte';
+	import { Mic, Send, Square } from 'lucide-svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	let body = $state('');
 	let submitting = $state(false);
@@ -110,36 +112,39 @@
 			submit();
 		}}
 	>
+		<h1 class="inbox__title">New note</h1>
+
 		<textarea
 			bind:this={textarea}
 			bind:value={body}
 			onkeydown={onKey}
 			class="inbox__textarea"
 			placeholder="What's the idea?"
-			rows="8"
+			rows="2"
 			disabled={submitting}
 		></textarea>
 
 		<div class="inbox__row">
 			{#if speechSupported}
-				<button
-					type="button"
-					class="inbox__mic"
-					class:inbox__mic--on={listening}
+				<Button
+					class={listening
+						? 'inbox__mic inbox__mic--on'
+						: 'inbox__mic'}
+					variant="secondary"
+					icon={listening ? Square : Mic}
+					text={listening ? 'Stop' : 'Speak'}
 					onclick={toggleMic}
 					disabled={submitting}
 					aria-pressed={listening}
-				>
-					{listening ? '● Stop' : '🎤 Speak'}
-				</button>
+				/>
 			{/if}
-			<button
-				type="submit"
+			<Button
 				class="inbox__submit"
+				type="submit"
+				icon={Send}
+				text={submitting ? 'Sending…' : 'Capture'}
 				disabled={submitting || !body.trim()}
-			>
-				{submitting ? 'Sending…' : 'Capture'}
-			</button>
+			/>
 		</div>
 
 		{#if error}
@@ -155,13 +160,22 @@
 
 <style>
 	.inbox {
+		box-sizing: border-box;
 		min-height: 100dvh;
 		display: flex;
 		align-items: flex-start;
 		justify-content: center;
-		padding: env(safe-area-inset-top, 16px) 16px 16px;
-		background: #0f1115;
-		color: #f5f5f5;
+		padding-block: max(1.5rem, env(safe-area-inset-top))
+			max(1.5rem, env(safe-area-inset-bottom));
+		padding-inline: 1rem;
+		background: radial-gradient(
+			75% 75% at calc(var(--spotlight-x) * 1%)
+				calc(var(--spotlight-y) * 1%),
+			var(--palette-purple-start),
+			var(--palette-purple-end)
+		);
+		color: var(--palette-white);
+		font-family: var(--font-family-primary);
 	}
 
 	.inbox__form {
@@ -169,25 +183,40 @@
 		max-width: 560px;
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: 1rem;
+	}
+
+	.inbox__title {
+		margin: 0;
+		font-family: var(--font-family-display);
+		font-size: var(--font-size-xl);
+		font-weight: 600;
+		color: var(--palette-white);
 	}
 
 	.inbox__textarea {
+		box-sizing: border-box;
 		width: 100%;
-		min-height: 40dvh;
-		padding: 16px;
-		font-size: 18px;
+		min-height: 80px;
+		padding: 0.75rem 1rem;
+		font-family: var(--font-family-primary);
+		font-size: var(--font-size-md);
 		line-height: 1.4;
-		background: #1a1d24;
-		color: inherit;
-		border: 1px solid #2a2f3a;
-		border-radius: 12px;
+		background-color: var(--palette-white);
+		color: var(--palette-black);
+		border: 3px solid var(--palette-purple-start);
+		border-radius: 0.5rem;
 		resize: vertical;
 	}
 
 	.inbox__textarea:focus {
-		outline: 2px solid #4f8cff;
-		outline-offset: 1px;
+		outline: 3px solid var(--palette-purple-start);
+		outline-offset: 2px;
+	}
+
+	.inbox__textarea:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	.inbox__row {
@@ -195,45 +224,26 @@
 		gap: 8px;
 	}
 
-	.inbox__mic,
-	.inbox__submit {
+	.inbox__row :global(.inbox__mic),
+	.inbox__row :global(.inbox__submit) {
 		flex: 1;
-		min-height: 48px;
-		padding: 0 16px;
-		font-size: 16px;
-		font-weight: 600;
-		border: none;
-		border-radius: 10px;
-		cursor: pointer;
 	}
 
-	.inbox__mic {
-		background: #2a2f3a;
-		color: #f5f5f5;
+	.inbox__row :global(.inbox__mic--on) {
+		background-color: var(--color-coral);
 	}
 
-	.inbox__mic--on {
-		background: #c0392b;
-	}
-
-	.inbox__submit {
-		background: #4f8cff;
-		color: #fff;
-	}
-
-	.inbox__submit:disabled,
-	.inbox__mic:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
+	.inbox__row :global(.inbox__mic--on:hover:not(:disabled)) {
+		background-color: lch(from var(--color-coral) calc(l + 5) c h);
 	}
 
 	.inbox__error {
-		color: #ff7676;
+		color: var(--color-coral);
 		margin: 0;
 	}
 
 	.inbox__ok {
-		color: #8fe39a;
+		color: var(--color-mint);
 		margin: 0;
 	}
 </style>
