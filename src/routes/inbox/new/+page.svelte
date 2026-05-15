@@ -1,6 +1,6 @@
 <script>
 	import { onMount, tick } from 'svelte';
-	import { Mic, Send, Square } from 'lucide-svelte';
+	import { ChevronLeft, Mic, Send, Square } from 'lucide-svelte';
 	import Button from '$lib/components/Button.svelte';
 
 	let body = $state('');
@@ -112,6 +112,11 @@
 			submit();
 		}}
 	>
+		<a class="inbox__back" href="/inbox">
+			<ChevronLeft size={20} />
+			<span>Inbox</span>
+		</a>
+
 		<h1 class="inbox__title">New note</h1>
 
 		<textarea
@@ -184,6 +189,29 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+	}
+
+	.inbox__back {
+		display: inline-flex;
+		align-self: flex-start;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.375rem 0.5rem 0.375rem 0;
+		margin-left: -0.25rem;
+		font-family: var(--font-family-primary);
+		font-size: var(--font-size-sm);
+		color: var(--color-muted);
+		text-decoration: none;
+		border-radius: 0.375rem;
+	}
+
+	.inbox__back:hover {
+		color: var(--palette-white);
+	}
+
+	.inbox__back:focus-visible {
+		outline: 2px solid var(--palette-purple-light);
+		outline-offset: 2px;
 	}
 
 	.inbox__title {
