@@ -3,6 +3,7 @@ import threeCorrect from './fixtures/three-correct.json';
 import streakActive from './fixtures/streak-active.json';
 import lastAnswer from './fixtures/last-answer.json';
 import finishedRound from './fixtures/finished-round.json';
+import rankMidRound from './fixtures/rank-mid-round.json';
 import winnerSingle from './fixtures/winner-single.json';
 import winnersJoint from './fixtures/winners-joint.json';
 import winnersFourWay from './fixtures/winners-four-way.json';
@@ -41,6 +42,13 @@ export const DEMO_SCENARIOS = [
 		description:
 			'All answers are revealed and the real round review panel is shown.',
 		snapshot: finishedRound,
+	},
+	{
+		id: 'rank-mid-round',
+		title: 'Rank question in progress',
+		description:
+			'A 1–10 rank round with a few blobs adjudicated. Tap a covered blob to see disabled buttons.',
+		snapshot: rankMidRound,
 	},
 	{
 		id: 'winner-single',

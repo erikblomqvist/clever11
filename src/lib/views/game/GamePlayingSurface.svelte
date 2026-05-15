@@ -34,6 +34,7 @@
 	 *   pendingBlobLabel: string,
 	 *   pendingBlobAnswer: import('$lib/data/game.js').CorrectAnswer|null,
 	 *   pendingBlobImageUrl: string,
+	 *   usedRankAnswers?: number[],
 	 *   usesImageOptions: boolean,
 	 *   undoDialogOpen: boolean,
 	 *   turnTimerSeconds: number|null,
@@ -80,6 +81,7 @@
 		pendingBlobLabel,
 		pendingBlobAnswer,
 		pendingBlobImageUrl,
+		usedRankAnswers = [],
 		usesImageOptions,
 		undoDialogOpen,
 		turnTimerSeconds,
@@ -163,6 +165,7 @@
 		correctAnswer={pendingBlobAnswer}
 		questionType={question?.type ?? 'standard'}
 		{usesImageOptions}
+		{usedRankAnswers}
 		optionImageUrl={pendingBlobImageUrl}
 		{seatRotation}
 		{rotationDurationMs}

@@ -299,6 +299,17 @@
 			: '',
 	);
 
+	const usedRankAnswers = $derived.by(() => {
+		if (question?.type !== 'rank') return [];
+		const round = game.currentRound;
+		if (!round) return [];
+		return Object.keys(round.blobResults)
+			.map(Number)
+			.filter((i) => i !== pendingBlobIndex)
+			.map((i) => question.correctAnswers[i])
+			.filter((v) => typeof v === 'number');
+	});
+
 	function handleBlobClick(/** @type {number} */ blobIndex) {
 		if (streakCelebrationActive) return;
 		pendingBlobIndex = blobIndex;
@@ -405,6 +416,7 @@
 		{pendingBlobLabel}
 		{pendingBlobAnswer}
 		{pendingBlobImageUrl}
+		{usedRankAnswers}
 		{usesImageOptions}
 		{undoDialogOpen}
 		turnTimerSeconds={game.turnTimerSeconds}

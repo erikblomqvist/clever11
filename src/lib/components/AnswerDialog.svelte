@@ -12,6 +12,7 @@
 	 *   questionType: import('$lib/data/questionTypes.js').QuestionType,
 	 *   usesImageOptions?: boolean,
 	 *   optionImageUrl?: string,
+	 *   usedRankAnswers?: number[],
 	 *   seatRotation?: number, // turns
 	 *   rotationDurationMs?: number,
 	 *   rotationEasing?: string,
@@ -25,6 +26,7 @@
 		questionType,
 		usesImageOptions = false,
 		optionImageUrl = '',
+		usedRankAnswers = [],
 		seatRotation = 0,
 		rotationDurationMs = 500,
 		rotationEasing = 'cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -48,11 +50,14 @@
 	});
 
 	const isBoolean = $derived(typeof correctAnswer === 'boolean');
+	const isRank = $derived(questionType === 'rank');
 	const isColor = $derived(
 		typeof correctAnswer === 'object' &&
 			correctAnswer !== null &&
 			'backgroundColor' in correctAnswer,
 	);
+
+	const RANK_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 	const colorStyle = $derived(
 		isColor
@@ -72,12 +77,18 @@
 		const isCorrect = clickedYes === correctAnswer;
 		handleResult(isCorrect);
 	};
+
+	const handleRankClick = (/** @type {number} */ n) => {
+		if (usedRankAnswers.includes(n)) return;
+		handleResult(n === correctAnswer);
+	};
 </script>
 
 <dialog
 	bind:this={dialogEl}
 	class="answer-dialog"
 	class:answer-dialog--boolean={isBoolean}
+	class:answer-dialog--rank={isRank}
 	class:answer-dialog--color={isColor && revealed}
 	style={`${colorStyle};--seat-rotation:${seatRotation}turn;--rotation-duration-ms:${rotationDurationMs};--rotation-easing:${rotationEasing}`}
 	onkeydown={(e) => e.key === 'Escape' && e.preventDefault()}
@@ -93,12 +104,12 @@
 		<p class="answer-dialog__label">{blobLabel}</p>
 	{/if}
 
-	{#if revealed || isBoolean}
+	{#if revealed || isBoolean || isRank}
 		{#if isColor && revealed}
 			<div class="answer-dialog__color-swatch"></div>
 		{/if}
 
-		{#if !isBoolean}
+		{#if !isBoolean && !isRank}
 			<div class="answer-dialog__answer">
 				{#if correctAnswer !== null}
 					{#if questionType === 'centuryDecade'}
@@ -121,7 +132,8 @@
 
 	<div
 		class="answer-dialog__actions"
-		class:answer-dialog__actions--visible={revealed || isBoolean}
+		class:answer-dialog__actions--visible={revealed || isBoolean || isRank}
+		class:answer-dialog__actions--rank={isRank}
 	>
 		{#if resultState}
 			<div class="answer-dialog__result">
@@ -159,6 +171,18 @@
 			>
 				<Check size={28} />
 			</button>
+		{:else if isRank}
+			{#each RANK_VALUES as n (n)}
+				{@const used = usedRankAnswers.includes(n)}
+				<Button
+					class="answer-dialog__rank-btn"
+					variant="secondary"
+					size="md"
+					text={String(n)}
+					disabled={used}
+					onclick={() => handleRankClick(n)}
+				/>
+			{/each}
 		{:else}
 			<button
 				class="answer-dialog__btn answer-dialog__btn--wrong"
@@ -271,6 +295,11 @@
 		opacity: 1;
 	}
 
+	.answer-dialog__actions--rank {
+		grid-template-columns: repeat(5, 1fr);
+		gap: 0.5rem;
+	}
+
 	@starting-style {
 		.answer-dialog__actions--visible {
 			opacity: 0;
@@ -309,8 +338,13 @@
 		background-color: hsl(0 86% 44%);
 	}
 
+	.answer-dialog :global(.answer-dialog__rank-btn) {
+		--btn-padding: 0.75rem 0;
+		width: 100%;
+	}
+
 	.answer-dialog__result {
-		grid-column: span 2;
+		grid-column: 1 / -1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;

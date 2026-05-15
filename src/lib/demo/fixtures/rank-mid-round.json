@@ -1,0 +1,101 @@
+{
+	"status": "playing",
+	"code": "DEMORANK",
+	"winScore": 50,
+	"players": [
+		{
+			"id": "player-0",
+			"dbId": null,
+			"name": "Ava",
+			"icon": "Crown",
+			"color": "player-color-1",
+			"seatPosition": 0,
+			"turnOrder": 0,
+			"totalScore": 4,
+			"roundScore": 2,
+			"status": "active"
+		},
+		{
+			"id": "player-1",
+			"dbId": null,
+			"name": "Bo",
+			"icon": "Car",
+			"color": "player-color-2",
+			"seatPosition": 2,
+			"turnOrder": 1,
+			"totalScore": 3,
+			"roundScore": 1,
+			"status": "active"
+		},
+		{
+			"id": "player-2",
+			"dbId": null,
+			"name": "Cleo",
+			"icon": "Dog",
+			"color": "player-color-3",
+			"seatPosition": 4,
+			"turnOrder": 2,
+			"totalScore": 2,
+			"roundScore": 0,
+			"status": "active"
+		},
+		{
+			"id": "player-3",
+			"dbId": null,
+			"name": "Dani",
+			"icon": "Rocket",
+			"color": "player-color-4",
+			"seatPosition": 6,
+			"turnOrder": 3,
+			"totalScore": 1,
+			"roundScore": 0,
+			"status": "active"
+		}
+	],
+	"currentPlayerId": "player-2",
+	"startingTurnOrderIndex": 0,
+	"selectedDeckIds": [],
+	"usedQuestionIds": ["demo-rank-mid-round"],
+	"currentRound": {
+		"roundNumber": 2,
+		"question": {
+			"id": "demo-rank-mid-round",
+			"type": "rank",
+			"text": "Rank these films by IMDb rating",
+			"deck": "Demo Deck",
+			"deckIcon": null,
+			"options": [
+				"The Shawshank Redemption",
+				"The Godfather",
+				"The Dark Knight",
+				"12 Angry Men",
+				"Schindler's List",
+				"The Lord of the Rings: The Return of the King",
+				"Pulp Fiction",
+				"The Good, the Bad and the Ugly",
+				"Forrest Gump",
+				"Fight Club"
+			],
+			"correctAnswers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+			"answerMedia": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]
+		},
+		"answeredBlobs": [1, 4, 8],
+		"blobResults": {
+			"1": true,
+			"4": true,
+			"8": false
+		},
+		"lastPlayerId": "player-1",
+		"dbId": null,
+		"lastAnswerMove": {
+			"blobIndex": 8,
+			"playerId": "player-1",
+			"previousRoundScore": 1,
+			"previousStatus": "active",
+			"previousCurrentPlayerId": "player-1",
+			"previousLastPlayerId": "player-0",
+			"answerId": null,
+			"deleteWhenPersisted": false
+		}
+	}
+}
