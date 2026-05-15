@@ -13,7 +13,7 @@ A digital adaptation of a trivia board game. Players take turns revealing blobs 
 
 ```bash
 cp .env.example .env
-# Fill in VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, SUPABASE_SECRET_KEY
+# Fill in PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, SUPABASE_SECRET_KEY
 bun install
 bun run dev
 ```
@@ -22,11 +22,11 @@ The admin interface is served at `/admin`.
 
 ### Environment variables
 
-| Variable                        | Description                                                 |
-| ------------------------------- | ----------------------------------------------------------- |
-| `VITE_SUPABASE_URL`             | Your Supabase project URL                                   |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/public key                                    |
-| `SUPABASE_SECRET_KEY`           | Supabase service role key (server-only, used by API routes) |
+| Variable                          | Description                                              |
+| --------------------------------- | -------------------------------------------------------- |
+| `PUBLIC_SUPABASE_URL`             | Your Supabase project URL                                |
+| `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (safe to expose to the browser) |
+| `SUPABASE_SECRET_KEY`             | Supabase secret key (server-only, used by API routes)    |
 
 ### Database migrations
 

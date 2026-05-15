@@ -1,11 +1,15 @@
 import { createServerClient } from '@supabase/ssr';
 import { redirect } from '@sveltejs/kit';
+import {
+	PUBLIC_SUPABASE_URL,
+	PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+} from '$env/static/public';
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle = async ({ event, resolve }) => {
 	event.locals.supabase = createServerClient(
-		import.meta.env.VITE_SUPABASE_URL,
-		import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+		PUBLIC_SUPABASE_URL,
+		PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 		{
 			cookies: {
 				getAll() {

@@ -1,7 +1,11 @@
 import { createBrowserClient, isBrowser } from '@supabase/ssr';
+import {
+	PUBLIC_SUPABASE_URL,
+	PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+} from '$env/static/public';
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const url = PUBLIC_SUPABASE_URL;
+const key = PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 /** @type {import('@supabase/supabase-js').SupabaseClient | null} */
 let client = null;

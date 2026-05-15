@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/private';
-import { env as publicEnv } from '$env/dynamic/public';
+import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 
 /** @type {import('@supabase/supabase-js').SupabaseClient|null} */
 let adminClient = null;
 
 export function getSupabaseAdmin() {
-	const url = env.SUPABASE_URL || publicEnv.VITE_SUPABASE_URL;
+	const url = PUBLIC_SUPABASE_URL;
 	const secretKey = env.SUPABASE_SECRET_KEY;
 	if (!url || !secretKey) return null;
 
