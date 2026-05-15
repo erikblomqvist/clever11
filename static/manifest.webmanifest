@@ -8,6 +8,7 @@
 	"orientation": "portrait",
 	"background_color": "#0f1115",
 	"theme_color": "#0f1115",
+	"id": "/inbox/new",
 	"icons": [
 		{
 			"src": "/icon-192.png",
@@ -20,6 +21,22 @@
 			"sizes": "512x512",
 			"type": "image/png",
 			"purpose": "any"
+		}
+	],
+	"screenshots": [
+		{
+			"src": "/screenshot-narrow.png",
+			"sizes": "1080x1920",
+			"type": "image/png",
+			"form_factor": "narrow",
+			"label": "Capture an idea"
+		},
+		{
+			"src": "/screenshot-wide.png",
+			"sizes": "1920x1080",
+			"type": "image/png",
+			"form_factor": "wide",
+			"label": "Capture an idea"
 		}
 	]
 }
