@@ -17,6 +17,7 @@
 		useSpringDrag,
 	} from '$lib/hooks/useSpringDrag.svelte.js';
 	import { useGameInteractionLock } from '$lib/hooks/useGameInteractionLock.js';
+	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streak-config.js';
 
 	/** @type {{ onstartover: () => void }} */
 	let { onstartover } = $props();
@@ -331,6 +332,7 @@
 		dialogOpen = false;
 		if (pendingBlobIndex !== null) {
 			const shouldDeferAdvance =
+				ENABLE_STREAK_ANIMATIONS &&
 				isCorrect &&
 				game.currentPlayer?.roundScore === STREAK_THRESHOLD - 1;
 			const result = game.revealBlob(pendingBlobIndex, isCorrect, {
@@ -340,6 +342,7 @@
 			if (isCorrect) resetTimer();
 
 			if (
+				ENABLE_STREAK_ANIMATIONS &&
 				result?.isCorrect &&
 				result.previousRoundScore === STREAK_THRESHOLD - 1 &&
 				result.newRoundScore === STREAK_THRESHOLD

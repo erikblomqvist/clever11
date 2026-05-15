@@ -3,7 +3,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
+	envPrefix: ['VITE_', 'CLEVER11_'],
 	build: {
-		chunkSizeWarningLimit: 600
-	}
+		chunkSizeWarningLimit: 600,
+	},
 });

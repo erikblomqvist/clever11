@@ -2,6 +2,7 @@
 	import AnswerBlob from './AnswerBlob.svelte';
 	import AnswerTextPopover from './AnswerTextPopover.svelte';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
+	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streak-config.js';
 
 	/**
 	 * @type {{
@@ -64,12 +65,6 @@
 	);
 	const popoverIdPrefix = Math.random().toString(36).slice(2);
 	const electricFilterId = `question-wheel-electric-${popoverIdPrefix}`;
-
-	/**
-	 * Toggle to enable/disable performance-intensive streak SVG animations.
-	 * Disabled by default to prevent lag on some devices (e.g., iPad).
-	 */
-	const ENABLE_STREAK_ANIMATIONS = false;
 
 	const streakIsActive = $derived(
 		ENABLE_STREAK_ANIMATIONS && streakLevel >= 3,
