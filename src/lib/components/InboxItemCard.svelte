@@ -119,10 +119,11 @@
 	<div class="card__actions">
 		<Button
 			size="sm"
-			variant="primary"
+			variant="cta"
 			icon={Rocket}
 			text="Ready for agent"
 			onclick={() => onaction('ready')}
+			data-action="ready"
 			disabled={busy}
 		/>
 		<Button
@@ -131,6 +132,7 @@
 			icon={Clock}
 			text="Snooze 3d"
 			onclick={() => onaction('snooze3')}
+			data-action="snooze3"
 			disabled={busy}
 		/>
 		<Button
@@ -139,6 +141,7 @@
 			icon={Clock}
 			text="Snooze 7d"
 			onclick={() => onaction('snooze7')}
+			data-action="snooze7"
 			disabled={busy}
 		/>
 		<Button
@@ -147,6 +150,7 @@
 			icon={CheckCircle2}
 			text="Already done"
 			onclick={() => onaction('done')}
+			data-action="done"
 			disabled={busy}
 		/>
 		<Button
@@ -155,6 +159,7 @@
 			icon={XCircle}
 			text="Won't do"
 			onclick={() => onaction('wontfix')}
+			data-action="wontfix"
 			disabled={busy}
 		/>
 	</div>
@@ -264,9 +269,29 @@
 	}
 
 	.card__actions {
-		display: flex;
-		flex-wrap: wrap;
+		display: grid;
+		grid-template-areas:
+			"ready ready"
+			"snooze3 snooze7"
+			"done wontfix";
+		grid-template-columns: 1fr 1fr;
 		gap: 0.5rem;
+
+		& :global([data-action="ready"]) {
+			grid-area: ready;
+		}
+		& :global([data-action="snooze3"]) {
+			grid-area: snooze3;
+		}
+		& :global([data-action="snooze7"]) {
+			grid-area: snooze7;
+		}
+		& :global([data-action="done"]) {
+			grid-area: done;
+		}
+		& :global([data-action="wontfix"]) {
+			grid-area: wontfix;
+		}
 	}
 
 	.card__actions :global(.btn) {
