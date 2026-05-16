@@ -70,22 +70,23 @@
 			{#each [1, 0, 2] as slotIndex (slotIndex)}
 				{@const slot = podiumSlots[slotIndex]}
 				{@const activeIdx = activeIndices[slot.id] ?? 0}
+				{@const hasMultiplePlayers = slot.players.length > 1}
 				<li
 					class="overall-score-list__podium-item"
 					data-podium-rank={slot.id}
 				>
 					<div
 						class="overall-score-list__podium-icons"
-						class:overall-score-list__podium-icons--multiple={slot
-							.players.length > 1}
+						class:overall-score-list__podium-icons--multiple={hasMultiplePlayers}
 					>
 						{#if slot.players.length > 0}
 							{#each slot.players as player, i (player.id)}
 								{@const Icon = getPlayerIconComponent(
 									player.icon,
 								)}
-								{@const position =
-									i === activeIdx
+								{@const position = !hasMultiplePlayers
+									? 'center'
+									: i === activeIdx
 										? 'left'
 										: i ===
 											  (activeIdx + 1) %
@@ -264,6 +265,12 @@
 		&[data-position='left'] {
 			opacity: 1;
 			transform: translateX(-0.75rem) scale(1) translateZ(0);
+			z-index: 10;
+		}
+
+		&[data-position='center'] {
+			opacity: 1;
+			transform: translateX(0) scale(1) translateZ(0);
 			z-index: 10;
 		}
 
