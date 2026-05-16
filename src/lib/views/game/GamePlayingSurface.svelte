@@ -144,6 +144,7 @@
 			{streakColor}
 			{streakBurstKey}
 			{undoableBlobIndex}
+			{roundIsOver}
 			volcanoRumbleEnabled={game.volcanoRumble}
 			onblobclick={streakCelebrationActive ? undefined : onblobclick}
 			onundoblobclick={streakCelebrationActive

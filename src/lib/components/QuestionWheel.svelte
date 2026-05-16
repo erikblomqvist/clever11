@@ -19,6 +19,7 @@
 	 *   streakColor?: string,
 	 *   streakBurstKey?: number,
 	 *   undoableBlobIndex?: number|null,
+	 *   roundIsOver?: boolean,
 	 *   volcanoRumbleEnabled?: boolean,
 	 *   reviewToggleMode?: boolean,
 	 *   onblobclick?: (index: number) => void,
@@ -39,6 +40,7 @@
 		streakColor = 'var(--orange-700)',
 		streakBurstKey = 0,
 		undoableBlobIndex = null,
+		roundIsOver = false,
 		volcanoRumbleEnabled = false,
 		reviewToggleMode = false,
 		onblobclick,
@@ -198,6 +200,7 @@
 				{questionType}
 				index={i + 1}
 				total={answerBlobs.length}
+				disabled={roundIsOver}
 				isLastUnrevealed={lastUnrevealedIndex === i &&
 					volcanoRumbleEnabled}
 				onreveal={blob === null ? () => onblobclick?.(i) : undefined}

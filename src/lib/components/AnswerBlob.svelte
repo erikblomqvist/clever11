@@ -9,6 +9,7 @@
 	 *   questionType?: import('$lib/data/questionTypes.js').QuestionType,
 	 *   index: number,
 	 *   total: number,
+	 *   disabled?: boolean,
 	 *   isLastUnrevealed?: boolean,
 	 *   onreveal?: () => void,
 	 *   onansweredclick?: () => void,
@@ -21,6 +22,7 @@
 		questionType,
 		index,
 		total,
+		disabled = false,
 		isLastUnrevealed = false,
 		onreveal,
 		onansweredclick,
@@ -80,6 +82,7 @@
 				: $_('blob.undo_aria', { values: { answer: answerLabel } })
 			: $_('blob.answer_aria', { values: { answer: answerLabel } })
 		: $_('blob.reveal_aria', { values: { n: index } })}
+	{disabled}
 	onclick={() => {
 		if (answered === null) onreveal?.();
 		else onansweredclick?.();
