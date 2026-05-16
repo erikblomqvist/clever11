@@ -7,8 +7,17 @@ import rankMidRound from './fixtures/rank-mid-round.json';
 import winnerSingle from './fixtures/winner-single.json';
 import winnersJoint from './fixtures/winners-joint.json';
 import winnersFourWay from './fixtures/winners-four-way.json';
+import turnTimerRunning from './fixtures/turn-timer-running.json';
 
 export const DEMO_SCENARIOS = [
+	// TEMP: remove after #49 verification
+	{
+		id: 'turn-timer-running',
+		title: 'Turn timer running (20s)',
+		description:
+			'Temporary scenario to verify the flush border and rounded corners fix.',
+		snapshot: turnTimerRunning,
+	},
 	{
 		id: 'new-round',
 		title: 'A new round has started',

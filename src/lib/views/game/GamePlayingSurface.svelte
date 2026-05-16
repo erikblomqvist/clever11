@@ -186,7 +186,6 @@
 			playerColor={currentPlayer
 				? `var(--${currentPlayer.color})`
 				: 'var(--orange-700)'}
-			paused={turnTimerPaused}
 			running={true}
 			timeRemaining={turnTimerRemaining}
 		/>

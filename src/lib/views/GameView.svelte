@@ -102,16 +102,23 @@
 	$effect(() => {
 		if (!timerEnabled || timerPaused) return;
 
-		const interval = setInterval(() => {
-			timerRemaining -= 1;
-			if (timerRemaining <= 0) {
-				timerRemaining = 0;
-				clearInterval(interval);
-				handleTimerExpiry();
+		let last = performance.now();
+		let raf = requestAnimationFrame(function tick(now) {
+			const dt = (now - last) / 1000;
+			last = now;
+			if (timerRemaining > 0) {
+				const next = timerRemaining - dt;
+				if (next <= 0) {
+					timerRemaining = 0;
+					handleTimerExpiry();
+				} else {
+					timerRemaining = next;
+				}
 			}
-		}, 1000);
+			raf = requestAnimationFrame(tick);
+		});
 
-		return () => clearInterval(interval);
+		return () => cancelAnimationFrame(raf);
 	});
 
 	const springDrag = useSpringDrag({
