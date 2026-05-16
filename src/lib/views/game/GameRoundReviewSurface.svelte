@@ -98,6 +98,7 @@
 			seatRotation={interactiveSeatRotation}
 			{rotationDurationMs}
 			volcanoRumbleEnabled={false}
+			reviewToggleMode={true}
 			{onblobclick}
 		/>
 	{/if}

@@ -111,6 +111,7 @@
 	"blob": {
 		"answer_aria": "Answer: {answer}",
 		"undo_aria": "Undo last move for answer: {answer}",
+		"hide_aria": "Hide answer: {answer}",
 		"reveal_aria": "Reveal answer {n}"
 	},
 	"question_meta": {

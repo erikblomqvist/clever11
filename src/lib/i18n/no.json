@@ -111,6 +111,7 @@
 	"blob": {
 		"answer_aria": "Svar: {answer}",
 		"undo_aria": "Angre siste trekk for svar: {answer}",
+		"hide_aria": "Skjul svar: {answer}",
 		"reveal_aria": "Avslør svar {n}"
 	},
 	"question_meta": {

@@ -12,6 +12,7 @@
 	 *   isLastUnrevealed?: boolean,
 	 *   onreveal?: () => void,
 	 *   onansweredclick?: () => void,
+	 *   answeredClickKind?: 'undo' | 'hide',
 	 * }}
 	 */
 	let {
@@ -23,6 +24,7 @@
 		isLastUnrevealed = false,
 		onreveal,
 		onansweredclick,
+		answeredClickKind = 'undo',
 	} = $props();
 
 	const isAnswered = $derived(answered !== null);
@@ -73,7 +75,9 @@
 		: ''}"
 	aria-label={isAnswered
 		? onansweredclick
-			? $_('blob.undo_aria', { values: { answer: answerLabel } })
+			? answeredClickKind === 'hide'
+				? $_('blob.hide_aria', { values: { answer: answerLabel } })
+				: $_('blob.undo_aria', { values: { answer: answerLabel } })
 			: $_('blob.answer_aria', { values: { answer: answerLabel } })
 		: $_('blob.reveal_aria', { values: { n: index } })}
 	onclick={() => {
@@ -158,16 +162,18 @@
 			z-index: -1;
 
 			border-radius: inherit;
-			border: 1px dashed color-mix(in oklab, var(--color-amber) 70%, transparent);
+			border: 1px dashed
+				color-mix(in oklab, var(--color-amber) 70%, transparent);
 		}
 	}
 
 	@keyframes volcano-rumble {
-		0%, 100% {
+		0%,
+		100% {
 			scale: 1;
 		}
 		50% {
-			scale: 1.10;
+			scale: 1.1;
 		}
 	}
 

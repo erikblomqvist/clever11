@@ -25,8 +25,8 @@
 	let dialogOpen = $state(false);
 	let pendingBlobIndex = $state(/** @type {number|null} */ (null));
 	let undoDialogOpen = $state(false);
-	let reviewRevealedBlobIndexes = $state(/** @type {number[]} */ ([]));
-	let reviewRevealRoundKey = /** @type {string|null} */ (null);
+	let reviewToggledBlobIndexes = $state(/** @type {number[]} */ ([]));
+	let reviewToggleRoundKey = /** @type {string|null} */ (null);
 
 	const question = $derived(game.currentRound?.question ?? null);
 
@@ -48,8 +48,11 @@
 		question
 			? question.options.map((_, i) => {
 					const result = game.currentRound?.blobResults?.[i];
-					if (result !== undefined) return result;
-					return reviewRevealedBlobIndexes.includes(i) ? true : null;
+					const isToggled = reviewToggledBlobIndexes.includes(i);
+					if (result !== undefined) {
+						return isToggled ? null : result;
+					}
+					return isToggled ? true : null;
 				})
 			: [],
 	);
@@ -278,14 +281,14 @@
 			: null;
 
 		if (game.status !== 'round_review' || !roundKey) {
-			reviewRevealedBlobIndexes = [];
-			reviewRevealRoundKey = null;
+			reviewToggledBlobIndexes = [];
+			reviewToggleRoundKey = null;
 			return;
 		}
 
-		if (reviewRevealRoundKey !== roundKey) {
-			reviewRevealedBlobIndexes = [];
-			reviewRevealRoundKey = roundKey;
+		if (reviewToggleRoundKey !== roundKey) {
+			reviewToggledBlobIndexes = [];
+			reviewToggleRoundKey = roundKey;
 		}
 	});
 
@@ -331,8 +334,9 @@
 	}
 
 	function handleReviewBlobClick(/** @type {number} */ blobIndex) {
-		if (reviewRevealedBlobIndexes.includes(blobIndex)) return;
-		reviewRevealedBlobIndexes = [...reviewRevealedBlobIndexes, blobIndex];
+		reviewToggledBlobIndexes = reviewToggledBlobIndexes.includes(blobIndex)
+			? reviewToggledBlobIndexes.filter((i) => i !== blobIndex)
+			: [...reviewToggledBlobIndexes, blobIndex];
 	}
 
 	function handleDialogResult(/** @type {boolean} */ isCorrect) {

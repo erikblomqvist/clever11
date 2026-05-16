@@ -20,6 +20,7 @@
 	 *   streakBurstKey?: number,
 	 *   undoableBlobIndex?: number|null,
 	 *   volcanoRumbleEnabled?: boolean,
+	 *   reviewToggleMode?: boolean,
 	 *   onblobclick?: (index: number) => void,
 	 *   onundoblobclick?: (index: number) => void,
 	 * }}
@@ -39,6 +40,7 @@
 		streakBurstKey = 0,
 		undoableBlobIndex = null,
 		volcanoRumbleEnabled = false,
+		reviewToggleMode = false,
 		onblobclick,
 		onundoblobclick,
 	} = $props();
@@ -199,9 +201,16 @@
 				isLastUnrevealed={lastUnrevealedIndex === i &&
 					volcanoRumbleEnabled}
 				onreveal={blob === null ? () => onblobclick?.(i) : undefined}
-				onansweredclick={blob !== null && undoableBlobIndex === i
-					? () => onundoblobclick?.(i)
+				onansweredclick={blob !== null
+					? undoableBlobIndex === i
+						? () => onundoblobclick?.(i)
+						: reviewToggleMode
+							? () => onblobclick?.(i)
+							: undefined
 					: undefined}
+				answeredClickKind={reviewToggleMode && undoableBlobIndex !== i
+					? 'hide'
+					: 'undo'}
 			/>
 		{/each}
 	</div>
