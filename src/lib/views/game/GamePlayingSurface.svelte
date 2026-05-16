@@ -41,7 +41,6 @@
 	 *   turnTimerRemaining: number,
 	 *   turnTimerPaused: boolean,
 	 *   onstartover: () => void,
-	 *   onsave: () => void,
 	 *   onundo: () => void,
 	 *   onskipround: () => void,
 	 *   onpassorend: () => void,
@@ -88,7 +87,6 @@
 		turnTimerRemaining,
 		turnTimerPaused,
 		onstartover,
-		onsave,
 		onundo,
 		onskipround,
 		onpassorend,
@@ -122,7 +120,6 @@
 		{deck}
 		{deckIcon}
 		{onstartover}
-		{onsave}
 		{onundo}
 		{onskipround}
 		canundo={undoIsAvailable && !streakCelebrationActive}

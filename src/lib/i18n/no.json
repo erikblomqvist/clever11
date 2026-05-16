@@ -65,8 +65,7 @@
 		"win_score_points": "poeng"
 	},
 	"game": {
-		"save_alert": "Spillkode: {code} (kopiert til utklippstavlen)\n\nSpillet ditt lagres automatisk etter hvert trekk.",
-		"new_game_confirm": "Starte et nytt spill? Husk å lagre hvis du vil fortsette senere.",
+		"new_game_confirm": "Starte et nytt spill?",
 		"end_round": "Avslutt runde",
 		"pass": "Pass",
 		"round_heading": "Runde {n}",
@@ -94,7 +93,6 @@
 		"rules": "Regler",
 		"general_actions": "Generelle handlinger",
 		"undo_last_move": "Angre siste trekk",
-		"save_game": "Lagre spill",
 		"start_new_game": "Start nytt spill",
 		"skip_round": "Hopp over runde",
 		"admin": "Admin"

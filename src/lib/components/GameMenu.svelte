@@ -6,7 +6,6 @@
 		X,
 		RotateCcw,
 		Shield,
-		Save,
 		Undo2,
 		CircleDot,
 		SkipForward,
@@ -26,7 +25,6 @@
 	 *   deck?: string | null,
 	 *   deckIcon?: string | null,
 	 *   onstartover: () => void,
-	 *   onsave: () => void,
 	 *   onundo: () => void,
 	 *   onskipround: () => void,
 	 *   canundo: boolean,
@@ -39,7 +37,6 @@
 		deck = null,
 		deckIcon = null,
 		onstartover,
-		onsave,
 		onundo,
 		onskipround,
 		canundo,
@@ -171,13 +168,6 @@
 						}}
 					/>
 				{/if}
-				<Button
-					variant="cta"
-					size="sm"
-					icon={Save}
-					text={$_('menu.save_game')}
-					onclick={onsave}
-				/>
 				<Button
 					variant="cta"
 					size="sm"

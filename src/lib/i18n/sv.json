@@ -65,8 +65,7 @@
 		"win_score_points": "poäng"
 	},
 	"game": {
-		"save_alert": "Spelkod: {code} (kopierad till urklipp)\n\nDitt spel sparas automatiskt efter varje drag.",
-		"new_game_confirm": "Starta ett nytt spel? Se till att spara om du vill fortsätta senare.",
+		"new_game_confirm": "Starta ett nytt spel?",
 		"end_round": "Avsluta runda",
 		"pass": "Passa",
 		"round_heading": "Runda {n}",
@@ -94,7 +93,6 @@
 		"rules": "Regler",
 		"general_actions": "Allmänna åtgärder",
 		"undo_last_move": "Ångra senaste draget",
-		"save_game": "Spara spel",
 		"start_new_game": "Starta nytt spel",
 		"skip_round": "Hoppa över runda",
 		"admin": "Admin"

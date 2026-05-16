@@ -387,11 +387,6 @@
 		resetTimer();
 	}
 
-	function handleSave() {
-		navigator.clipboard?.writeText(game.code).catch(() => {});
-		alert($_('game.save_alert', { values: { code: game.code } }));
-	}
-
 	function handleSkipRound() {
 		game.skipRound();
 	}
@@ -437,7 +432,6 @@
 		turnTimerRemaining={timerRemaining}
 		turnTimerPaused={timerPaused}
 		onstartover={handleStartOver}
-		onsave={handleSave}
 		onundo={handleUndo}
 		onskipround={handleSkipRound}
 		onpassorend={handlePassOrEnd}

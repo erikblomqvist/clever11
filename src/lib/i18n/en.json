@@ -65,8 +65,7 @@
 		"win_score_points": "points"
 	},
 	"game": {
-		"save_alert": "Game code: {code} (copied to clipboard)\n\nYour game is saved automatically after each move.",
-		"new_game_confirm": "Start a new game? Make sure to save first if you want to continue later.",
+		"new_game_confirm": "Start a new game?",
 		"end_round": "End round",
 		"pass": "Pass",
 		"round_heading": "Round {n}",
@@ -94,7 +93,6 @@
 		"rules": "Rules",
 		"general_actions": "General actions",
 		"undo_last_move": "Undo last move",
-		"save_game": "Save game",
 		"start_new_game": "Start new game",
 		"skip_round": "Skip round",
 		"admin": "Admin"
