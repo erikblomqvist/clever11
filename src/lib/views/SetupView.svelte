@@ -84,14 +84,17 @@
 		...(menagerieUnlocked ? MENAGERIE_ICONS : []),
 	]);
 
-	const canAddPlayer = $derived(
+	const addRowValid = $derived(
 		newName.trim().length > 0 &&
 			!players.some(
 				(p) =>
 					p.name.trim().toLowerCase() ===
 					newName.trim().toLowerCase(),
-			) &&
-			players.length < 8,
+			),
+	);
+	const canAddPlayer = $derived(addRowValid && players.length < 7);
+	const effectivePlayerCount = $derived(
+		players.length + (addRowValid ? 1 : 0),
 	);
 	const allPlayersValid = $derived(
 		players.every((p) => {
@@ -107,7 +110,7 @@
 	);
 
 	function addPlayer() {
-		if (!canAddPlayer) return;
+		if (!addRowValid) return;
 		const name = newName.trim();
 		players = [
 			...players,
@@ -148,6 +151,7 @@
 	}
 
 	function goToSeating() {
+		if (addRowValid) addPlayer();
 		players = players.map((p) => ({
 			...p,
 			seatPosition: null,
@@ -265,7 +269,7 @@
 		onback={goBack}
 		primaryLabel={$_('setup.continue')}
 		onprimary={goToSeating}
-		primaryDisabled={players.length < 2 || !allPlayersValid}
+		primaryDisabled={effectivePlayerCount < 2 || !allPlayersValid}
 	>
 		<SetupPlayersStep
 			bind:players
