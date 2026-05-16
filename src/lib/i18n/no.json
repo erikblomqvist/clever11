@@ -95,7 +95,9 @@
 		"undo_last_move": "Angre siste trekk",
 		"start_new_game": "Start nytt spill",
 		"skip_round": "Hopp over runde",
-		"admin": "Admin"
+		"admin": "Admin",
+		"pause_game": "Pause spillet",
+		"resume_game": "Fortsett spillet"
 	},
 	"manage_players": {
 		"title": "Håndter spillere",

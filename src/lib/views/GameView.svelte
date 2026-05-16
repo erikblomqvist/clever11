@@ -25,6 +25,7 @@
 	let dialogOpen = $state(false);
 	let pendingBlobIndex = $state(/** @type {number|null} */ (null));
 	let undoDialogOpen = $state(false);
+	let gamePaused = $state(false);
 	let reviewToggledBlobIndexes = $state(/** @type {number[]} */ ([]));
 	let reviewToggleRoundKey = /** @type {string|null} */ (null);
 
@@ -75,7 +76,8 @@
 		game.turnTimerSeconds !== null && game.status === 'playing',
 	);
 	const timerPaused = $derived(
-		dialogOpen ||
+		gamePaused ||
+			dialogOpen ||
 			undoDialogOpen ||
 			streakCelebrationActive ||
 			pendingBlobIndex !== null ||
@@ -236,6 +238,7 @@
 			game.status === 'playing' &&
 			question !== null &&
 			roundIntro.seatRotation === null &&
+			!gamePaused &&
 			!streakCelebrationActive &&
 			!dialogOpen &&
 			!undoDialogOpen &&
@@ -257,12 +260,19 @@
 	$effect(() => {
 		if (
 			game.status !== 'playing' ||
+			gamePaused ||
 			dialogOpen ||
 			undoDialogOpen ||
 			streakCelebrationActive ||
 			roundIntro.seatRotation !== null
 		) {
 			springDrag.reset();
+		}
+	});
+
+	$effect(() => {
+		if (game.status !== 'playing') {
+			gamePaused = false;
 		}
 	});
 
@@ -428,12 +438,14 @@
 		{usedRankAnswers}
 		{usesImageOptions}
 		{undoDialogOpen}
+		{gamePaused}
 		turnTimerSeconds={game.turnTimerSeconds}
 		turnTimerRemaining={timerRemaining}
 		turnTimerPaused={timerPaused}
 		onstartover={handleStartOver}
 		onundo={handleUndo}
 		onskipround={handleSkipRound}
+		ontogglepause={() => (gamePaused = !gamePaused)}
 		onpassorend={handlePassOrEnd}
 		onblobclick={handleBlobClick}
 		onundoblobclick={handleUndoBlobClick}

@@ -9,6 +9,8 @@
 		Undo2,
 		CircleDot,
 		SkipForward,
+		Pause,
+		Play,
 	} from 'lucide-svelte';
 	import { game } from '$lib/game.svelte.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
@@ -27,8 +29,11 @@
 	 *   onstartover: () => void,
 	 *   onundo: () => void,
 	 *   onskipround: () => void,
+	 *   ontogglepause: () => void,
 	 *   canundo: boolean,
 	 *   canskipround: boolean,
+	 *   canpause: boolean,
+	 *   paused: boolean,
 	 * }}
 	 */
 	let {
@@ -39,8 +44,11 @@
 		onstartover,
 		onundo,
 		onskipround,
+		ontogglepause,
 		canundo,
 		canskipround,
+		canpause,
+		paused,
 	} = $props();
 
 	let open = $state(false);
@@ -147,6 +155,17 @@
 			</section>
 
 			<section class="game-menu__section game-menu__section--actions">
+				{#if canpause}
+					<Button
+						variant="cta"
+						size="sm"
+						icon={paused ? Play : Pause}
+						text={paused
+							? $_('menu.resume_game')
+							: $_('menu.pause_game')}
+						onclick={ontogglepause}
+					/>
+				{/if}
 				{#if canundo}
 					<Button
 						variant="cta"

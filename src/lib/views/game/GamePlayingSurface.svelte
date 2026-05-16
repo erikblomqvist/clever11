@@ -37,12 +37,14 @@
 	 *   usedRankAnswers?: number[],
 	 *   usesImageOptions: boolean,
 	 *   undoDialogOpen: boolean,
+	 *   gamePaused: boolean,
 	 *   turnTimerSeconds: number|null,
 	 *   turnTimerRemaining: number,
 	 *   turnTimerPaused: boolean,
 	 *   onstartover: () => void,
 	 *   onundo: () => void,
 	 *   onskipround: () => void,
+	 *   ontogglepause: () => void,
 	 *   onpassorend: () => void,
 	 *   onblobclick: (index: number) => void,
 	 *   onundoblobclick: (index: number) => void,
@@ -83,12 +85,14 @@
 		usedRankAnswers = [],
 		usesImageOptions,
 		undoDialogOpen,
+		gamePaused,
 		turnTimerSeconds,
 		turnTimerRemaining,
 		turnTimerPaused,
 		onstartover,
 		onundo,
 		onskipround,
+		ontogglepause,
 		onpassorend,
 		onblobclick,
 		onundoblobclick,
@@ -122,8 +126,11 @@
 		{onstartover}
 		{onundo}
 		{onskipround}
+		{ontogglepause}
 		canundo={undoIsAvailable && !streakCelebrationActive}
 		canskipround={canSkipRound && !streakCelebrationActive}
+		canpause={turnTimerSeconds !== null}
+		paused={gamePaused}
 	/>
 
 	{#if question}
@@ -141,8 +148,9 @@
 			{streakColor}
 			{streakBurstKey}
 			{undoableBlobIndex}
-			{roundIsOver}
+			roundIsOver={roundIsOver || gamePaused}
 			volcanoRumbleEnabled={game.volcanoRumble}
+			paused={gamePaused}
 			onblobclick={streakCelebrationActive ? undefined : onblobclick}
 			onundoblobclick={streakCelebrationActive
 				? undefined
@@ -152,7 +160,7 @@
 
 	<GameActionButton
 		{roundIsOver}
-		disabled={streakCelebrationActive}
+		disabled={streakCelebrationActive || gamePaused}
 		onclick={onpassorend}
 		seatRotation={actionButtonSeatRotation}
 	/>

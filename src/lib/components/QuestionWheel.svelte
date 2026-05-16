@@ -20,6 +20,7 @@
 	 *   streakBurstKey?: number,
 	 *   undoableBlobIndex?: number|null,
 	 *   roundIsOver?: boolean,
+	 *   paused?: boolean,
 	 *   volcanoRumbleEnabled?: boolean,
 	 *   reviewToggleMode?: boolean,
 	 *   onblobclick?: (index: number) => void,
@@ -41,6 +42,7 @@
 		streakBurstKey = 0,
 		undoableBlobIndex = null,
 		roundIsOver = false,
+		paused = false,
 		volcanoRumbleEnabled = false,
 		reviewToggleMode = false,
 		onblobclick,
@@ -106,6 +108,7 @@
 <div
 	class="container"
 	class:container--streak={streakIsActive}
+	class:container--paused={paused}
 	class:container--spotlight={lastUnrevealedIndex !== null &&
 		volcanoRumbleEnabled}
 	style="--seat-rotation:{seatRotation}turn;--rotation-duration-ms:{rotationDurationMs};--rotation-easing:{rotationEasing};--streak-color:{streakColor};--streak-intensity:{streakIntensity};--streak-ring-width:{streakRingWidth};--streak-spark-width:{streakSparkWidth};--streak-glow-opacity:{streakGlowOpacity};--streak-inner-glow-opacity:{streakInnerGlowOpacity};--streak-spark-opacity:{streakSparkOpacity};--streak-outer-blur:{streakOuterBlur};--streak-glow-blur:{streakGlowBlur};--streak-inset-glow-blur:{streakInsetGlowBlur}"
@@ -289,6 +292,12 @@
 
 	.container--spotlight {
 		background-color: hsl(0 0% 90%);
+	}
+
+	.container--paused {
+		filter: blur(8px);
+		pointer-events: none;
+		transition: filter 0.25s ease;
 	}
 
 	.container--spotlight :global(.blob:not([data-last-unrevealed='true'])) {

@@ -95,7 +95,9 @@
 		"undo_last_move": "Undo last move",
 		"start_new_game": "Start new game",
 		"skip_round": "Skip round",
-		"admin": "Admin"
+		"admin": "Admin",
+		"pause_game": "Pause Game",
+		"resume_game": "Resume Game"
 	},
 	"manage_players": {
 		"title": "Manage Players",

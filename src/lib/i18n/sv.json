@@ -95,7 +95,9 @@
 		"undo_last_move": "Ångra senaste draget",
 		"start_new_game": "Starta nytt spel",
 		"skip_round": "Hoppa över runda",
-		"admin": "Admin"
+		"admin": "Admin",
+		"pause_game": "Pausa spelet",
+		"resume_game": "Fortsätt spelet"
 	},
 	"manage_players": {
 		"title": "Hantera spelare",
