@@ -20,6 +20,22 @@
 		const icons = await import('$lib/deckIcons.js');
 		getDeckIconNode = icons.getDeckIconNode;
 	});
+
+	const customStyleTag = $derived.by(() => {
+		const rules = [];
+		for (const deck of decks) {
+			const sel = `.deck-card[data-deck-id="${deck.id}"]`;
+			if (deck.css_unselected) {
+				rules.push(`${sel}, ${sel}:hover { ${deck.css_unselected} }`);
+			}
+			if (deck.css_selected) {
+				rules.push(
+					`${sel}.deck-card--selected, ${sel}.deck-card--selected:hover { ${deck.css_selected} }`,
+				);
+			}
+		}
+		return rules.length ? `<style>${rules.join('\n')}</style>` : '';
+	});
 </script>
 
 {#if decksLoading}
@@ -35,6 +51,7 @@
 				<button
 					class="deck-card"
 					class:deck-card--selected={isSelected}
+					data-deck-id={deck.id}
 					onclick={() => ontoggledeck(deck.id)}
 					type="button"
 					role="checkbox"
@@ -64,6 +81,7 @@
 			</li>
 		{/each}
 	</ul>
+	{@html customStyleTag}
 {/if}
 
 <style>

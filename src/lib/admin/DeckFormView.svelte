@@ -1,4 +1,7 @@
 <script>
+	import 'prism-code-editor/layout.css';
+	import 'prism-code-editor/themes/github-dark.css';
+
 	import LucideIcon from '$lib/components/LucideIcon.svelte';
 	import { supabase } from '$lib/supabase.js';
 	import { DECK_ICONS } from '$lib/deckIcons.js';
@@ -22,12 +25,76 @@
 	/** @type {File|null} */
 	let imageFile = $state(null);
 	let imagePreview = $state(/** @type {string|null} */ (null));
+	let cssUnselected = $state('');
+	let cssSelected = $state('');
 	let loading = $state(false);
 	let saving = $state(false);
 	let error = $state('');
 
 	/** @type {HTMLInputElement|null} */
 	let fileInput = $state(null);
+
+	/** @type {HTMLDivElement|null} */
+	let cssUnselectedEl = $state(null);
+	/** @type {HTMLDivElement|null} */
+	let cssSelectedEl = $state(null);
+	/** @type {import('prism-code-editor').PrismEditor|null} */
+	let cssUnselectedEditor = $state(null);
+	/** @type {import('prism-code-editor').PrismEditor|null} */
+	let cssSelectedEditor = $state(null);
+
+	/** @type {typeof import('prism-code-editor').createEditor|null} */
+	let _createEditor = null;
+	/** @type {ReturnType<typeof import('prism-code-editor/guides').indentGuides>|null} */
+	let _guides = null;
+
+	async function ensureEditorModules() {
+		if (_createEditor) return;
+		const [{ createEditor }, { indentGuides }] = await Promise.all([
+			import('prism-code-editor'),
+			import('prism-code-editor/guides'),
+		]);
+		await import('prism-code-editor/languages/css');
+		_createEditor = createEditor;
+		_guides = indentGuides();
+	}
+
+	$effect(() => {
+		if (!cssUnselectedEl || cssUnselectedEditor) return;
+		ensureEditorModules().then(() => {
+			if (!cssUnselectedEl || cssUnselectedEditor || !_createEditor)
+				return;
+			cssUnselectedEditor = _createEditor(
+				cssUnselectedEl,
+				{
+					language: 'css',
+					value: cssUnselected,
+					lineNumbers: false,
+					wordWrap: true,
+					onUpdate: (v) => (cssUnselected = v),
+				},
+				_guides,
+			);
+		});
+	});
+
+	$effect(() => {
+		if (!cssSelectedEl || cssSelectedEditor) return;
+		ensureEditorModules().then(() => {
+			if (!cssSelectedEl || cssSelectedEditor || !_createEditor) return;
+			cssSelectedEditor = _createEditor(
+				cssSelectedEl,
+				{
+					language: 'css',
+					value: cssSelected,
+					lineNumbers: false,
+					wordWrap: true,
+					onUpdate: (v) => (cssSelected = v),
+				},
+				_guides,
+			);
+		});
+	});
 
 	const filteredDeckIcons = $derived.by(() => {
 		const tokens = iconQuery
@@ -61,6 +128,8 @@
 		description = data.description ?? '';
 		icon = data.icon ?? null;
 		currentImageUrl = data.image_url ?? null;
+		cssUnselected = data.css_unselected ?? '';
+		cssSelected = data.css_selected ?? '';
 		loading = false;
 	}
 
@@ -118,6 +187,8 @@
 						description: description.trim() || null,
 						icon: icon || null,
 						image_url: imageUrl,
+						css_unselected: cssUnselected.trim() || null,
+						css_selected: cssSelected.trim() || null,
 					})
 					.eq('id', id);
 				if (err) throw err;
@@ -128,6 +199,8 @@
 						name: name.trim(),
 						description: description.trim() || null,
 						icon: icon || null,
+						css_unselected: cssUnselected.trim() || null,
+						css_selected: cssSelected.trim() || null,
 					})
 					.select('id')
 					.single();
@@ -277,6 +350,23 @@
 				{/if}
 			</div>
 
+			<!-- Custom CSS editors -->
+			<div class="admin-label">
+				Custom CSS (unselected)
+				<div class="admin-css-editor" bind:this={cssUnselectedEl}></div>
+				<span class="admin-hint"
+					>e.g. background: #000; border-color: hotpink;</span
+				>
+			</div>
+
+			<div class="admin-label">
+				Custom CSS (selected)
+				<div class="admin-css-editor" bind:this={cssSelectedEl}></div>
+				<span class="admin-hint"
+					>e.g. background: #222; border-color: cyan;</span
+				>
+			</div>
+
 			<div class="admin-form-actions">
 				<button
 					class="admin-btn admin-btn--primary"
@@ -298,3 +388,17 @@
 		</form>
 	{/if}
 </div>
+
+<style>
+	.admin-css-editor {
+		border: 1px solid hsl(0 0% 100% / 0.15);
+		border-radius: 0.375rem;
+		min-height: 5rem;
+		overflow: auto;
+	}
+
+	.admin-css-editor :global(.prism-code-editor) {
+		font-size: 0.8125rem;
+		text-transform: none;
+	}
+</style>

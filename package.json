@@ -38,6 +38,7 @@
     "@supabase/supabase-js": "^2.104.1",
     "lucide-static": "^1.11.0",
     "lucide-svelte": "^0.487.0",
+    "prism-code-editor": "^5.1.0",
     "sharp": "^0.34.5",
     "svelte-i18n": "^4.0.1",
     "svelte-sonner": "^1.1.1",
