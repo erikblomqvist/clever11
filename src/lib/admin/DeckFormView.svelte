@@ -25,8 +25,7 @@
 	/** @type {File|null} */
 	let imageFile = $state(null);
 	let imagePreview = $state(/** @type {string|null} */ (null));
-	let cssUnselected = $state('');
-	let cssSelected = $state('');
+	let css = $state('');
 	let loading = $state(false);
 	let saving = $state(false);
 	let error = $state('');
@@ -35,13 +34,9 @@
 	let fileInput = $state(null);
 
 	/** @type {HTMLDivElement|null} */
-	let cssUnselectedEl = $state(null);
-	/** @type {HTMLDivElement|null} */
-	let cssSelectedEl = $state(null);
+	let cssEditorEl = $state(null);
 	/** @type {import('prism-code-editor').PrismEditor|null} */
-	let cssUnselectedEditor = $state(null);
-	/** @type {import('prism-code-editor').PrismEditor|null} */
-	let cssSelectedEditor = $state(null);
+	let cssEditor = $state(null);
 
 	/** @type {typeof import('prism-code-editor').createEditor|null} */
 	let _createEditor = null;
@@ -60,36 +55,17 @@
 	}
 
 	$effect(() => {
-		if (!cssUnselectedEl || cssUnselectedEditor) return;
+		if (!cssEditorEl || cssEditor) return;
 		ensureEditorModules().then(() => {
-			if (!cssUnselectedEl || cssUnselectedEditor || !_createEditor)
-				return;
-			cssUnselectedEditor = _createEditor(
-				cssUnselectedEl,
+			if (!cssEditorEl || cssEditor || !_createEditor) return;
+			cssEditor = _createEditor(
+				cssEditorEl,
 				{
 					language: 'css',
-					value: cssUnselected,
+					value: css,
 					lineNumbers: false,
 					wordWrap: true,
-					onUpdate: (v) => (cssUnselected = v),
-				},
-				_guides,
-			);
-		});
-	});
-
-	$effect(() => {
-		if (!cssSelectedEl || cssSelectedEditor) return;
-		ensureEditorModules().then(() => {
-			if (!cssSelectedEl || cssSelectedEditor || !_createEditor) return;
-			cssSelectedEditor = _createEditor(
-				cssSelectedEl,
-				{
-					language: 'css',
-					value: cssSelected,
-					lineNumbers: false,
-					wordWrap: true,
-					onUpdate: (v) => (cssSelected = v),
+					onUpdate: (v) => (css = v),
 				},
 				_guides,
 			);
@@ -134,8 +110,7 @@
 		description = data.description ?? '';
 		icon = data.icon ?? null;
 		currentImageUrl = data.image_url ?? null;
-		cssUnselected = data.css_unselected ?? '';
-		cssSelected = data.css_selected ?? '';
+		css = data.css ?? '';
 		loading = false;
 	}
 
@@ -193,8 +168,7 @@
 						description: description.trim() || null,
 						icon: icon || null,
 						image_url: imageUrl,
-						css_unselected: cssUnselected.trim() || null,
-						css_selected: cssSelected.trim() || null,
+						css: css.trim() || null,
 					})
 					.eq('id', id);
 				if (err) throw err;
@@ -205,8 +179,7 @@
 						name: name.trim(),
 						description: description.trim() || null,
 						icon: icon || null,
-						css_unselected: cssUnselected.trim() || null,
-						css_selected: cssSelected.trim() || null,
+						css: css.trim() || null,
 					})
 					.select('id')
 					.single();
@@ -356,20 +329,12 @@
 				{/if}
 			</div>
 
-			<!-- Custom CSS editors -->
+			<!-- Custom CSS editor -->
 			<div class="admin-label">
-				Custom CSS (unselected)
-				<div class="admin-css-editor" bind:this={cssUnselectedEl}></div>
+				Custom CSS
+				<div class="admin-css-editor" bind:this={cssEditorEl}></div>
 				<span class="admin-hint"
-					>e.g. background: #000; border-color: hotpink;</span
-				>
-			</div>
-
-			<div class="admin-label">
-				Custom CSS (selected)
-				<div class="admin-css-editor" bind:this={cssSelectedEl}></div>
-				<span class="admin-hint"
-					>e.g. background: #222; border-color: cyan;</span
+					>Target with [data-deck-id], .deck-card--selected, :hover</span
 				>
 			</div>
 

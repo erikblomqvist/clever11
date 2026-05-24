@@ -22,19 +22,8 @@
 	});
 
 	const customStyleTag = $derived.by(() => {
-		const rules = [];
-		for (const deck of decks) {
-			const sel = `.deck-card[data-deck-id="${deck.id}"]`;
-			if (deck.css_unselected) {
-				rules.push(`${sel}, ${sel}:hover { ${deck.css_unselected} }`);
-			}
-			if (deck.css_selected) {
-				rules.push(
-					`${sel}.deck-card--selected, ${sel}.deck-card--selected:hover { ${deck.css_selected} }`,
-				);
-			}
-		}
-		return rules.length ? `<style>${rules.join('\n')}</style>` : '';
+		const blocks = decks.filter((d) => d.css).map((d) => d.css);
+		return blocks.length ? `<style>${blocks.join('\n')}</style>` : '';
 	});
 </script>
 
@@ -102,6 +91,7 @@
 	}
 
 	.deck-card {
+		position: relative;
 		cursor: pointer;
 		display: flex;
 		align-items: center;

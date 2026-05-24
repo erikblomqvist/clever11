@@ -185,7 +185,7 @@
 
 	// --- Decks step ---
 	/**
-	 * @typedef {{ id: string, name: string, description: string|null, icon: string|null, css_unselected: string|null, css_selected: string|null }} Deck
+	 * @typedef {{ id: string, name: string, description: string|null, icon: string|null, css: string|null }} Deck
 	 */
 	/** @type {Deck[]} */
 	let decks = $state([]);
@@ -200,24 +200,21 @@
 					name: 'General Knowledge',
 					description: 'A bit of everything',
 					icon: null,
-					css_unselected: null,
-					css_selected: null,
+					css: null,
 				},
 				{
 					id: 'mock-2',
 					name: 'Music',
 					description: 'Artists, albums, and songs',
 					icon: null,
-					css_unselected: null,
-					css_selected: null,
+					css: null,
 				},
 				{
 					id: 'mock-3',
 					name: 'History',
 					description: 'Journey through time',
 					icon: null,
-					css_unselected: null,
-					css_selected: null,
+					css: null,
 				},
 			];
 			decksLoading = false;
@@ -225,7 +222,7 @@
 		}
 		supabase
 			.from('decks')
-			.select('id, name, description, icon, css_unselected, css_selected')
+			.select('id, name, description, icon, css')
 			.order('name')
 			.then(({ data }) => {
 				decks = data ?? [];
