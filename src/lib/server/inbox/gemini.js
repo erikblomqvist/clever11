@@ -185,6 +185,56 @@ export async function generateDigestLine({ count, areaCounts }) {
 	return text.length > 60 ? text.slice(0, 60).trimEnd() : text;
 }
 
+/**
+ * Transcribe an audio blob using Gemini multimodal input.
+ * @param {Buffer} audioBuffer
+ * @param {string} mimeType
+ * @returns {Promise<string>}
+ */
+export async function transcribeAudio(audioBuffer, mimeType) {
+	const apiKey = env.GEMINI_API_KEY;
+	if (!apiKey) throw new Error('GEMINI_API_KEY is not configured.');
+
+	const base64 = audioBuffer.toString('base64');
+
+	const res = await fetch(
+		`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent`,
+		{
+			method: 'POST',
+			headers: {
+				'x-goog-api-key': apiKey,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				contents: [
+					{
+						role: 'user',
+						parts: [
+							{
+								inline_data: {
+									mime_type: mimeType,
+									data: base64,
+								},
+							},
+							{
+								text: 'Transcribe this English audio accurately. Include punctuation. Output only the plain transcribed text, nothing else.',
+							},
+						],
+					},
+				],
+				generationConfig: { temperature: 0.1 },
+			}),
+		},
+	);
+	const json = await res.json();
+	if (!res.ok) {
+		throw new Error(json?.error?.message || 'Gemini transcription failed.');
+	}
+	const text = findOutputText(json).trim();
+	if (!text) throw new Error('Gemini returned empty transcription.');
+	return text;
+}
+
 /** @param {any} json */
 function findOutputText(json) {
 	for (const candidate of json.candidates ?? []) {

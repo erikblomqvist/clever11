@@ -2,71 +2,77 @@
 	import { onMount, tick } from 'svelte';
 	import { ChevronLeft, Mic, Send, Square } from 'lucide-svelte';
 	import Button from '$lib/components/Button.svelte';
+	import { AudioRecorder } from '$lib/AudioRecorder.js';
 
 	let body = $state('');
 	let submitting = $state(false);
 	let error = $state('');
 	let lastIssue = $state(/** @type {null | number} */ (null));
+	let transcribing = $state(false);
 
 	let textarea;
-	let recognition = $state(/** @type {any} */ (null));
 	let listening = $state(false);
-	let speechSupported = $state(false);
 	let baseBeforeSpeech = '';
+	/** @type {AudioRecorder | null} */
+	let recorder = null;
 
 	onMount(() => {
 		textarea?.focus();
-		const Ctor =
-			/** @type {any} */ (window).SpeechRecognition ||
-			/** @type {any} */ (window).webkitSpeechRecognition;
-		if (!Ctor) return;
-		speechSupported = true;
-		const r = new Ctor();
-		// Prefer Swedish; browser falls back automatically if not installed.
-		r.lang = 'sv-SE';
-		r.continuous = true;
-		r.interimResults = true;
-		r.onresult = (event) => {
-			let transcript = '';
-			for (let i = event.resultIndex; i < event.results.length; i++) {
-				transcript += event.results[i][0].transcript;
-			}
-			body = (baseBeforeSpeech + ' ' + transcript).trimStart();
-		};
-		r.onerror = (e) => {
-			listening = false;
-			if (e.error === 'language-not-supported' && r.lang === 'sv-SE') {
-				r.lang = 'en-US';
-			} else if (e.error !== 'no-speech' && e.error !== 'aborted') {
-				error = 'Mic error: ' + e.error;
-			}
-		};
-		r.onend = () => {
-			listening = false;
-		};
-		recognition = r;
+		recorder = new AudioRecorder({ silenceTimeoutMs: 5000 });
+		recorder.onSilenceTimeout = () => stopDictation();
 	});
 
-	function toggleMic() {
-		if (!recognition) return;
+	async function toggleMic() {
 		if (listening) {
-			recognition.stop();
+			stopDictation();
 			return;
 		}
 		error = '';
 		baseBeforeSpeech = body ? body + ' ' : '';
 		try {
-			recognition.start();
+			await recorder?.start();
 			listening = true;
 		} catch {
 			error = 'Could not start mic';
 		}
 	}
 
+	async function stopDictation() {
+		if (!listening) return;
+		listening = false;
+		transcribing = true;
+		try {
+			const blob = await recorder?.stop();
+			if (!blob || blob.size === 0) {
+				transcribing = false;
+				return;
+			}
+			const form = new FormData();
+			form.append('audio', blob, 'recording.webm');
+			const res = await fetch('/api/inbox/transcribe', {
+				method: 'POST',
+				body: form,
+			});
+			if (!res.ok) {
+				error = 'Transcription failed — interim text kept';
+				return;
+			}
+			const { text } = await res.json();
+			body = (baseBeforeSpeech + text).trimStart();
+		} catch {
+			error = 'Transcription failed — interim text kept';
+		} finally {
+			transcribing = false;
+		}
+	}
+
 	async function submit() {
 		const trimmed = body.trim();
 		if (!trimmed || submitting) return;
-		if (listening) recognition?.stop();
+		if (listening) {
+			listening = false;
+			recorder?.stop();
+		}
 		submitting = true;
 		error = '';
 		try {
@@ -92,7 +98,6 @@
 	}
 
 	function onKey(e) {
-		// ⌘/Ctrl+Enter submits
 		if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
 			e.preventDefault();
 			submit();
@@ -119,30 +124,40 @@
 
 		<h1 class="inbox__title">New note</h1>
 
-		<textarea
-			bind:this={textarea}
-			bind:value={body}
-			onkeydown={onKey}
-			class="inbox__textarea"
-			placeholder="What's the idea?"
-			rows="2"
-			disabled={submitting}
-		></textarea>
+		<div class="inbox__textarea-wrap">
+			<textarea
+				bind:this={textarea}
+				bind:value={body}
+				onkeydown={onKey}
+				class="inbox__textarea"
+				class:inbox__textarea--transcribing={transcribing}
+				placeholder={listening ? 'Listening…' : "What's the idea?"}
+				rows="2"
+				disabled={submitting}
+			></textarea>
+			{#if transcribing}
+				<span class="inbox__processing">Transcribing…</span>
+			{/if}
+		</div>
 
 		<div class="inbox__row">
-			{#if speechSupported}
-				<Button
-					class={listening
-						? 'inbox__mic inbox__mic--on'
+			<Button
+				class={listening
+					? 'inbox__mic inbox__mic--on'
+					: transcribing
+						? 'inbox__mic inbox__mic--busy'
 						: 'inbox__mic'}
-					variant="secondary"
-					icon={listening ? Square : Mic}
-					text={listening ? 'Stop' : 'Speak'}
-					onclick={toggleMic}
-					disabled={submitting}
-					aria-pressed={listening}
-				/>
-			{/if}
+				variant="secondary"
+				icon={listening ? Square : Mic}
+				text={listening
+					? 'Stop'
+					: transcribing
+						? 'Processing…'
+						: 'Speak'}
+				onclick={toggleMic}
+				disabled={submitting || transcribing}
+				aria-pressed={listening}
+			/>
 			<Button
 				class="inbox__submit"
 				type="submit"
@@ -222,6 +237,10 @@
 		color: var(--palette-white);
 	}
 
+	.inbox__textarea-wrap {
+		position: relative;
+	}
+
 	.inbox__textarea {
 		box-sizing: border-box;
 		width: 100%;
@@ -234,7 +253,13 @@
 		color: var(--palette-black);
 		border: 3px solid var(--palette-purple-start);
 		border-radius: 0.5rem;
+		field-sizing: content;
 		resize: vertical;
+		transition: opacity 0.3s ease;
+	}
+
+	.inbox__textarea--transcribing {
+		opacity: 0.5;
 	}
 
 	.inbox__textarea:focus {
@@ -245,6 +270,15 @@
 	.inbox__textarea:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+	}
+
+	.inbox__processing {
+		position: absolute;
+		bottom: 0.5rem;
+		right: 0.75rem;
+		font-size: var(--font-size-xs, 0.75rem);
+		color: var(--palette-purple-start);
+		animation: pulse 1.5s ease-in-out infinite;
 	}
 
 	.inbox__row {
@@ -259,10 +293,21 @@
 
 	.inbox__row :global(.inbox__mic--on) {
 		background-color: var(--color-coral);
+		animation: pulse 1.5s ease-in-out infinite;
 	}
 
 	.inbox__row :global(.inbox__mic--on:hover:not(:disabled)) {
 		background-color: lch(from var(--color-coral) calc(l + 5) c h);
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
 	}
 
 	.inbox__error {
