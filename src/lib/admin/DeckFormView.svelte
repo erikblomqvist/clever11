@@ -112,6 +112,12 @@
 		if (isEdit && id) loadDeck(id);
 	});
 
+	$effect(() => {
+		if (!icon || loading) return;
+		const active = document.querySelector('.admin-icon-btn--active');
+		if (active) active.scrollIntoView({ block: 'nearest' });
+	});
+
 	async function loadDeck(/** @type {string} */ deckId) {
 		loading = true;
 		const { data, error: err } = await supabase
