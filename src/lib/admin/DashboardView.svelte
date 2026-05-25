@@ -4,7 +4,7 @@
 		clearForcedFirstQuestionId,
 		getForcedFirstQuestionId,
 		setForcedFirstQuestionId,
-	} from '$lib/testingOptions.js';
+	} from '$lib/game';
 
 	let forcedQuestionId = $state(getForcedFirstQuestionId() ?? '');
 	let forcedQuestionStatus = $state('');

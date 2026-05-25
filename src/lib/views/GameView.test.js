@@ -11,8 +11,8 @@ vi.mock('svelte-i18n', () => ({
 	},
 }));
 
-// Mock $lib/game.svelte.js
-vi.mock('$lib/game.svelte.js', () => {
+// Mock $lib/game
+vi.mock('$lib/game', () => {
 	const mockGame = {
 		status: 'playing',
 		players: [],
@@ -38,7 +38,7 @@ vi.mock('$lib/game.svelte.js', () => {
 });
 
 import GameView from './GameView.svelte';
-import { game } from '$lib/game.svelte.js';
+import { game } from '$lib/game';
 import { fireEvent } from '@testing-library/dom';
 
 describe('GameView', () => {

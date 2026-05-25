@@ -1,6 +1,6 @@
 <script>
 	import GameView from './GameView.svelte';
-	import { game } from '$lib/game.svelte.js';
+	import { game } from '$lib/game';
 	import { DEMO_SCENARIOS } from '$lib/demo/scenarios.js';
 	import SetupStepShell from '$lib/components/SetupStepShell.svelte';
 	import Button from '$lib/components/Button.svelte';

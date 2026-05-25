@@ -5,15 +5,15 @@
 	import UndoLastMoveDialog from '$lib/components/UndoLastMoveDialog.svelte';
 	import TurnTimerBorder from '$lib/components/TurnTimerBorder.svelte';
 	import GameActionButton from './GameActionButton.svelte';
-	import { game } from '$lib/game.svelte.js';
+	import { game } from '$lib/game';
 
 	/**
 	 * @type {{
 	 *   surfaceElement: HTMLElement|null,
 	 *   questionTypeToken?: string,
-	 *   currentPlayer: import('$lib/game.svelte.js').GamePlayer|null,
-	 *   players: import('$lib/game.svelte.js').GamePlayer[],
-	 *   question: import('$lib/game.svelte.js').GameQuestion|null,
+	 *   currentPlayer: import('$lib/game').GamePlayer|null,
+	 *   players: import('$lib/game').GamePlayer[],
+	 *   question: import('$lib/game').GameQuestion|null,
 	 *   questionType?: import('$lib/data/questionTypes.js').QuestionType|null,
 	 *   deck?: string|null,
 	 *   deckIcon?: string|null,

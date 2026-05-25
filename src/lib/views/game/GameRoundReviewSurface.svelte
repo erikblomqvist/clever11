@@ -2,7 +2,7 @@
 	import QuestionWheel from '$lib/components/QuestionWheel.svelte';
 	import RoundReviewPanel from '$lib/components/RoundReviewPanel.svelte';
 	import ManagePlayersOverlay from '$lib/components/ManagePlayersOverlay.svelte';
-	import { game } from '$lib/game.svelte.js';
+	import { game } from '$lib/game';
 	import {
 		SPRING_DRAG_RETURN_DURATION_MS,
 		useSpringDrag,
@@ -11,8 +11,8 @@
 	/**
 	 * @type {{
 	 *   questionTypeToken?: string,
-	 *   question: import('$lib/game.svelte.js').GameQuestion|null,
-	 *   players: import('$lib/game.svelte.js').GamePlayer[],
+	 *   question: import('$lib/game').GameQuestion|null,
+	 *   players: import('$lib/game').GamePlayer[],
 	 *   roundNumber?: number,
 	 *   vote?: boolean|null,
 	 *   reviewBlobStates: (boolean|null)[],

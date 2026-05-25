@@ -4,8 +4,8 @@
 	/**
 	 * @type {{
 	 *   questionTypeToken?: string,
-	 *   players: import('$lib/game.svelte.js').GamePlayer[],
-	 *   playedQuestions: import('$lib/game.svelte.js').GameQuestion[],
+	 *   players: import('$lib/game').GamePlayer[],
+	 *   playedQuestions: import('$lib/game').GameQuestion[],
 	 *   onstartover: () => void,
 	 * }}
 	 */

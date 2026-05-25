@@ -12,7 +12,7 @@
 		Pause,
 		Play,
 	} from 'lucide-svelte';
-	import { game } from '$lib/game.svelte.js';
+	import { game } from '$lib/game';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import LucideIcon from './LucideIcon.svelte';
 	import OverallScoreList from './OverallScoreList.svelte';
@@ -22,7 +22,7 @@
 
 	/**
 	 * @type {{
-	 *   players: import('$lib/game.svelte.js').GamePlayer[],
+	 *   players: import('$lib/game').GamePlayer[],
 	 *   questionType?: import('$lib/data/questionTypes.js').QuestionType | null,
 	 *   deck?: string | null,
 	 *   deckIcon?: string | null,

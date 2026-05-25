@@ -1,7 +1,7 @@
 <script>
 	import SetupView from '$lib/views/SetupView.svelte';
 	import { goto } from '$app/navigation';
-	import { game } from '$lib/game.svelte.js';
+	import { game } from '$lib/game';
 	import { _ } from 'svelte-i18n';
 
 	let loading = $state(false);

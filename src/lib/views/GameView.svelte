@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { toast } from 'svelte-sonner';
-	import { game } from '$lib/game.svelte.js';
+	import { game } from '$lib/game';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import GamePlayingSurface from './game/GamePlayingSurface.svelte';
 	import GameRoundReviewSurface from './game/GameRoundReviewSurface.svelte';

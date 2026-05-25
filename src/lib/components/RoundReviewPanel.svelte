@@ -6,7 +6,7 @@
 
 	/**
 	 * @type {{
-	 *   players: import('$lib/game.svelte.js').GamePlayer[],
+	 *   players: import('$lib/game').GamePlayer[],
 	 *   roundNumber?: number,
 	 *   vote?: boolean|null,
 	 *   isFinished?: boolean,

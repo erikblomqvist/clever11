@@ -11,7 +11,7 @@
 
 	/**
 	 * @type {{
-	 *   players: import('$lib/game.svelte.js').GamePlayer[],
+	 *   players: import('$lib/game').GamePlayer[],
 	 *   onremove: (playerId: string) => void,
 	 *   onreplace: (playerId: string, identity: { name: string, icon: string, color: string }) => void,
 	 *   onadd: (params: { name: string, icon: string, color: string, seatPosition: number }) => void,
@@ -51,7 +51,7 @@
 		mode = 'add';
 	}
 
-	/** @param {import('$lib/game.svelte.js').GamePlayer} player */
+	/** @param {import('$lib/game').GamePlayer} player */
 	function startReplace(player) {
 		replacingPlayerId = player.id;
 		formName = player.name;

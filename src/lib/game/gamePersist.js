@@ -5,7 +5,7 @@
  * @typedef {import('./game.svelte.js').Round} Round
  */
 
-import { supabase } from './supabase.js';
+import { supabase } from '$lib/supabase.js';
 
 /** @type {Record<string, import('$lib/data/game.js').Question>} */
 const questionsByType = {
