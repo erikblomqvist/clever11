@@ -27,17 +27,6 @@ export const handle = async ({ event, resolve }) => {
 		},
 	);
 
-	/**
-	 * A convenience helper so we can just call await getSession() instead of
-	 * the more verbose await event.locals.supabase.auth.getSession()
-	 */
-	event.locals.getSession = async () => {
-		const {
-			data: { session },
-		} = await event.locals.supabase.auth.getSession();
-		return session;
-	};
-
 	// Auth guard for /admin and /inbox (incl. /api/inbox)
 	const path = event.url.pathname;
 	const needsAuth =
@@ -45,7 +34,6 @@ export const handle = async ({ event, resolve }) => {
 		path.startsWith('/inbox') ||
 		path.startsWith('/api/inbox');
 	if (needsAuth) {
-		// Use getUser() for security as it validates the session with the Supabase API
 		const { data, error: authError } =
 			await event.locals.supabase.auth.getUser();
 		const user = data?.user ?? null;
@@ -63,6 +51,8 @@ export const handle = async ({ event, resolve }) => {
 			}
 			throw redirect(303, '/admin/login');
 		}
+
+		event.locals.user = user;
 	}
 
 	return resolve(event, {

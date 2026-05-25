@@ -1,6 +1,6 @@
 /** @type {import('./$types').LayoutServerLoad} */
-export const load = async ({ locals: { getSession } }) => {
+export const load = async ({ locals }) => {
 	return {
-		session: await getSession(),
+		user: locals.user ?? null,
 	};
 };
