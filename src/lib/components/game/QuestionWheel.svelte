@@ -2,7 +2,7 @@
 	import AnswerBlob from './AnswerBlob.svelte';
 	import AnswerTextPopover from './AnswerTextPopover.svelte';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
-	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streak-config.js';
+	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streakConfig.js';
 
 	/**
 	 * @type {{

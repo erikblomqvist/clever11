@@ -17,7 +17,7 @@
 		useSpringDrag,
 	} from '$lib/hooks/useSpringDrag.svelte.js';
 	import { useGameInteractionLock } from '$lib/hooks/useGameInteractionLock.js';
-	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streak-config.js';
+	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streakConfig.js';
 
 	/** @type {{ onstartover: () => void }} */
 	let { onstartover } = $props();

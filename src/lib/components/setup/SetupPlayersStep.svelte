@@ -13,7 +13,7 @@
 	} from '$lib/playerIcons.js';
 	import { pinchUnlock } from '$lib/actions/pinchUnlock.js';
 	import { secretCode } from '$lib/actions/secretCode.js';
-	import { playSparkleChime, playWhooshDing } from '$lib/celebrationAudio.js';
+	import { playSparkleChime, playWhooshDing } from './celebrationAudio.js';
 
 	/**
 	 * @type {{
