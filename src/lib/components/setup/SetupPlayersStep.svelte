@@ -3,7 +3,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import { _ } from 'svelte-i18n';
 	import { Plus, X } from 'lucide-svelte';
-	import Button from './Button.svelte';
+	import Button from '../Button.svelte';
 	import {
 		BASE_PLAYER_ICONS,
 		PANTRY_ICONS,

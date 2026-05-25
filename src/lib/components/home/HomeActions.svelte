@@ -1,6 +1,6 @@
 <script>
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
+	import Button from '../Button.svelte';
 
 	/**
 	 * @type {{

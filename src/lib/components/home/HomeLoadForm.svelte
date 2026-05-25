@@ -1,7 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
-	import Message from './Message.svelte';
+	import Button from '../Button.svelte';
+	import Message from '../Message.svelte';
 
 	/**
 	 * @type {{

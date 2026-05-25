@@ -2,7 +2,7 @@
 	import { _ } from 'svelte-i18n';
 	import { ChevronDown } from 'lucide-svelte';
 	import { getPlayerIconComponent } from '$lib/playerIcons.js';
-	import Button from './Button.svelte';
+	import Button from '../Button.svelte';
 
 	/**
 	 * @type {{

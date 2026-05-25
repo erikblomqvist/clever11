@@ -1,5 +1,5 @@
 <script>
-	import GameFinishedPodium from '$lib/components/GameFinishedPodium.svelte';
+	import GameFinishedPodium from '$lib/components/game/GameFinishedPodium.svelte';
 
 	/**
 	 * @type {{

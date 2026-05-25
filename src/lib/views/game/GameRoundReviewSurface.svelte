@@ -1,7 +1,7 @@
 <script>
-	import QuestionWheel from '$lib/components/QuestionWheel.svelte';
-	import RoundReviewPanel from '$lib/components/RoundReviewPanel.svelte';
-	import ManagePlayersOverlay from '$lib/components/ManagePlayersOverlay.svelte';
+	import QuestionWheel from '$lib/components/game/QuestionWheel.svelte';
+	import RoundReviewPanel from '$lib/components/game/RoundReviewPanel.svelte';
+	import ManagePlayersOverlay from '$lib/components/game/ManagePlayersOverlay.svelte';
 	import { game } from '$lib/game';
 	import {
 		SPRING_DRAG_RETURN_DURATION_MS,

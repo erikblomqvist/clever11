@@ -2,7 +2,7 @@
 	import { _ } from 'svelte-i18n';
 	import { syncDialogOpen } from '$lib/utilities/dialog.js';
 	import { Check, X } from 'lucide-svelte';
-	import Button from './Button.svelte';
+	import Button from '../Button.svelte';
 
 	/**
 	 * @type {{

@@ -1,6 +1,6 @@
 <script>
 	import { _ } from 'svelte-i18n';
-	import Toggle from './Toggle.svelte';
+	import Toggle from '../Toggle.svelte';
 
 	/**
 	 * @type {{

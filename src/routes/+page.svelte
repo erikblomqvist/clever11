@@ -1,5 +1,5 @@
 <script>
-	import HomeView from '$lib/components/HomeView.svelte';
+	import HomeView from '$lib/components/home/HomeView.svelte';
 	import { goto } from '$app/navigation';
 	import { game } from '$lib/game';
 	import { _ } from 'svelte-i18n';

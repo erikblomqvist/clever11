@@ -7,12 +7,12 @@
 		PLAYER_COLORS,
 	} from '$lib/playerIcons.js';
 	import { supabase } from '$lib/supabase.js';
-	import SetupStepShell from '$lib/components/SetupStepShell.svelte';
-	import SetupPlayersStep from '$lib/components/SetupPlayersStep.svelte';
-	import SetupSeatingStep from '$lib/components/SetupSeatingStep.svelte';
-	import SetupDecksStep from '$lib/components/SetupDecksStep.svelte';
-	import SetupRulesStep from '$lib/components/SetupRulesStep.svelte';
-	import SetupStartingStep from '$lib/components/SetupStartingStep.svelte';
+	import SetupStepShell from '$lib/components/setup/SetupStepShell.svelte';
+	import SetupPlayersStep from '$lib/components/setup/SetupPlayersStep.svelte';
+	import SetupSeatingStep from '$lib/components/setup/SetupSeatingStep.svelte';
+	import SetupDecksStep from '$lib/components/setup/SetupDecksStep.svelte';
+	import SetupRulesStep from '$lib/components/setup/SetupRulesStep.svelte';
+	import SetupStartingStep from '$lib/components/setup/SetupStartingStep.svelte';
 
 	/** @type {{ oninit: (setup: GameSetup) => void, onback: () => void }} */
 	let { oninit, onback } = $props();

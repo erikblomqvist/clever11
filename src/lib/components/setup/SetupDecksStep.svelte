@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-	import LucideIcon from './LucideIcon.svelte';
+	import LucideIcon from '../LucideIcon.svelte';
 
 	/**
 	 * @type {{

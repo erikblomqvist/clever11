@@ -1,7 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { ChevronLeft } from 'lucide-svelte';
-	import SeatMap from './SeatMap.svelte';
+	import SeatMap from '../SeatMap.svelte';
 
 	/**
 	 * @type {{

@@ -1,13 +1,13 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { X, UserMinus, UserPen, UserPlus } from 'lucide-svelte';
-	import Button from './Button.svelte';
+	import Button from '../Button.svelte';
 	import {
 		PLAYER_ICONS,
 		PLAYER_COLORS,
 		getPlayerIconComponent,
 	} from '$lib/playerIcons.js';
-	import SeatMap from './SeatMap.svelte';
+	import SeatMap from '../SeatMap.svelte';
 
 	/**
 	 * @type {{

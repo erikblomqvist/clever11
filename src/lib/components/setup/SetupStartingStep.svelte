@@ -1,7 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { Shuffle } from 'lucide-svelte';
-	import Button from './Button.svelte';
+	import Button from '../Button.svelte';
 	import { getPlayerIconComponent } from '$lib/playerIcons.js';
 
 	/**

@@ -1,9 +1,9 @@
 <script>
-	import GameMenu from '$lib/components/GameMenu.svelte';
-	import QuestionWheel from '$lib/components/QuestionWheel.svelte';
-	import AnswerDialog from '$lib/components/AnswerDialog.svelte';
-	import UndoLastMoveDialog from '$lib/components/UndoLastMoveDialog.svelte';
-	import TurnTimerBorder from '$lib/components/TurnTimerBorder.svelte';
+	import GameMenu from '$lib/components/game/GameMenu.svelte';
+	import QuestionWheel from '$lib/components/game/QuestionWheel.svelte';
+	import AnswerDialog from '$lib/components/game/AnswerDialog.svelte';
+	import UndoLastMoveDialog from '$lib/components/game/UndoLastMoveDialog.svelte';
+	import TurnTimerBorder from '$lib/components/game/TurnTimerBorder.svelte';
 	import GameActionButton from './GameActionButton.svelte';
 	import { game } from '$lib/game';
 

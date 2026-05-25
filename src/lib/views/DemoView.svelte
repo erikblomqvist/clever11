@@ -2,7 +2,7 @@
 	import GameView from './GameView.svelte';
 	import { game } from '$lib/game';
 	import { DEMO_SCENARIOS } from '$lib/demo/scenarios.js';
-	import SetupStepShell from '$lib/components/SetupStepShell.svelte';
+	import SetupStepShell from '$lib/components/setup/SetupStepShell.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import { ChevronLeft } from 'lucide-svelte';
 

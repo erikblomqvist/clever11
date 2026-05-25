@@ -1,8 +1,8 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { Users, ThumbsUp, ThumbsDown } from 'lucide-svelte';
-	import Button from './Button.svelte';
-	import PlayerIcon from './PlayerIcon.svelte';
+	import Button from '../Button.svelte';
+	import PlayerIcon from '../PlayerIcon.svelte';
 
 	/**
 	 * @type {{

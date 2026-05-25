@@ -14,11 +14,11 @@
 	} from 'lucide-svelte';
 	import { game } from '$lib/game';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
-	import LucideIcon from './LucideIcon.svelte';
-	import OverallScoreList from './OverallScoreList.svelte';
-	import ScoreList from './ScoreList.svelte';
-	import Button from './Button.svelte';
-	import Toggle from './Toggle.svelte';
+	import LucideIcon from '../LucideIcon.svelte';
+	import OverallScoreList from '../OverallScoreList.svelte';
+	import ScoreList from '../ScoreList.svelte';
+	import Button from '../Button.svelte';
+	import Toggle from '../Toggle.svelte';
 
 	/**
 	 * @type {{
