@@ -4,7 +4,7 @@ import webpush from 'web-push';
 import { getOpenIssues, getRecentCommits } from '$lib/server/inbox/github.js';
 import { embed } from '$lib/server/inbox/embed.js';
 import { generateDigestLine } from '$lib/server/inbox/gemini.js';
-import { getSupabaseAdmin } from '$lib/server/adminSupabase.js';
+import { getSupabaseAdmin } from '$lib/server/supabaseAdmin.js';
 
 const STALE_AFTER_HOURS = 12;
 const COMMIT_LOOKBACK_DAYS = 7;

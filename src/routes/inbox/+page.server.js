@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { getOpenIssues } from '$lib/server/inbox/github.js';
-import { getSupabaseAdmin } from '$lib/server/adminSupabase.js';
+import { getSupabaseAdmin } from '$lib/server/supabaseAdmin.js';
 
 const UNKNOWN_AREA = 'Untagged';
 

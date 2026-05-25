@@ -3,7 +3,7 @@ import { createIssue, updateIssue } from '$lib/server/inbox/github.js';
 import { generateMetadata } from '$lib/server/inbox/gemini.js';
 import { embed } from '$lib/server/inbox/embed.js';
 import { findDuplicates } from '$lib/server/inbox/dedup.js';
-import { getSupabaseAdmin } from '$lib/server/adminSupabase.js';
+import { getSupabaseAdmin } from '$lib/server/supabaseAdmin.js';
 
 const MAX_BODY = 8000;
 

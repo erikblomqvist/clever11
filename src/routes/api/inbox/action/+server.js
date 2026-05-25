@@ -5,7 +5,7 @@ import {
 	closeIssue,
 	commentIssue,
 } from '$lib/server/inbox/github.js';
-import { getSupabaseAdmin } from '$lib/server/adminSupabase.js';
+import { getSupabaseAdmin } from '$lib/server/supabaseAdmin.js';
 
 const ALLOWED_ACTIONS = new Set([
 	'ready',

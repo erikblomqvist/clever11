@@ -1,5 +1,5 @@
 import { json, error } from '@sveltejs/kit';
-import { getSupabaseAdmin } from '$lib/server/adminSupabase.js';
+import { getSupabaseAdmin } from '$lib/server/supabaseAdmin.js';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {

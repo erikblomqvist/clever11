@@ -6,7 +6,7 @@ import { env } from '$env/dynamic/private';
 import {
 	getUserIdFromAuthorization,
 	recordAiImportEvent,
-} from '$lib/server/adminSupabase';
+} from '$lib/server/supabaseAdmin';
 
 const QUESTION_TYPES = [
 	'standard',

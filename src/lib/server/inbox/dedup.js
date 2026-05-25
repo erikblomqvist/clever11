@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from '../adminSupabase.js';
+import { getSupabaseAdmin } from '../supabaseAdmin.js';
 import { getOpenIssues } from './github.js';
 
 export const SIMILARITY_THRESHOLD = 0.75;
