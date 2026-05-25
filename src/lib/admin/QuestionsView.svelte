@@ -4,7 +4,7 @@
 	import {
 		QUESTIONS_LIST_SCROLL_RESTORE_PENDING,
 		QUESTIONS_LIST_SCROLL_Y_KEY,
-	} from '$lib/adminQuestionsListScroll.js';
+	} from '$lib/admin/questionsListScroll.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
 	import { SvelteMap } from 'svelte/reactivity';

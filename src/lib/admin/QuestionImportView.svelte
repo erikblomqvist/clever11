@@ -7,7 +7,7 @@
 		normalizeImportDraft,
 		toQuestionInsertPayload,
 		validateImportDraft,
-	} from '$lib/questionImport.js';
+	} from '$lib/admin/questionImport.js';
 	import { base } from '$app/paths';
 	/** @type {{ id: string, name: string }[]} */
 	let decks = $state([]);
