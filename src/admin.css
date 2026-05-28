@@ -162,6 +162,40 @@ select {
 	background: transparent;
 }
 
+/* ─── Admin shell layout ───────────────────────────────────────────────── */
+
+.admin-shell {
+	display: flex;
+	height: 100dvh;
+}
+
+.admin-main {
+	display: flex;
+	overflow: hidden;
+	min-width: 0;
+
+	flex: 1;
+	flex-direction: column;
+}
+
+.admin-content {
+	overflow-y: auto;
+	padding: 24px;
+
+	flex: 1;
+}
+
+.admin-loading {
+	display: grid;
+	height: 100dvh;
+
+	font-size: 13px;
+
+	color: var(--fg-mute);
+
+	place-items: center;
+}
+
 /* ─── Keyframes ─────────────────────────────────────────────────────────── */
 
 @keyframes fade-in {
