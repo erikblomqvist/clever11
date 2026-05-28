@@ -1,5 +1,6 @@
 <script>
 	import { tick } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/supabase.js';
 	import { logActivity } from './activityLog.js';
 	import {
@@ -7,8 +8,17 @@
 		QUESTIONS_LIST_SCROLL_Y_KEY,
 	} from '$lib/admin/questionsListScroll.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
-	import { ThumbsUp, ThumbsDown } from 'lucide-svelte';
+	import { Search, X, Upload, Plus } from 'lucide-svelte';
 	import { SvelteMap } from 'svelte/reactivity';
+	import TypeBadge from './components/TypeBadge.svelte';
+	import VoteChips from './components/VoteChips.svelte';
+	import SortHeader from './components/SortHeader.svelte';
+	import EmptyState from './components/EmptyState.svelte';
+	import Toggle from './components/Toggle.svelte';
+	import Select from './components/Select.svelte';
+	import Dialog from './components/Dialog.svelte';
+	import Toast from './components/Toast.svelte';
+	import DropdownMenu from './components/DropdownMenu.svelte';
 
 	const QUESTIONS_FILTERS_KEY = 'clever11-admin-questions-filters';
 	const SORT_FIELDS = new Set(['question_text', 'question_number', 'votes']);
@@ -70,6 +80,9 @@
 	let decks = $state([]);
 	/** @type {SvelteMap<string, { up: number, down: number }>} */
 	let voteCounts = new SvelteMap();
+	let confirmTarget = $state(null);
+	/** @type {Toast|null} */
+	let toastRef = $state(null);
 
 	/** @type {number} */
 	let listScrollSaveRaf = 0;
@@ -94,8 +107,6 @@
 		const el = document.querySelector('.admin-content');
 		if (!el) return;
 
-		/* Do not persist on mount: scrollTop is 0 while loading and would wipe the
-		   saved Y before the restore effect runs (session has PENDING + correct Y). */
 		el.addEventListener('scroll', persistQuestionsListScrollY, {
 			passive: true,
 		});
@@ -155,7 +166,6 @@
 				const sh = el.scrollHeight;
 				if (sh === lastScrollHeight) {
 					stableFrames++;
-					/* List height stable but target still out of reach — clamped end. */
 					if (stableFrames >= 2) return;
 				} else {
 					stableFrames = 0;
@@ -216,10 +226,6 @@
 	const filtered = $derived(
 		questions.filter((q) => {
 			if (filterType && q.type !== filterType) return false;
-			if (filterDeckId) {
-				// We need deck_id — fetch via joined name is approximate; re-filter by deck
-				// Deck filter works by re-querying; for now, filter by deck name
-			}
 			if (
 				filterText &&
 				!q.question_text
@@ -255,228 +261,808 @@
 		loading = false;
 	}
 
-	function toggleSort(/** @type {string} */ field) {
-		if (sortField === field) {
+	function handleSort(/** @type {string} */ key) {
+		if (sortField === key) {
 			sortAsc = !sortAsc;
 		} else {
-			sortField = field;
-			sortAsc = field === 'question_number';
+			sortField = key;
+			sortAsc = key === 'question_number';
 		}
 	}
 
-	function sortIndicator(/** @type {string} */ field) {
-		if (sortField !== field) return '';
-		return sortAsc ? ' ↑' : ' ↓';
+	function handleDeckChange(/** @type {string|null} */ val) {
+		filterDeckId = val ?? '';
+		applyFilter();
 	}
 
-	async function archiveQuestion(/** @type {string} */ id) {
-		if (
-			!confirm(
-				'Archive this question? It will no longer appear in games.',
-			)
-		)
-			return;
+	function handleTypeChange(/** @type {string|null} */ val) {
+		filterType = val ?? '';
+		applyFilter();
+	}
+
+	function handleArchivedChange(/** @type {boolean} */ val) {
+		showArchived = val;
+		applyFilter();
+	}
+
+	function resetFilters() {
+		filterText = '';
+		filterDeckId = '';
+		filterType = '';
+		showArchived = false;
+		applyFilter();
+	}
+
+	let hasActiveFilters = $derived(
+		!!(filterText || filterDeckId || filterType || showArchived),
+	);
+
+	function askArchive(/** @type {any} */ q) {
+		confirmTarget = q;
+	}
+
+	async function doArchive() {
+		const q = confirmTarget;
+		if (!q) return;
+		confirmTarget = null;
 		const { error: err } = await supabase
 			.from('questions')
 			.update({ archived_at: new Date().toISOString() })
-			.eq('id', id);
+			.eq('id', q.id);
 		if (err) {
-			alert(err.message);
+			toastRef?.show(err.message);
 			return;
 		}
-		const match = questions.find((q) => q.id === id);
 		logActivity({
 			verb: 'archived',
 			entity_type: 'question',
-			entity_id: id,
-			summary: match?.question_number
-				? `Q #${match.question_number}`
-				: 'question',
-			deck_name: match?.decks?.name ?? null,
+			entity_id: q.id,
+			summary: q.question_number ? `Q #${q.question_number}` : 'question',
+			deck_name: q.decks?.name ?? null,
 		});
-		questions = questions.filter((q) => q.id !== id);
+		const removed = { ...q };
+		questions = questions.filter((x) => x.id !== q.id);
+		toastRef?.show(`Archived Q #${q.question_number ?? '?'}.`, {
+			onundo: async () => {
+				const { error: err2 } = await supabase
+					.from('questions')
+					.update({ archived_at: null })
+					.eq('id', removed.id);
+				if (err2) return;
+				logActivity({
+					verb: 'restored',
+					entity_type: 'question',
+					entity_id: removed.id,
+					summary: removed.question_number
+						? `Q #${removed.question_number}`
+						: 'question',
+					deck_name: removed.decks?.name ?? null,
+				});
+				questions = [...questions, removed];
+			},
+		});
 	}
 
-	async function restoreQuestion(/** @type {string} */ id) {
+	async function restoreQuestion(/** @type {any} */ q) {
 		const { error: err } = await supabase
 			.from('questions')
 			.update({ archived_at: null })
-			.eq('id', id);
+			.eq('id', q.id);
 		if (err) {
-			alert(err.message);
+			toastRef?.show(err.message);
 			return;
 		}
-		const match = questions.find((q) => q.id === id);
 		logActivity({
 			verb: 'restored',
 			entity_type: 'question',
-			entity_id: id,
-			summary: match?.question_number
-				? `Q #${match.question_number}`
-				: 'question',
-			deck_name: match?.decks?.name ?? null,
+			entity_id: q.id,
+			summary: q.question_number ? `Q #${q.question_number}` : 'question',
+			deck_name: q.decks?.name ?? null,
 		});
-		questions = questions.filter((q) => q.id !== id);
+		const removed = { ...q };
+		questions = questions.filter((x) => x.id !== q.id);
+		toastRef?.show(`Restored Q #${q.question_number ?? '?'}.`, {
+			onundo: async () => {
+				const { error: err2 } = await supabase
+					.from('questions')
+					.update({ archived_at: new Date().toISOString() })
+					.eq('id', removed.id);
+				if (err2) return;
+				logActivity({
+					verb: 'archived',
+					entity_type: 'question',
+					entity_id: removed.id,
+					summary: removed.question_number
+						? `Q #${removed.question_number}`
+						: 'question',
+					deck_name: removed.decks?.name ?? null,
+				});
+				questions = [...questions, removed];
+			},
+		});
 	}
+
+	function menuItems(/** @type {any} */ q) {
+		if (q.archived_at) {
+			return [
+				{ label: 'Restore', onclick: () => restoreQuestion(q) },
+				{ separator: true },
+				{
+					label: 'Edit',
+					onclick: () => goto(`/admin/questions/${q.id}`),
+				},
+			];
+		}
+		return [
+			{
+				label: 'Edit',
+				onclick: () => goto(`/admin/questions/${q.id}`),
+			},
+			{ separator: true },
+			{
+				label: 'Archive',
+				onclick: () => askArchive(q),
+				danger: true,
+			},
+		];
+	}
+
+	const deckOptions = $derived(
+		decks.map((d) => ({ value: d.id, label: d.name })),
+	);
+
+	const typeOptions = $derived(
+		Object.entries(QUESTION_TYPES).map(([key, config]) => ({
+			value: key,
+			label: config.label,
+		})),
+	);
 </script>
 
-<div class="admin-page">
-	<div class="admin-page__header">
-		<h1 class="admin-page__title">Questions</h1>
-		<a class="admin-btn" href="/admin/questions/import"> Import cards </a>
-		<a class="admin-btn admin-btn--primary" href="/admin/questions/new">
-			New question
-		</a>
+<div class="qv">
+	<!-- Page header -->
+	<div class="qv__header">
+		<div>
+			<h1 class="qv__title">Questions</h1>
+			<p class="qv__subtitle">
+				All cards across all decks. Click a row to edit.
+			</p>
+		</div>
+		<div class="qv__actions">
+			<a class="qv__btn qv__btn--ghost" href="/admin/questions/import">
+				<Upload size={14} />
+				Import cards
+			</a>
+			<a class="qv__btn qv__btn--primary" href="/admin/questions/new">
+				<Plus size={14} />
+				New question
+			</a>
+		</div>
 	</div>
 
-	<div class="admin-filters">
-		<select
-			class="admin-select"
-			bind:value={filterDeckId}
-			onchange={applyFilter}
-		>
-			<option value="">All decks</option>
-			{#each decks as deck (deck.id)}
-				<option value={deck.id}>{deck.name}</option>
-			{/each}
-		</select>
-		<select
-			class="admin-select"
-			bind:value={filterType}
-			onchange={applyFilter}
-		>
-			<option value="">All types</option>
-			{#each Object.entries(QUESTION_TYPES) as [key, config] (key)}
-				<option value={key}>{config.label}</option>
-			{/each}
-		</select>
-		<input
-			class="admin-input admin-input--inline"
-			type="search"
-			placeholder="Search questions…"
-			bind:value={filterText}
-		/>
-		<label class="admin-toggle-wrap">
+	<!-- Filter bar -->
+	<div class="qv__filters">
+		<div class="qv__search">
+			<Search size={14} />
 			<input
-				type="checkbox"
-				bind:checked={showArchived}
-				onchange={applyFilter}
+				type="text"
+				placeholder="Search questions…"
+				bind:value={filterText}
 			/>
-			<span class="admin-toggle" class:admin-toggle--on={showArchived}
-				>Archived</span
+			{#if filterText}
+				<button
+					class="qv__search-clear"
+					onclick={() => (filterText = '')}
+				>
+					<X size={12} />
+				</button>
+			{/if}
+		</div>
+		<Select
+			label="Deck"
+			value={filterDeckId || null}
+			options={deckOptions}
+			onchange={handleDeckChange}
+			allowClear
+		/>
+		<Select
+			label="Type"
+			value={filterType || null}
+			options={typeOptions}
+			onchange={handleTypeChange}
+			allowClear
+		/>
+		<Toggle
+			checked={showArchived}
+			onchange={handleArchivedChange}
+			label="Archived"
+			hint={showArchived ? '' : 'hidden'}
+		/>
+		<div class="qv__filters-spacer"></div>
+		{#if hasActiveFilters}
+			<button
+				class="qv__btn qv__btn--ghost qv__btn--sm"
+				onclick={resetFilters}
 			>
-		</label>
+				Reset
+			</button>
+		{/if}
+		<span class="qv__counter mono">
+			<span class="qv__counter-num">{sorted.length}</span>
+			<span class="qv__counter-sep">/</span>
+			<span>{questions.length}</span>
+		</span>
 	</div>
 
+	<!-- Content area -->
 	{#if loading}
-		<p class="admin-hint">Loading…</p>
+		<div class="qv__status">Loading…</div>
 	{:else if error}
-		<p class="admin-form-error">{error}</p>
-	{:else if filtered.length === 0}
-		<p class="admin-hint">No questions found.</p>
+		<div class="qv__status qv__status--error">{error}</div>
+	{:else if sorted.length === 0}
+		<EmptyState
+			title="No questions match these filters."
+			body="Try clearing a filter, broadening your search, or toggling archived."
+		>
+			{#snippet icon()}
+				<Search size={18} />
+			{/snippet}
+		</EmptyState>
 	{:else}
-		<div class="admin-list admin-list--grid">
-			<div class="admin-list__header">
-				<span
-					class="admin-list__col admin-list__col--sortable{sortField ===
-					'question_number'
-						? ' admin-list__col--active'
-						: ''}"
-					role="button"
-					tabindex="0"
-					onclick={() => toggleSort('question_number')}
-					onkeydown={(e) =>
-						e.key === 'Enter' && toggleSort('question_number')}
-					>#{sortIndicator('question_number')}</span
-				>
-				<span class="admin-list__col">Type</span>
-				<span
-					class="admin-list__col admin-list__col--sortable{sortField ===
-					'question_text'
-						? ' admin-list__col--active'
-						: ''}"
-					role="button"
-					tabindex="0"
-					onclick={() => toggleSort('question_text')}
-					onkeydown={(e) =>
-						e.key === 'Enter' && toggleSort('question_text')}
-					>Question{sortIndicator('question_text')}</span
-				>
-				<span class="admin-list__col">Deck</span>
-				<span
-					class="admin-list__col admin-list__col--sortable{sortField ===
-					'votes'
-						? ' admin-list__col--active'
-						: ''}"
-					role="button"
-					tabindex="0"
-					onclick={() => toggleSort('votes')}
-					onkeydown={(e) => e.key === 'Enter' && toggleSort('votes')}
-					>Votes{sortIndicator('votes')}</span
-				>
-				<span class="admin-list__col"></span>
+		<!-- Desktop table -->
+		<div class="qv__table">
+			<div class="qv__table-head">
+				<SortHeader
+					label="#"
+					sortKey="question_number"
+					current={sortField}
+					dir={sortAsc ? 'asc' : 'desc'}
+					onsort={handleSort}
+				/>
+				<span class="qv__col-label">Type</span>
+				<SortHeader
+					label="Question"
+					sortKey="question_text"
+					current={sortField}
+					dir={sortAsc ? 'asc' : 'desc'}
+					onsort={handleSort}
+				/>
+				<span class="qv__col-label">Deck</span>
+				<SortHeader
+					label="Votes"
+					sortKey="votes"
+					current={sortField}
+					dir={sortAsc ? 'asc' : 'desc'}
+					onsort={handleSort}
+				/>
+				<span></span>
 			</div>
 			{#each sorted as q (q.id)}
-				{@const typeConfig = QUESTION_TYPES[q.type]}
 				{@const votes = voteCounts.get(q.id)}
-				<div class="admin-list__item">
-					<span class="admin-list__num"
-						>{q.question_number
-							? `#${q.question_number}`
-							: ''}</span
-					>
-					<span class="admin-list__badge" data-type={q.type}
-						>{typeConfig?.label ?? q.type}</span
-					>
-					<a
-						class="admin-list__name"
-						href={`/admin/questions/${q.id}`}>{q.question_text}</a
-					>
-					<span class="admin-list__meta">{q.decks?.name ?? '—'}</span>
-					<span class="admin-list__votes">
-						{#if votes?.up}
-							<span
-								class="admin-list__vote admin-list__vote--up"
-								title="Thumbs up"
-							>
-								<ThumbsUp size={12} />{votes.up}
-							</span>
-						{/if}
-						{#if votes?.down}
-							<span
-								class="admin-list__vote admin-list__vote--down"
-								title="Thumbs down"
-							>
-								<ThumbsDown size={12} />{votes.down}
-							</span>
-						{/if}
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div
+					class="qv__row"
+					class:qv__row--archived={q.archived_at}
+					onclick={() => goto(`/admin/questions/${q.id}`)}
+				>
+					<span class="qv__row-num mono">
+						{q.question_number ? `#${q.question_number}` : ''}
 					</span>
-					<div class="admin-list__actions">
-						<a
-							class="admin-btn admin-btn--sm"
-							href={`/admin/questions/${q.id}`}>Edit</a
-						>
+					<TypeBadge type={q.type} />
+					<div class="qv__row-text-wrap">
+						<span class="qv__row-text">
+							{q.question_text}
+						</span>
 						{#if q.archived_at}
-							<button
-								class="admin-btn admin-btn--sm"
-								type="button"
-								onclick={() => restoreQuestion(q.id)}
-								>Restore</button
-							>
-						{:else}
-							<button
-								class="admin-btn admin-btn--sm admin-btn--danger"
-								type="button"
-								onclick={() => archiveQuestion(q.id)}
-								>Archive</button
-							>
+							<span class="qv__row-archived-hint">
+								Archived
+							</span>
 						{/if}
+					</div>
+					<span class="qv__row-deck">
+						{q.decks?.name ?? '—'}
+					</span>
+					<VoteChips up={votes?.up ?? 0} down={votes?.down ?? 0} />
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<div
+						class="qv__row-actions"
+						onclick={(e) => e.stopPropagation()}
+					>
+						<DropdownMenu items={menuItems(q)} />
 					</div>
 				</div>
 			{/each}
 		</div>
-		<p class="admin-hint">
-			{filtered.length} question{filtered.length !== 1 ? 's' : ''}
-		</p>
+
+		<!-- Mobile cards -->
+		<div class="qv__cards">
+			{#each sorted as q (q.id)}
+				{@const votes = voteCounts.get(q.id)}
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div
+					class="qv__card"
+					class:qv__card--archived={q.archived_at}
+					onclick={() => goto(`/admin/questions/${q.id}`)}
+				>
+					<div class="qv__card-top">
+						<span class="qv__card-num mono">
+							{q.question_number ? `#${q.question_number}` : ''}
+						</span>
+						<TypeBadge type={q.type} />
+						<span class="qv__card-spacer"></span>
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div onclick={(e) => e.stopPropagation()}>
+							<DropdownMenu items={menuItems(q)} />
+						</div>
+					</div>
+					<div class="qv__card-text">{q.question_text}</div>
+					<div class="qv__card-meta">
+						<span>{q.decks?.name ?? '—'}</span>
+						<span class="qv__card-dot"></span>
+						<VoteChips
+							up={votes?.up ?? 0}
+							down={votes?.down ?? 0}
+							compact
+						/>
+					</div>
+					{#if q.archived_at}
+						<div class="qv__card-archived">Archived</div>
+					{/if}
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
+
+<Dialog
+	open={!!confirmTarget}
+	onclose={() => (confirmTarget = null)}
+	title={confirmTarget
+		? `Archive Q #${confirmTarget.question_number ?? '?'}?`
+		: ''}
+	description="It will be hidden from gameplay and from the default list. You can restore it later from the Archived view."
+	danger
+	confirmLabel="Archive"
+	onconfirm={doArchive}
+>
+	{#if confirmTarget}
+		<div class="qv__confirm-preview">
+			<span class="qv__confirm-num mono">
+				#{confirmTarget.question_number ?? '?'}
+			</span>
+			{confirmTarget.question_text}
+		</div>
+	{/if}
+</Dialog>
+
+<Toast bind:this={toastRef} />
+
+<style>
+	/* ─── Page header ──────────────────────────────────────────── */
+
+	.qv__header {
+		display: flex;
+		margin-bottom: 4px;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+
+	.qv__title {
+		margin: 0;
+
+		font-size: 24px;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+	}
+
+	.qv__subtitle {
+		margin: 4px 0 0;
+
+		font-size: 13px;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__actions {
+		display: flex;
+		align-items: center;
+
+		gap: 8px;
+	}
+
+	/* ─── Buttons ──────────────────────────────────────────────── */
+
+	.qv__btn {
+		display: inline-flex;
+		align-items: center;
+		height: var(--h-button);
+		padding: 0 14px;
+
+		font-size: 13px;
+		font-weight: 500;
+		text-decoration: none;
+		white-space: nowrap;
+
+		border-radius: var(--r-2);
+
+		transition:
+			background 80ms ease,
+			border-color 80ms ease;
+
+		gap: 6px;
+	}
+
+	.qv__btn--ghost {
+		color: var(--fg);
+		background: transparent;
+		border: 1px solid var(--border);
+	}
+
+	.qv__btn--ghost:hover {
+		background: var(--surface);
+		border-color: var(--border-strong);
+	}
+
+	.qv__btn--primary {
+		font-weight: 600;
+
+		color: var(--accent-fg);
+		background: var(--accent);
+	}
+
+	.qv__btn--primary:hover {
+		background: var(--accent-hover);
+	}
+
+	.qv__btn--sm {
+		height: 30px;
+		padding: 0 10px;
+
+		font-size: 12px;
+	}
+
+	/* ─── Filter bar ───────────────────────────────────────────── */
+
+	.qv__filters {
+		display: flex;
+		margin: 0 -24px;
+		padding: 14px 24px;
+		align-items: center;
+
+		border-bottom: 1px solid var(--border);
+		background: var(--bg);
+
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.qv__search {
+		display: flex;
+		height: var(--h-button);
+		max-width: 360px;
+		padding: 0 12px;
+		align-items: center;
+
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--r-2);
+
+		transition: border-color 80ms ease;
+
+		flex: 1 1 220px;
+		gap: 8px;
+	}
+
+	.qv__search:focus-within {
+		border-color: var(--border-strong);
+	}
+
+	.qv__search :global(svg:first-child) {
+		color: var(--fg-faint);
+
+		flex-shrink: 0;
+	}
+
+	.qv__search input {
+		min-width: 0;
+
+		font-size: 13.5px;
+
+		color: var(--fg);
+		background: transparent;
+		border: 0;
+		outline: none;
+
+		flex: 1;
+	}
+
+	.qv__search input::placeholder {
+		color: var(--fg-faint);
+	}
+
+	.qv__search-clear {
+		display: grid;
+		width: 18px;
+		height: 18px;
+
+		place-items: center;
+
+		color: var(--fg-faint);
+		border-radius: 3px;
+
+		flex-shrink: 0;
+	}
+
+	.qv__search-clear:hover {
+		color: var(--fg);
+		background: var(--surface-hover);
+	}
+
+	.qv__filters-spacer {
+		flex: 1;
+	}
+
+	.qv__counter {
+		display: inline-flex;
+		align-items: center;
+		padding: 0 4px;
+
+		font-size: 11.5px;
+
+		color: var(--fg-mute);
+
+		gap: 6px;
+	}
+
+	.qv__counter-num {
+		color: var(--fg);
+	}
+
+	.qv__counter-sep {
+		color: var(--fg-faint);
+	}
+
+	/* ─── Status ───────────────────────────────────────────────── */
+
+	.qv__status {
+		padding: 48px 24px;
+
+		font-size: 13px;
+		text-align: center;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__status--error {
+		color: var(--danger);
+	}
+
+	/* ─── Desktop table ────────────────────────────────────────── */
+
+	.qv__table {
+		margin: 0 -24px;
+	}
+
+	.qv__table-head {
+		display: grid;
+		height: 36px;
+		padding: 0 24px;
+		align-items: center;
+
+		border-bottom: 1px solid var(--border);
+		background: var(--bg-2);
+
+		grid-template-columns: 64px 88px 1fr 140px 124px 80px;
+		gap: 16px;
+	}
+
+	.qv__col-label {
+		font-size: 11.5px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__row {
+		display: grid;
+		min-height: 52px;
+		padding: 0 24px;
+		align-items: center;
+
+		border-bottom: 1px solid var(--border);
+		cursor: pointer;
+
+		transition: background 80ms ease;
+
+		grid-template-columns: 64px 88px 1fr 140px 124px 80px;
+		gap: 16px;
+	}
+
+	.qv__row:hover {
+		background: var(--surface);
+	}
+
+	.qv__row--archived {
+		opacity: 0.55;
+	}
+
+	.qv__row-num {
+		font-size: 12px;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__row-text-wrap {
+		display: flex;
+		min-width: 0;
+
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.qv__row-text {
+		overflow: hidden;
+
+		font-size: 13.5px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+
+		color: var(--fg);
+	}
+
+	.qv__row-archived-hint {
+		font-size: 11px;
+
+		color: var(--fg-faint);
+	}
+
+	.qv__row-deck {
+		font-size: 12.5px;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__row-actions {
+		display: flex;
+		align-items: center;
+		justify-self: end;
+
+		gap: 4px;
+	}
+
+	/* ─── Mobile cards ─────────────────────────────────────────── */
+
+	.qv__cards {
+		display: none;
+		margin: 0 -24px;
+		padding: 12px 16px;
+
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.qv__card {
+		padding: 12px;
+
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--r-3);
+		cursor: pointer;
+
+		transition: border-color 80ms ease;
+	}
+
+	.qv__card:hover {
+		border-color: var(--border-strong);
+	}
+
+	.qv__card--archived {
+		opacity: 0.6;
+	}
+
+	.qv__card-top {
+		display: flex;
+		margin-bottom: 8px;
+		align-items: center;
+
+		gap: 8px;
+	}
+
+	.qv__card-num {
+		font-size: 11px;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__card-spacer {
+		flex: 1;
+	}
+
+	.qv__card-text {
+		margin-bottom: 8px;
+
+		font-size: 14px;
+		line-height: 1.4;
+
+		color: var(--fg);
+	}
+
+	.qv__card-meta {
+		display: flex;
+		align-items: center;
+
+		font-size: 12px;
+
+		color: var(--fg-mute);
+
+		gap: 10px;
+	}
+
+	.qv__card-dot {
+		width: 2px;
+		height: 2px;
+
+		background: var(--border-strong);
+		border-radius: 50%;
+	}
+
+	.qv__card-archived {
+		margin-top: 8px;
+
+		font-size: 11.5px;
+
+		color: var(--fg-faint);
+	}
+
+	/* ─── Archive confirm ──────────────────────────────────────── */
+
+	.qv__confirm-preview {
+		padding: 12px;
+
+		font-size: 13px;
+
+		color: var(--fg);
+		background: var(--bg-2);
+		border: 1px solid var(--border);
+		border-radius: var(--r-2);
+	}
+
+	.qv__confirm-num {
+		font-size: 11.5px;
+
+		color: var(--fg-faint);
+	}
+
+	/* ─── Responsive ───────────────────────────────────────────── */
+
+	@media (max-width: 768px) {
+		.qv__header {
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.qv__filters {
+			padding: 12px 16px;
+		}
+
+		.qv__search {
+			max-width: 100%;
+
+			flex-basis: 100%;
+		}
+
+		.qv__table {
+			display: none;
+		}
+
+		.qv__cards {
+			display: flex;
+		}
+	}
+</style>
