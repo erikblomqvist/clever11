@@ -1,0 +1,306 @@
+/* Clever 11 Admin — design tokens
+ * Industrial / control-panel aesthetic
+ * Dark only (light variant is stretch)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Surface — warm near-blacks */
+  --bg: #0f0f12;
+  --bg-2: #0a0a0c;
+  --surface: #16161a;
+  --surface-2: #1c1c21;
+  --surface-hover: #21212a;
+
+  /* Hairlines */
+  --border: #24242b;
+  --border-strong: #34343c;
+  --border-accent: rgba(212, 255, 58, 0.32);
+
+  /* Text */
+  --fg: #e8e6df;
+  --fg-mute: #9a9a9a;
+  --fg-faint: #5e5e66;
+  --fg-disabled: #3e3e44;
+
+  /* Accents — lime as primary CTA, coral as warm secondary */
+  --accent: #d4ff3a;
+  --accent-hover: #def266;
+  --accent-fg: #0a0a0c;
+  --accent-soft: rgba(212, 255, 58, 0.08);
+  --accent-soft-2: rgba(212, 255, 58, 0.18);
+
+  --accent-2: #ff7a59;
+  --accent-2-hover: #ff9276;
+  --accent-2-fg: #2a0d05;
+  --accent-2-soft: rgba(255, 122, 89, 0.10);
+  --accent-2-soft-2: rgba(255, 122, 89, 0.22);
+  --border-accent-2: rgba(255, 122, 89, 0.32);
+
+  /* Status */
+  --danger: #ff6577;
+  --danger-soft: rgba(255, 101, 119, 0.12);
+  --warn: #ffb547;
+  --warn-soft: rgba(255, 181, 71, 0.12);
+  --ok: #7df0a0;
+  --ok-soft: rgba(125, 240, 160, 0.12);
+  --info: #5fb3ff;
+  --info-soft: rgba(95, 179, 255, 0.12);
+
+  /* Type */
+  --font-sans: 'Geist', 'Inter Tight', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Berkeley Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Radii — small, industrial */
+  --r-1: 3px;
+  --r-2: 5px;
+  --r-3: 8px;
+  --r-4: 12px;
+
+  /* Shadows */
+  --shadow-1: 0 1px 0 rgba(255,255,255,0.02) inset, 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-2: 0 8px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.03) inset;
+  --shadow-pop: 0 18px 48px rgba(0,0,0,0.65), 0 0 0 1px var(--border-strong);
+}
+
+/* Reset within frames */
+.c11, .c11 * {
+  box-sizing: border-box;
+}
+.c11 {
+  font-family: var(--font-sans);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.005em;
+}
+.c11 :where(button) {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.c11 input, .c11 textarea, .c11 select {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  outline: none;
+}
+.c11 ::selection { background: var(--accent-soft-2); color: var(--fg); }
+
+/* Mono utility */
+.mono { font-family: var(--font-mono); font-feature-settings: "ss02" 1; letter-spacing: 0; }
+.upper { text-transform: uppercase; letter-spacing: 0.06em; }
+.faint { color: var(--fg-faint); }
+.mute  { color: var(--fg-mute); }
+
+/* Section eyebrow — small, quiet, sans, with a leading underline */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.eyebrow::before {
+  content: "";
+  width: 14px; height: 1px;
+  background: var(--border-strong);
+}
+
+/* Subtle background grid texture */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Corner brackets — decorative */
+.corner-brackets {
+  position: relative;
+}
+.corner-brackets::before,
+.corner-brackets::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--border-strong);
+  border-style: solid;
+}
+.corner-brackets::before {
+  top: 0; left: 0;
+  border-width: 1px 0 0 1px;
+}
+.corner-brackets::after {
+  bottom: 0; right: 0;
+  border-width: 0 1px 1px 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 14px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 80ms ease, border-color 80ms ease, color 80ms ease;
+  white-space: nowrap;
+}
+/* Default (secondary) — only applies to non-primary buttons so the primary
+   cascade doesn't fight us. */
+.btn:not(.btn--primary):hover { background: var(--surface-hover); border-color: var(--border-strong); }
+.btn:not(.btn--primary):active { background: #18181d; }
+
+.btn--ghost { background: transparent; border-color: var(--border); }
+.btn--ghost:hover { background: var(--surface); border-color: var(--border-strong); }
+
+.btn--primary,
+.btn--primary:hover,
+.btn--primary:active,
+.btn--primary:focus-visible {
+  color: var(--accent-fg);
+  border-color: transparent;
+  font-weight: 600;
+}
+.btn--primary {
+  background: var(--accent);
+  box-shadow: 0 0 0 1px rgba(212,255,58,0.25), 0 8px 24px -8px rgba(212,255,58,0.35);
+}
+.btn--primary:hover  { background: var(--accent-hover); }
+.btn--primary:active { background: var(--accent); }
+.btn--primary:focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
+.btn--sm { height: 28px; padding: 0 10px; font-size: 12px; border-radius: var(--r-1); }
+.btn--icon { width: 36px; padding: 0; justify-content: center; }
+.btn--block { width: 100%; justify-content: center; }
+
+/* Inputs */
+.field-label {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--fg-mute);
+  text-transform: lowercase;
+  margin-bottom: 8px;
+}
+.field-label .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+}
+.input {
+  display: flex; align-items: center; gap: 8px;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  font-size: 14px;
+  color: var(--fg);
+  width: 100%;
+  transition: border-color 80ms ease, background 80ms ease;
+}
+.input:focus-within {
+  border-color: var(--border-accent);
+  background: #0c0c10;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.input input { width: 100%; font-size: inherit; }
+.input input::placeholder { color: var(--fg-faint); }
+.input .affix { color: var(--fg-faint); font-family: var(--font-mono); font-size: 12px; }
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  position: relative;
+}
+.card--hover { transition: border-color 100ms ease, background 100ms ease; }
+.card--hover:hover { border-color: var(--border-strong); background: var(--surface-2); }
+
+/* Pill / badge */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 22px; padding: 0 8px;
+  border-radius: 100px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-mute);
+  letter-spacing: 0.02em;
+}
+.pill .led {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+}
+.pill--accent {
+  background: var(--accent-soft);
+  border-color: var(--border-accent);
+  color: var(--accent);
+}
+
+/* Divider */
+.hr {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  border: 0;
+}
+.vr {
+  width: 1px;
+  background: var(--border);
+}
+
+/* Keycap */
+.kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--fg-mute);
+  line-height: 1;
+}
+
+/* Scrollbar in our containers */
+.c11 ::-webkit-scrollbar { width: 8px; height: 8px; }
+.c11 ::-webkit-scrollbar-thumb { background: #2a2a32; border-radius: 4px; }
+.c11 ::-webkit-scrollbar-track { background: transparent; }
+
+/* Animations */
+@keyframes c11-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes c11-pop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes c11-blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0; }
+}
+.cursor::after {
+  content: "▍";
+  color: var(--accent);
+  margin-left: 2px;
+  animation: c11-blink 1.1s steps(1) infinite;
+}
