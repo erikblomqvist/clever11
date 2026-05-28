@@ -1,6 +1,7 @@
 <script>
 	import { tick } from 'svelte';
 	import { supabase } from '$lib/supabase.js';
+	import { logActivity } from './activityLog.js';
 	import {
 		QUESTIONS_LIST_SCROLL_RESTORE_PENDING,
 		QUESTIONS_LIST_SCROLL_Y_KEY,
@@ -283,6 +284,16 @@
 			alert(err.message);
 			return;
 		}
+		const match = questions.find((q) => q.id === id);
+		logActivity({
+			verb: 'archived',
+			entity_type: 'question',
+			entity_id: id,
+			summary: match?.question_number
+				? `Q #${match.question_number}`
+				: 'question',
+			deck_name: match?.decks?.name ?? null,
+		});
 		questions = questions.filter((q) => q.id !== id);
 	}
 
@@ -295,6 +306,16 @@
 			alert(err.message);
 			return;
 		}
+		const match = questions.find((q) => q.id === id);
+		logActivity({
+			verb: 'restored',
+			entity_type: 'question',
+			entity_id: id,
+			summary: match?.question_number
+				? `Q #${match.question_number}`
+				: 'question',
+			deck_name: match?.decks?.name ?? null,
+		});
 		questions = questions.filter((q) => q.id !== id);
 	}
 </script>

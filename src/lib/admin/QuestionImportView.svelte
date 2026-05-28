@@ -1,6 +1,7 @@
 <script>
 	import { supabase } from '$lib/supabase.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
+	import { logActivity } from './activityLog.js';
 	import {
 		createEmptyImportDraft,
 		normalizeAnswers,
@@ -395,11 +396,38 @@
 		);
 	}
 
+	async function saveAndLogItem(/** @type {ImportItem} */ item) {
+		const wasSaved = item.status === 'saved';
+		await saveItem(item);
+		const updated = items.find((i) => i.id === item.id);
+		if (!wasSaved && updated?.status === 'saved') {
+			logActivity({
+				verb: 'imported',
+				entity_type: 'question',
+				entity_id: null,
+				summary: '1 question',
+				deck_name: decks.find((d) => d.id === deckId)?.name ?? null,
+			});
+		}
+	}
+
 	async function saveAllReady() {
+		const beforeCount = items.filter((i) => i.status === 'saved').length;
 		for (const item of items) {
 			if (item.status === 'ready' && item.errors.length === 0) {
 				await saveItem(item);
 			}
+		}
+		const savedInBatch =
+			items.filter((i) => i.status === 'saved').length - beforeCount;
+		if (savedInBatch > 0) {
+			logActivity({
+				verb: 'imported',
+				entity_type: 'question',
+				entity_id: null,
+				summary: `${savedInBatch} question${savedInBatch !== 1 ? 's' : ''}`,
+				deck_name: decks.find((d) => d.id === deckId)?.name ?? null,
+			});
 		}
 	}
 
@@ -1106,7 +1134,7 @@
 										<button
 											class="admin-btn admin-btn--primary"
 											type="button"
-											onclick={() => saveItem(item)}
+											onclick={() => saveAndLogItem(item)}
 											disabled={item.status === 'saved' ||
 												saving}
 										>

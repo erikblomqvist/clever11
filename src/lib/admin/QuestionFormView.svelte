@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { supabase } from '$lib/supabase.js';
 	import { goto } from '$app/navigation';
+	import { logActivity } from './activityLog.js';
 
 	/** @type {{ id: string|null }} */
 	let { id } = $props();
@@ -327,17 +328,35 @@
 
 		saving = true;
 		try {
+			const deckName = decks.find((d) => d.id === deckId)?.name ?? null;
+			const target = questionNumber ? `Q #${questionNumber}` : 'question';
 			if (isEdit && id) {
 				const { error: err } = await supabase
 					.from('questions')
 					.update(payload)
 					.eq('id', id);
 				if (err) throw err;
+				logActivity({
+					verb: 'edited',
+					entity_type: 'question',
+					entity_id: id,
+					summary: target,
+					deck_name: deckName,
+				});
 			} else {
-				const { error: err } = await supabase
+				const { data: newQ, error: err } = await supabase
 					.from('questions')
-					.insert(payload);
+					.insert(payload)
+					.select('id')
+					.single();
 				if (err) throw err;
+				logActivity({
+					verb: 'created',
+					entity_type: 'question',
+					entity_id: newQ.id,
+					summary: target,
+					deck_name: deckName,
+				});
 			}
 			goto('/admin/questions');
 		} catch (/** @type {any} */ err) {
