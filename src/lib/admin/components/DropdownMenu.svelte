@@ -41,7 +41,7 @@
 			onclick={handleBackdropClick}
 		></div>
 		<div class="dropdown-menu__panel" role="menu">
-			{#each items as item}
+			{#each items as item, i (i)}
 				{#if item.separator}
 					<div class="dropdown-menu__sep" role="separator"></div>
 				{:else}

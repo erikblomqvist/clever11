@@ -1,3 +1,4 @@
+/* global Buffer */
 import { json, error } from '@sveltejs/kit';
 import { transcribeAudio } from '$lib/server/inbox/gemini.js';
 

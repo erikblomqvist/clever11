@@ -38,7 +38,7 @@
 		</div>
 
 		<nav class="drawer__nav">
-			{#each NAV_ITEMS as item}
+			{#each NAV_ITEMS as item (item.id)}
 				{@const active = item.id === activeId}
 				<a
 					class="drawer__item"

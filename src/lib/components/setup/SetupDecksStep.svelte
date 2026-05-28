@@ -70,6 +70,7 @@
 			</li>
 		{/each}
 	</ul>
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html customStyleTag}
 {/if}
 

@@ -23,7 +23,7 @@
 	</div>
 
 	<nav class="topbar__breadcrumb mono" aria-label="Breadcrumb">
-		{#each segments as seg, i}
+		{#each segments as seg, i (i)}
 			{#if i > 0}
 				<span class="topbar__sep">/</span>
 			{/if}

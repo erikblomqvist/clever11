@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { invalidateAll } from '$app/navigation';
 	import { ChevronLeft, ChevronRight, Inbox, Plus } from 'lucide-svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -12,7 +13,7 @@
 	// Actions that remove the item from the current view. We hide
 	// optimistically because GitHub's list endpoint is eventually consistent
 	// and the post-action invalidateAll() often returns stale data for a beat.
-	const HIDE_ACTIONS = new Set([
+	const HIDE_ACTIONS = new SvelteSet([
 		'ready',
 		'snooze3',
 		'snooze7',
@@ -23,7 +24,7 @@
 	let isMobile = $state(false);
 	let mobileIndex = $state(0);
 	let busyIssue = $state(/** @type {number | null} */ (null));
-	let hiddenIssues = $state(/** @type {Set<number>} */ (new Set()));
+	let hiddenIssues = /** @type {SvelteSet<number>} */ (new SvelteSet());
 	let toast = $state('');
 	/** @type {number | undefined} */
 	let toastTimer;
@@ -69,7 +70,7 @@
 
 	/** @param {number} issueNumber */
 	function unhide(issueNumber) {
-		const next = new Set(hiddenIssues);
+		const next = new SvelteSet(hiddenIssues);
 		next.delete(issueNumber);
 		hiddenIssues = next;
 	}
@@ -83,7 +84,7 @@
 		busyIssue = issueNumber;
 		const shouldHide = HIDE_ACTIONS.has(action);
 		if (shouldHide) {
-			hiddenIssues = new Set([...hiddenIssues, issueNumber]);
+			hiddenIssues = new SvelteSet([...hiddenIssues, issueNumber]);
 		}
 		try {
 			const res = await fetch('/api/inbox/action', {

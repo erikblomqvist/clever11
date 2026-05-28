@@ -185,7 +185,7 @@
 				</div>
 			</div>
 			<div class="activity-feed">
-				{#each activity as item, i}
+				{#each activity as item, i (i)}
 					<div class="activity-row">
 						<div
 							class="activity-row__icon"
@@ -287,7 +287,7 @@
 		<div class="dash__section-label upper">Recent activity</div>
 		<div class="activity-card activity-card--mobile">
 			<div class="activity-feed">
-				{#each activity.slice(0, 5) as item}
+				{#each activity.slice(0, 5) as item, i (i)}
 					<div class="activity-row activity-row--compact">
 						<div
 							class="activity-row__icon activity-row__icon--sm"
