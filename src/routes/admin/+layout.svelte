@@ -3,9 +3,13 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import '../../admin.css';
+	import Sidebar from '$lib/admin/components/Sidebar.svelte';
+	import Topbar from '$lib/admin/components/Topbar.svelte';
+	import MobileDrawer from '$lib/admin/components/MobileDrawer.svelte';
 
 	let { data, children } = $props();
 	const { supabase, session } = $derived(data);
+	let drawerOpen = $state(false);
 
 	onMount(() => {
 		document.body.classList.add('admin-body');
@@ -18,6 +22,7 @@
 	}
 
 	const currentPath = $derived(page.url.pathname);
+	const user = $derived(session?.user ?? null);
 </script>
 
 <svelte:head>
@@ -32,44 +37,18 @@
 	{@render children()}
 {:else}
 	<div class="admin-shell">
-		<nav class="admin-nav">
-			<a class="admin-nav__brand" href="/admin">Clever 11</a>
-			<a
-				class="admin-nav__link"
-				href="/admin/decks"
-				class:admin-nav__link--active={currentPath.startsWith(
-					'/admin/decks',
-				)}>Decks</a
-			>
-			<a
-				class="admin-nav__link"
-				href="/admin/questions"
-				class:admin-nav__link--active={currentPath.startsWith(
-					'/admin/questions',
-				)}>Questions</a
-			>
-			<a
-				class="admin-nav__link"
-				href="/admin/question-quality"
-				class:admin-nav__link--active={currentPath ===
-					'/admin/question-quality'}>Quality</a
-			>
-			<a
-				class="admin-nav__link"
-				href="/admin/users"
-				class:admin-nav__link--active={currentPath === '/admin/users'}
-				>Users</a
-			>
-			<span class="admin-nav__spacer"></span>
-			<button
-				class="admin-nav__signout"
-				type="button"
-				onclick={handleLogout}>Sign out</button
-			>
-		</nav>
-
-		<main class="admin-content">
-			{@render children()}
-		</main>
+		<Sidebar {user} onSignOut={handleLogout} />
+		<div class="admin-main">
+			<Topbar onMenuClick={() => (drawerOpen = true)} />
+			<main class="admin-content">
+				{@render children()}
+			</main>
+		</div>
 	</div>
+	<MobileDrawer
+		{user}
+		open={drawerOpen}
+		onClose={() => (drawerOpen = false)}
+		onSignOut={handleLogout}
+	/>
 {/if}
