@@ -13,6 +13,13 @@
 		menu: '<path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/>',
 		close: '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
 		power: '<path d="M12 4v8"/><path d="M7.5 7a7 7 0 1 0 9 0"/>',
+		edit: '<path d="M4 20h4l10-10-4-4L4 16z"/><path d="m14 6 4 4"/>',
+		archive:
+			'<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/>',
+		plus: '<path d="M12 5v14M5 12h14"/>',
+		bolt: '<path d="M13 3 4 14h7l-1 7 9-11h-7z"/>',
+		arrow: '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+		caret: '<path d="m9 6 6 6-6 6"/>',
 	};
 </script>
 
