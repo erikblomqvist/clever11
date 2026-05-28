@@ -11,48 +11,33 @@
 	let questionCount = $state(null);
 	let loading = $state(true);
 
-	const ACTIVITY = [
-		{
-			verb: 'Edited',
-			target: 'Q #214',
-			deck: 'Allmänbildning',
-			time: '2 min ago',
-			icon: 'edit',
-			kind: 'edit',
-		},
-		{
-			verb: 'Imported',
-			target: '8 questions',
-			deck: 'Filmcitat',
-			time: '14 min ago',
-			icon: 'import',
-			kind: 'import',
-		},
-		{
-			verb: 'Archived',
-			target: 'Q #88',
-			deck: 'Sport',
-			time: '47 min ago',
-			icon: 'archive',
-			kind: 'archive',
-		},
-		{
-			verb: 'Created',
-			target: 'Deck "90-talet"',
-			deck: null,
-			time: '2 hr ago',
-			icon: 'plus',
-			kind: 'plus',
-		},
-		{
-			verb: 'Edited',
-			target: 'Q #102',
-			deck: 'Historia',
-			time: 'Yesterday',
-			icon: 'edit',
-			kind: 'edit',
-		},
-	];
+	/** @type {{ verb: string, target: string, deck: string|null, time: string, icon: string, kind: string }[]} */
+	let activity = $state([]);
+	let activityLoaded = $state(false);
+
+	const VERB_STYLE = {
+		created: { icon: 'plus', kind: 'plus' },
+		edited: { icon: 'edit', kind: 'edit' },
+		archived: { icon: 'archive', kind: 'archive' },
+		restored: { icon: 'archive', kind: 'edit' },
+		imported: { icon: 'import', kind: 'import' },
+	};
+
+	/** @param {string} iso */
+	function relativeTime(iso) {
+		const seconds = Math.floor(
+			(Date.now() - new Date(iso).getTime()) / 1000,
+		);
+		if (seconds < 60) return 'Just now';
+		const minutes = Math.floor(seconds / 60);
+		if (minutes < 60) return `${minutes} min ago`;
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return `${hours} hr ago`;
+		const days = Math.floor(hours / 24);
+		if (days === 1) return 'Yesterday';
+		if (days < 7) return `${days} days ago`;
+		return new Date(iso).toLocaleDateString();
+	}
 
 	let forcedQuestionId = $state(getForcedFirstQuestionId() ?? '');
 	let forcedQuestionStatus = $state('');
@@ -61,7 +46,33 @@
 
 	$effect(() => {
 		loadCounts();
+		loadActivity();
 	});
+
+	async function loadActivity() {
+		const { data } = await supabase
+			.from('admin_activity')
+			.select(
+				'verb, entity_type, entity_id, summary, deck_name, created_at',
+			)
+			.order('created_at', { ascending: false })
+			.limit(10);
+		activity = (data ?? []).map((row) => {
+			const style = VERB_STYLE[row.verb] ?? {
+				icon: 'edit',
+				kind: 'edit',
+			};
+			return {
+				verb: row.verb.charAt(0).toUpperCase() + row.verb.slice(1),
+				target: row.summary,
+				deck: row.deck_name,
+				time: relativeTime(row.created_at),
+				icon: style.icon,
+				kind: style.kind,
+			};
+		});
+		activityLoaded = true;
+	}
 
 	async function loadCounts() {
 		loading = true;
@@ -170,11 +181,11 @@
 			<div class="activity-card__header">
 				<div>
 					<div class="activity-card__title">Recent activity</div>
-					<div class="activity-card__subtitle">Last 24 hours</div>
+					<div class="activity-card__subtitle">Latest actions</div>
 				</div>
 			</div>
 			<div class="activity-feed">
-				{#each ACTIVITY as item, i}
+				{#each activity as item, i}
 					<div class="activity-row">
 						<div
 							class="activity-row__icon"
@@ -205,6 +216,9 @@
 						</div>
 					</div>
 				{/each}
+				{#if activity.length === 0 && activityLoaded}
+					<div class="activity-feed__empty">No activity yet</div>
+				{/if}
 			</div>
 		</div>
 
@@ -273,7 +287,7 @@
 		<div class="dash__section-label upper">Recent activity</div>
 		<div class="activity-card activity-card--mobile">
 			<div class="activity-feed">
-				{#each ACTIVITY.slice(0, 5) as item}
+				{#each activity.slice(0, 5) as item}
 					<div class="activity-row activity-row--compact">
 						<div
 							class="activity-row__icon activity-row__icon--sm"
@@ -293,6 +307,9 @@
 						<span class="activity-row__time">{item.time}</span>
 					</div>
 				{/each}
+				{#if activity.length === 0 && activityLoaded}
+					<div class="activity-feed__empty">No activity yet</div>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -637,6 +654,15 @@
 
 	.activity-row__time {
 		font-size: 11px;
+
+		color: var(--fg-faint);
+	}
+
+	.activity-feed__empty {
+		padding: 24px 16px;
+
+		font-size: 13px;
+		text-align: center;
 
 		color: var(--fg-faint);
 	}

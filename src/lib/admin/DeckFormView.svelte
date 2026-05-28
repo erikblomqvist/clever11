@@ -4,6 +4,7 @@
 
 	import LucideIcon from '$lib/components/LucideIcon.svelte';
 	import { supabase } from '$lib/supabase.js';
+	import { logActivity } from './activityLog.js';
 	import { DECK_ICONS } from '$lib/deckIcons.js';
 	import {
 		validateImageFile,
@@ -172,6 +173,13 @@
 					})
 					.eq('id', id);
 				if (err) throw err;
+				logActivity({
+					verb: 'edited',
+					entity_type: 'deck',
+					entity_id: id,
+					summary: `deck "${name.trim()}"`,
+					deck_name: null,
+				});
 			} else {
 				const { data: deck, error: insertErr } = await supabase
 					.from('decks')
@@ -191,6 +199,13 @@
 						.update({ image_url: imageUrl })
 						.eq('id', deck.id);
 				}
+				logActivity({
+					verb: 'created',
+					entity_type: 'deck',
+					entity_id: deck?.id ?? null,
+					summary: `deck "${name.trim()}"`,
+					deck_name: null,
+				});
 			}
 			goto('/admin/decks');
 		} catch (/** @type {any} */ err) {
