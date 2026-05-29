@@ -146,22 +146,6 @@ select {
 	color: var(--fg-mute);
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
-
-::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-	background: lch(17.4% 5.6 292);
-	border-radius: 4px;
-}
-
-::-webkit-scrollbar-track {
-	background: transparent;
-}
-
 /* ─── Admin shell layout ───────────────────────────────────────────────── */
 
 .admin-shell {

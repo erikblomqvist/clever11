@@ -1367,26 +1367,6 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- Mobile footer -->
-		<div class="editor__mobile-footer">
-			<button
-				class="editor__btn editor__btn--ghost editor__btn--fill"
-				type="button"
-				onclick={handleDiscard}
-				disabled={saving}
-			>
-				Discard
-			</button>
-			<button
-				class="editor__btn editor__btn--primary editor__btn--fill"
-				type="button"
-				onclick={() => handleSubmit()}
-				disabled={saving}
-			>
-				{saving ? 'Saving…' : 'Save changes'}
-			</button>
-		</div>
 	{/if}
 </div>
 
@@ -1407,7 +1387,6 @@
 
 	.editor {
 		display: flex;
-		overflow: hidden;
 		height: calc(100vh - var(--h-topbar));
 		margin: -24px;
 
@@ -2349,16 +2328,13 @@
 		margin-top: 10px;
 	}
 
-	/* ─── Mobile footer ─────────────────────────────────────────── */
-
-	.editor__mobile-footer {
-		display: none;
-	}
-
 	/* ─── Responsive ────────────────────────────────────────────── */
 
 	@media (max-width: 768px) {
 		.editor__header {
+			position: sticky;
+			top: -24px;
+			z-index: 10;
 			height: var(--h-mobile-header);
 			min-height: var(--h-mobile-header);
 			padding: 0 12px;
@@ -2366,12 +2342,11 @@
 			gap: 10px;
 		}
 
-		.editor__title-area {
-			flex: 1;
-		}
-
 		.editor__breadcrumb {
 			font-size: 11px;
+			white-space: nowrap;
+			overflow: clip;
+			text-overflow: ellipsis;
 		}
 
 		.editor__title-text {
@@ -2432,9 +2407,10 @@
 
 		.editor__chips {
 			display: flex;
-			padding: 12px 12px 10px;
+			padding: 8px 16px;
 			align-items: center;
 			overflow-x: auto;
+			flex: 1 0 50px;
 
 			background: var(--bg-2);
 			border-bottom: 1px solid var(--border);
@@ -2462,15 +2438,6 @@
 
 		.editor__detail-sep {
 			display: none;
-		}
-
-		.editor__mobile-footer {
-			display: flex;
-			padding: 14px 16px 22px;
-
-			border-top: 1px solid var(--border);
-
-			gap: 8px;
 		}
 	}
 </style>
