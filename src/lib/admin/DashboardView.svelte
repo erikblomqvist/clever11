@@ -442,7 +442,7 @@
 		justify-content: space-between;
 	}
 
-	.entry-card__top :global(svg:last-child) {
+	.entry-card__top > :global(svg) {
 		color: var(--fg-faint);
 	}
 
@@ -938,7 +938,7 @@
 			flex-shrink: 0;
 		}
 
-		.entry-card__top :global(svg:last-child) {
+		.entry-card__top > :global(svg) {
 			display: none;
 		}
 
