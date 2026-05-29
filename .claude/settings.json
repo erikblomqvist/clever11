@@ -45,6 +45,12 @@
 						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/prettier-on-edit.sh",
 						"timeout": 10,
 						"statusMessage": "Formatting…"
+					},
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint-on-edit.sh",
+						"timeout": 15,
+						"statusMessage": "Linting…"
 					}
 				]
 			}

@@ -11,3 +11,7 @@ Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-h
 ### Domain docs
 
 Single-context repo — one `CONTEXT.md` and `docs/adr/` at the root. See `docs/agents/domain.md`.
+
+## Testing
+
+Run `bun run test` after any logic change and before committing. Fix all failures before pushing.

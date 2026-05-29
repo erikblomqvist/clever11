@@ -2,9 +2,8 @@
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path')
 
-# Only lint .js files
-if [[ "$FILE_PATH" == *.js ]]; then
-    bun lint --fix "$FILE_PATH" 2>/dev/null
+if [[ "$FILE_PATH" == *.js || "$FILE_PATH" == *.svelte ]]; then
+    bunx eslint --fix "$FILE_PATH" 2>/dev/null
 fi
 
 exit 0
