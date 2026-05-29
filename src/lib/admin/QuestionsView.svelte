@@ -941,7 +941,7 @@
 	.qv__cards {
 		display: none;
 		margin: 0 -24px;
-		padding: 12px 16px;
+		padding: 12px 24px;
 
 		flex-direction: column;
 		gap: 8px;
@@ -1045,10 +1045,6 @@
 		.qv__header {
 			flex-direction: column;
 			gap: 12px;
-		}
-
-		.qv__filters {
-			padding: 12px 16px;
 		}
 
 		.qv__search {
