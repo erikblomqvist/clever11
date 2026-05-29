@@ -1,5 +1,6 @@
 <script>
 	import { supabase } from '$lib/supabase.js';
+	import { resizeAndUploadOptionImage } from '$lib/storage.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import { logActivity } from './activityLog.js';
 	import {
@@ -39,7 +40,6 @@
 	let toastRef = $state(null);
 
 	const typeOptions = Object.entries(QUESTION_TYPES);
-	const OPTION_IMAGE_BUCKET = 'question-option-images';
 
 	/**
 	 * @typedef {{
@@ -392,27 +392,18 @@
 
 	/** @param {ImportItem} item */
 	async function uploadImportedOptionImages(item) {
-		if (!supabase) throw new Error('Supabase is not configured.');
-		const groupId = crypto.randomUUID();
+		const basePath = `imports/${crypto.randomUUID()}/options`;
 		return Promise.all(
 			item.optionImages.map(async (image, index) => {
 				const response = await fetch(image.dataUrl);
 				const blob = await response.blob();
-				const path = `imports/${groupId}/options/${index + 1}.webp`;
-				const { error: uploadError } = await supabase.storage
-					.from(OPTION_IMAGE_BUCKET)
-					.upload(path, blob, {
-						cacheControl: '31536000',
-						contentType: 'image/webp',
-						upsert: true,
-					});
-				if (uploadError) throw uploadError;
-				const { data } = supabase.storage
-					.from(OPTION_IMAGE_BUCKET)
-					.getPublicUrl(path);
+				const result = await resizeAndUploadOptionImage(blob, {
+					basePath,
+					index,
+				});
 				return {
-					option_image_url: data.publicUrl,
-					option_image_path: path,
+					option_image_url: result.url,
+					option_image_path: result.path,
 					option_image_alt: item.draft.options_json[index] ?? '',
 				};
 			}),
@@ -1569,7 +1560,7 @@
 		border: 1px solid var(--border);
 		border-radius: var(--r-2);
 		background: var(--surface);
-		
+
 		transition: border-color 160ms ease;
 	}
 

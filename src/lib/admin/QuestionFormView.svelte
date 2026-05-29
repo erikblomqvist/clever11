@@ -1,6 +1,7 @@
 <script>
 	import { untrack } from 'svelte';
 	import { supabase } from '$lib/supabase.js';
+	import { resizeAndUploadOptionImage } from '$lib/storage.js';
 	import { goto } from '$app/navigation';
 	import { logActivity } from './activityLog.js';
 	import AdminIcon from './components/AdminIcon.svelte';
@@ -16,9 +17,6 @@
 
 	const isEdit = $derived(id !== null);
 	const NUM_BLOBS = 10;
-	const OPTION_IMAGE_BUCKET = 'question-option-images';
-	const OPTION_IMAGE_MAX_SIZE = 512;
-	const OPTION_IMAGE_QUALITY = 0.78;
 	const draftMediaId = crypto.randomUUID();
 
 	// --- Form state ---
@@ -316,32 +314,19 @@
 		const file = input.files?.[0];
 		input.value = '';
 		if (!file) return;
-		if (!supabase) {
-			error = 'Supabase is not configured.';
-			return;
-		}
 
 		error = '';
 		imageUploading[index] = true;
 		try {
-			const blob = await resizeOptionImage(file);
-			const path = buildOptionImagePath(index);
-			const { error: uploadError } = await supabase.storage
-				.from(OPTION_IMAGE_BUCKET)
-				.upload(path, blob, {
-					cacheControl: '31536000',
-					contentType: 'image/webp',
-					upsert: true,
-				});
-			if (uploadError) throw uploadError;
-
-			const { data } = supabase.storage
-				.from(OPTION_IMAGE_BUCKET)
-				.getPublicUrl(path);
+			const basePath = `questions/${id ?? draftMediaId}/options`;
+			const result = await resizeAndUploadOptionImage(file, {
+				basePath,
+				index,
+			});
 			media[index] = {
 				...media[index],
-				option_image_url: data.publicUrl,
-				option_image_path: path,
+				option_image_url: result.url,
+				option_image_path: result.path,
 				option_image_alt: options[index] ?? '',
 			};
 			dirty = true;
@@ -361,50 +346,6 @@
 			option_image_alt: '',
 		};
 		dirty = true;
-	}
-
-	/** @param {number} index */
-	function buildOptionImagePath(index) {
-		const questionKey = id ?? draftMediaId;
-		return `questions/${questionKey}/options/${index + 1}-${Date.now()}.webp`;
-	}
-
-	/** @param {File|Blob} file */
-	function resizeOptionImage(file) {
-		return new Promise((resolve, reject) => {
-			const url = URL.createObjectURL(file);
-			const image = new Image();
-			image.onload = () => {
-				const scale = Math.min(
-					1,
-					OPTION_IMAGE_MAX_SIZE / Math.max(image.width, image.height),
-				);
-				const canvas = document.createElement('canvas');
-				canvas.width = Math.max(1, Math.round(image.width * scale));
-				canvas.height = Math.max(1, Math.round(image.height * scale));
-				const context = canvas.getContext('2d');
-				if (!context) {
-					URL.revokeObjectURL(url);
-					reject(new Error('Could not prepare image.'));
-					return;
-				}
-				context.drawImage(image, 0, 0, canvas.width, canvas.height);
-				canvas.toBlob(
-					(blob) => {
-						URL.revokeObjectURL(url);
-						if (blob) resolve(blob);
-						else reject(new Error('Could not compress image.'));
-					},
-					'image/webp',
-					OPTION_IMAGE_QUALITY,
-				);
-			};
-			image.onerror = () => {
-				URL.revokeObjectURL(url);
-				reject(new Error('Could not read image.'));
-			};
-			image.src = url;
-		});
 	}
 
 	// --- Soft-hyphen ---

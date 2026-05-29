@@ -55,3 +55,69 @@ export async function deleteDeckImage(imageUrl) {
 	if (!path) return;
 	await supabase.storage.from(BUCKET).remove([path]).catch(console.warn);
 }
+
+const OPTION_IMAGE_BUCKET = 'question-option-images';
+const OPTION_IMAGE_MAX_SIZE = 512;
+const OPTION_IMAGE_QUALITY = 0.78;
+
+/**
+ * @param {File|Blob} file
+ * @param {{ basePath: string, index: number }} opts
+ * @returns {Promise<{ url: string, path: string }>}
+ */
+export async function resizeAndUploadOptionImage(file, { basePath, index }) {
+	if (!supabase) throw new Error('Supabase not configured.');
+	const blob = await resizeToWebP(file);
+	const path = `${basePath}/${index + 1}-${Date.now()}.webp`;
+	const { error } = await supabase.storage
+		.from(OPTION_IMAGE_BUCKET)
+		.upload(path, blob, {
+			cacheControl: '31536000',
+			contentType: 'image/webp',
+			upsert: true,
+		});
+	if (error) throw new Error(`Upload failed: ${error.message}`);
+	const { data } = supabase.storage
+		.from(OPTION_IMAGE_BUCKET)
+		.getPublicUrl(path);
+	if (!data?.publicUrl) throw new Error('Could not get public URL.');
+	return { url: data.publicUrl, path };
+}
+
+/** @param {File|Blob} file */
+function resizeToWebP(file) {
+	return new Promise((resolve, reject) => {
+		const url = URL.createObjectURL(file);
+		const image = new Image();
+		image.onload = () => {
+			const scale = Math.min(
+				1,
+				OPTION_IMAGE_MAX_SIZE / Math.max(image.width, image.height),
+			);
+			const canvas = document.createElement('canvas');
+			canvas.width = Math.max(1, Math.round(image.width * scale));
+			canvas.height = Math.max(1, Math.round(image.height * scale));
+			const context = canvas.getContext('2d');
+			if (!context) {
+				URL.revokeObjectURL(url);
+				reject(new Error('Could not prepare image.'));
+				return;
+			}
+			context.drawImage(image, 0, 0, canvas.width, canvas.height);
+			canvas.toBlob(
+				(blob) => {
+					URL.revokeObjectURL(url);
+					if (blob) resolve(blob);
+					else reject(new Error('Could not compress image.'));
+				},
+				'image/webp',
+				OPTION_IMAGE_QUALITY,
+			);
+		};
+		image.onerror = () => {
+			URL.revokeObjectURL(url);
+			reject(new Error('Could not read image.'));
+		};
+		image.src = url;
+	});
+}
