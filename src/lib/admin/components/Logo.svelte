@@ -47,6 +47,8 @@
 		font-size: 14px;
 		font-weight: 600;
 		letter-spacing: -0.015em;
+
+		color: var(--fg);
 	}
 
 	.logo__subtitle {
