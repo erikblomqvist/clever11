@@ -1,22 +1,40 @@
 <script>
 	import 'prism-code-editor/layout.css';
 	import 'prism-code-editor/themes/github-dark.css';
+	// Required by the indentGuides() extension below — without it the guide
+	// divs render as in-flow static blocks and balloon the editor's scrollHeight.
+	import 'prism-code-editor/guides.css';
 
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import LucideIcon from '$lib/components/LucideIcon.svelte';
 	import { supabase } from '$lib/supabase.js';
 	import { logActivity } from './activityLog.js';
-	import { DECK_ICONS } from '$lib/deckIcons.js';
+	import { DECK_ICONS, getDeckIconNode } from '$lib/deckIcons.js';
 	import {
 		validateImageFile,
 		uploadDeckImage,
 		deleteDeckImage,
 	} from '$lib/storage.js';
-	import { goto } from '$app/navigation';
+	import { Search, Zap, ChevronLeft, Plus } from 'lucide-svelte';
+	import LabelledField from './components/LabelledField.svelte';
+	import ImageSlot from './components/ImageSlot.svelte';
+	import Dialog from './components/Dialog.svelte';
 
 	/** @type {{ id: string|null }} */
 	let { id } = $props();
 
 	const isEdit = $derived(id !== null);
+
+	// Snippet inserted at the cursor. The selector is scoped to this deck's id
+	// once saved; new decks fall back to the generic attribute selector.
+	const snippets = $derived.by(() => {
+		const target = id ? `[data-deck-id="${id}"]` : '[data-deck-id]';
+		const head = `.deck-card--selected${target} {\n  `;
+		return [
+			{ label: 'Selected card', code: `${head}\n}`, caret: head.length },
+		];
+	});
 
 	let name = $state('');
 	let description = $state('');
@@ -27,12 +45,16 @@
 	let imageFile = $state(null);
 	let imagePreview = $state(/** @type {string|null} */ (null));
 	let css = $state('');
+	let cardCount = $state(0);
+	let createdAt = $state(/** @type {string|null} */ (null));
 	let loading = $state(false);
 	let saving = $state(false);
 	let error = $state('');
+	let tab = $state(/** @type {'look'|'css'} */ ('look'));
+	let confirmDiscardOpen = $state(false);
 
-	/** @type {HTMLInputElement|null} */
-	let fileInput = $state(null);
+	/** @type {{ name: string, description: string, icon: string|null, css: string, image: string|null }|null} */
+	let baseline = $state(null);
 
 	/** @type {HTMLDivElement|null} */
 	let cssEditorEl = $state(null);
@@ -43,35 +65,44 @@
 	let _createEditor = null;
 	/** @type {ReturnType<typeof import('prism-code-editor/guides').indentGuides>|null} */
 	let _guides = null;
+	/** @type {typeof import('prism-code-editor/utils').insertText|null} */
+	let _insertText = null;
 
 	async function ensureEditorModules() {
 		if (_createEditor) return;
-		const [{ createEditor }, { indentGuides }] = await Promise.all([
-			import('prism-code-editor'),
-			import('prism-code-editor/guides'),
+		const [{ createEditor }, { indentGuides }, { insertText }] =
+			await Promise.all([
+				import('prism-code-editor'),
+				import('prism-code-editor/guides'),
+				import('prism-code-editor/utils'),
+			]);
+		// Two separate modules: `languages/css` only registers indentation /
+		// comment behavior, while `prism/languages/css` registers the Prism
+		// grammar that actually tokenizes the code for syntax highlighting.
+		await Promise.all([
+			import('prism-code-editor/languages/css'),
+			import('prism-code-editor/prism/languages/css'),
 		]);
-		await import('prism-code-editor/languages/css');
 		_createEditor = createEditor;
 		_guides = indentGuides();
+		_insertText = insertText;
 	}
 
-	$effect(() => {
-		if (!cssEditorEl || cssEditor) return;
-		ensureEditorModules().then(() => {
-			if (!cssEditorEl || cssEditor || !_createEditor) return;
-			cssEditor = _createEditor(
-				cssEditorEl,
-				{
-					language: 'css',
-					value: css,
-					lineNumbers: false,
-					wordWrap: true,
-					onUpdate: (v) => (css = v),
-				},
-				_guides,
-			);
-		});
+	const dirty = $derived.by(() => {
+		if (!baseline || loading) return false;
+		return (
+			name !== baseline.name ||
+			description !== baseline.description ||
+			icon !== baseline.icon ||
+			css !== baseline.css ||
+			imageFile !== null ||
+			currentImageUrl !== baseline.image
+		);
 	});
+
+	const previewImage = $derived(imagePreview ?? currentImageUrl ?? null);
+	const previewIconNode = $derived(getDeckIconNode(icon));
+	const cssLineCount = $derived(Math.max(1, css.split('\n').length));
 
 	const filteredDeckIcons = $derived.by(() => {
 		const tokens = iconQuery
@@ -85,34 +116,107 @@
 		);
 	});
 
-	$effect(() => {
-		if (isEdit && id) loadDeck(id);
+	onMount(() => {
+		if (isEdit && id) {
+			loadDeck(id);
+		} else {
+			baseline = snapshot();
+		}
 	});
 
+	// Scroll the selected icon into view when the icon changes.
 	$effect(() => {
 		if (!icon || loading) return;
-		const active = document.querySelector('.admin-icon-btn--active');
+		const active = document.querySelector('.dform__icon-btn--active');
 		if (active) active.scrollIntoView({ block: 'nearest' });
 	});
 
+	// Mount the prism editor whenever the Custom CSS tab renders its host.
+	$effect(() => {
+		if (!cssEditorEl) return;
+		const host = cssEditorEl;
+		let editor =
+			/** @type {import('prism-code-editor').PrismEditor|null} */ (null);
+		let destroyed = false;
+		ensureEditorModules().then(() => {
+			if (destroyed || !_createEditor) return;
+			editor = _createEditor(
+				host,
+				{
+					language: 'css',
+					value: css,
+					lineNumbers: true,
+					wordWrap: false,
+					onUpdate: (/** @type {string} */ v) => (css = v),
+				},
+				_guides,
+			);
+			cssEditor = editor;
+		});
+		return () => {
+			destroyed = true;
+			editor?.remove();
+			cssEditor = null;
+		};
+	});
+
+	function snapshot() {
+		return {
+			name,
+			description,
+			icon,
+			css,
+			image: currentImageUrl,
+		};
+	}
+
 	async function loadDeck(/** @type {string} */ deckId) {
 		loading = true;
-		const { data, error: err } = await supabase
-			.from('decks')
-			.select('*')
-			.eq('id', deckId)
-			.single();
-		if (err) {
+		const [deckRes, countRes] = await Promise.all([
+			supabase.from('decks').select('*').eq('id', deckId).single(),
+			supabase
+				.from('questions')
+				.select('id', { count: 'exact', head: true })
+				.eq('deck_id', deckId)
+				.is('archived_at', null),
+		]);
+		if (deckRes.error) {
 			error = 'Failed to load deck.';
 			loading = false;
 			return;
 		}
+		const data = deckRes.data;
 		name = data.name;
 		description = data.description ?? '';
 		icon = data.icon ?? null;
 		currentImageUrl = data.image_url ?? null;
 		css = data.css ?? '';
+		createdAt = data.created_at ?? null;
+		cardCount = countRes.count ?? 0;
 		loading = false;
+		baseline = snapshot();
+	}
+
+	function relativeTime(/** @type {string|null} */ iso) {
+		if (!iso) return 'never';
+		const then = new Date(iso).getTime();
+		if (Number.isNaN(then)) return '—';
+		const diff = Date.now() - then;
+		const day = 86_400_000;
+		if (diff < day) return 'today';
+		const days = Math.floor(diff / day);
+		if (days === 1) return 'yesterday';
+		if (days < 7) return `${days} days ago`;
+		if (days < 30) {
+			const w = Math.floor(days / 7);
+			return w === 1 ? '1 week ago' : `${w} weeks ago`;
+		}
+		if (days < 365) {
+			const m = Math.floor(days / 30);
+			return m === 1 ? '1 month ago' : `${m} months ago`;
+		}
+		const y = Math.floor(days / 365);
+		return y === 1 ? '1 year ago' : `${y} years ago`;
 	}
 
 	function handleFileChange(/** @type {Event} */ e) {
@@ -139,11 +243,42 @@
 		}
 		imageFile = null;
 		imagePreview = null;
-		if (fileInput) fileInput.value = '';
 	}
 
-	async function handleSubmit(/** @type {SubmitEvent} */ e) {
-		e.preventDefault();
+	function applySnippet(
+		/** @type {{ code: string, caret: number }} */ snippet,
+	) {
+		if (cssEditor && _insertText) {
+			// Insert at the caret and drop the cursor on the blank line.
+			const [start] = cssEditor.getSelection();
+			_insertText(
+				cssEditor,
+				snippet.code,
+				undefined,
+				undefined,
+				start + snippet.caret,
+			);
+			cssEditor.focus();
+		} else {
+			// Editor not mounted yet — append as a fallback.
+			css = (css ? css + '\n\n' : '') + snippet.code;
+		}
+	}
+
+	function handleBack() {
+		if (dirty) {
+			confirmDiscardOpen = true;
+		} else {
+			goto('/admin/decks');
+		}
+	}
+
+	function confirmDiscard() {
+		confirmDiscardOpen = false;
+		goto('/admin/decks');
+	}
+
+	async function handleSubmit() {
 		if (!name.trim()) {
 			error = 'Name is required.';
 			return;
@@ -207,6 +342,7 @@
 					deck_name: null,
 				});
 			}
+			baseline = snapshot();
 			goto('/admin/decks');
 		} catch (/** @type {any} */ err) {
 			error = err.message ?? 'Failed to save deck.';
@@ -215,176 +351,958 @@
 	}
 </script>
 
-<div class="admin-page">
-	<div class="admin-page__header">
-		<a class="admin-back" href="/admin/decks">← Decks</a>
-		<h1 class="admin-page__title">{isEdit ? 'Edit deck' : 'New deck'}</h1>
-	</div>
+<div class="dform">
+	<!-- ─── Header ───────────────────────────────────────────────── -->
+	<header class="dform__header">
+		<button
+			class="dform__back"
+			type="button"
+			onclick={handleBack}
+			disabled={saving}
+		>
+			<ChevronLeft size={14} />
+			<span>Back</span>
+		</button>
+		<div class="dform__title-area">
+			<span class="dform__breadcrumb mono">
+				/admin/decks/{id ?? 'new'}
+			</span>
+			<span class="dform__title-text">
+				{name || (isEdit ? 'Untitled' : 'New deck')}
+			</span>
+		</div>
+		<span class="dform__spacer"></span>
+		{#if dirty}
+			<span class="dform__dirty">
+				<span class="dform__dirty-dot"></span>
+				Unsaved
+			</span>
+		{/if}
+		{#if error}
+			<span class="dform__error">{error}</span>
+		{/if}
+		<button
+			class="dform__btn dform__btn--ghost"
+			type="button"
+			onclick={handleBack}
+			disabled={!dirty || saving}
+		>
+			Discard
+		</button>
+		<button
+			class="dform__btn dform__btn--primary"
+			type="button"
+			onclick={() => handleSubmit()}
+			disabled={saving}
+		>
+			<Zap size={13} />
+			{saving ? 'Saving…' : isEdit ? 'Save' : 'Create'}
+		</button>
+	</header>
 
 	{#if loading}
-		<p class="admin-hint">Loading…</p>
+		<div class="dform__loading">Loading…</div>
 	{:else}
-		<form class="admin-form" onsubmit={handleSubmit}>
-			{#if error}<p class="admin-form-error">{error}</p>{/if}
-
-			<label class="admin-label">
-				Name *
-				<input
-					class="admin-input"
-					type="text"
-					bind:value={name}
-					required
-					disabled={saving}
-				/>
-			</label>
-
-			<label class="admin-label">
-				Description
-				<input
-					class="admin-input"
-					type="text"
-					bind:value={description}
-					disabled={saving}
-					placeholder="Optional"
-				/>
-			</label>
-
-			<!-- Icon picker -->
-			<div class="admin-label">
-				Icon
-				<div class="admin-icon-picker-toolbar">
-					<input
-						class="admin-input admin-icon-search"
-						type="search"
-						bind:value={iconQuery}
-						placeholder="Search all Lucide icons"
-						disabled={saving}
-					/>
-					{#if icon}
-						<button
-							class="admin-btn admin-btn--sm"
-							type="button"
-							onclick={() => (icon = null)}
+		<div class="dform__body">
+			<!-- Left: form -->
+			<div class="dform__main">
+				<div class="dform__fields">
+					<LabelledField label="Name">
+						<input
+							class="dform__input"
+							type="text"
+							bind:value={name}
+							placeholder="e.g. 90-talet"
 							disabled={saving}
-						>
-							Clear
-						</button>
-					{/if}
-				</div>
-				<div class="admin-icon-picker">
-					{#each filteredDeckIcons as item (item.id)}
-						<button
-							type="button"
-							class="admin-icon-btn"
-							class:admin-icon-btn--active={icon === item.id}
-							onclick={() =>
-								(icon = icon === item.id ? null : item.id)}
-							title={item.label}
-							aria-pressed={icon === item.id}
-							disabled={saving}
-						>
-							<LucideIcon
-								name={item.id}
-								iconNode={item.iconNode}
-								size={20}
-								aria-hidden="true"
-							/>
-						</button>
-					{/each}
-					{#if filteredDeckIcons.length === 0}
-						<p class="admin-icon-picker__empty">
-							No icons match "{iconQuery}".
-						</p>
-					{/if}
-				</div>
-			</div>
-
-			<!-- Image upload -->
-			<div class="admin-label">
-				Image
-				{#if currentImageUrl || imagePreview}
-					<div class="admin-image-preview">
-						<img
-							src={imagePreview ?? currentImageUrl ?? ''}
-							alt="Deck preview"
 						/>
-						<div class="admin-image-actions">
-							<label class="admin-btn admin-btn--sm">
-								Replace
-								<input
-									bind:this={fileInput}
-									type="file"
-									accept="image/jpeg,image/jpg,image/png,image/webp"
-									onchange={handleFileChange}
-									disabled={saving}
-									hidden
-								/>
-							</label>
-							<button
-								class="admin-btn admin-btn--sm admin-btn--danger"
-								type="button"
-								onclick={handleRemoveImage}
-								disabled={saving}>Remove</button
-							>
-						</div>
+					</LabelledField>
+					<LabelledField label="Description" optional>
+						<input
+							class="dform__input"
+							type="text"
+							bind:value={description}
+							placeholder="One-line summary"
+							disabled={saving}
+						/>
+					</LabelledField>
+				</div>
+
+				<!-- Tabs -->
+				<div class="dform__tabs">
+					<button
+						class="dform__tab"
+						class:dform__tab--active={tab === 'look'}
+						type="button"
+						onclick={() => (tab = 'look')}
+					>
+						Look
+						<span class="dform__tab-hint mono">Icon · Image</span>
+					</button>
+					<button
+						class="dform__tab"
+						class:dform__tab--active={tab === 'css'}
+						type="button"
+						onclick={() => (tab = 'css')}
+					>
+						Custom CSS
+						<span class="dform__tab-hint mono">
+							{css ? 'Active' : 'None'}
+						</span>
+					</button>
+				</div>
+
+				{#if tab === 'look'}
+					<div class="dform__look">
+						<LabelledField label="Icon" hint="Lucide library">
+							<div class="dform__icon-picker">
+								<div class="dform__icon-search">
+									<Search size={12} />
+									<input
+										type="search"
+										bind:value={iconQuery}
+										placeholder="Search 1,000+ icons…"
+										disabled={saving}
+									/>
+									{#if icon}
+										<button
+											class="dform__icon-clear"
+											type="button"
+											onclick={() => (icon = null)}
+											disabled={saving}
+										>
+											Clear
+										</button>
+									{:else}
+										<span class="dform__icon-count mono">
+											{filteredDeckIcons.length}
+										</span>
+									{/if}
+								</div>
+								<div class="dform__icon-grid">
+									{#each filteredDeckIcons as item (item.id)}
+										<button
+											class="dform__icon-btn"
+											class:dform__icon-btn--active={icon ===
+												item.id}
+											type="button"
+											onclick={() =>
+												(icon =
+													icon === item.id
+														? null
+														: item.id)}
+											title={item.label}
+											aria-pressed={icon === item.id}
+											disabled={saving}
+										>
+											<LucideIcon
+												name={item.id}
+												iconNode={item.iconNode}
+												size={18}
+												aria-hidden="true"
+											/>
+										</button>
+									{/each}
+									{#if filteredDeckIcons.length === 0}
+										<p class="dform__icon-empty">
+											No icons match "{iconQuery}".
+										</p>
+									{/if}
+								</div>
+							</div>
+						</LabelledField>
+
+						<LabelledField
+							label="Image"
+							hint="JPEG/PNG/WebP · max 5MB"
+							optional
+						>
+							<ImageSlot
+								src={previewImage ?? ''}
+								onupload={handleFileChange}
+								onclear={handleRemoveImage}
+							/>
+							{#if previewImage}
+								<p class="dform__image-note">
+									When set, the image is shown on the card.
+									The icon overlays at low opacity.
+								</p>
+							{/if}
+						</LabelledField>
 					</div>
 				{:else}
-					<label class="admin-file-upload">
-						<input
-							bind:this={fileInput}
-							type="file"
-							accept="image/jpeg,image/jpg,image/png,image/webp"
-							onchange={handleFileChange}
-							disabled={saving}
-							hidden
-						/>
-						<span>Click to upload (JPEG, PNG, WebP — max 5 MB)</span
-						>
-					</label>
+					<div class="dform__css">
+						<div class="dform__css-editor">
+							<div class="dform__css-bar">
+								<span class="dform__css-dot"></span>
+								<span class="mono">styles.css</span>
+								<span class="dform__css-target">
+									· targets
+									<span class="mono dform__css-target-token">
+										[data-deck-id]
+									</span>
+								</span>
+								<span class="dform__spacer"></span>
+								<span class="dform__css-lines">
+									{cssLineCount} lines
+								</span>
+							</div>
+							<div
+								class="dform__css-host"
+								bind:this={cssEditorEl}
+							></div>
+						</div>
+						<div class="dform__snippets">
+							<div class="dform__snippets-head">Snippets</div>
+							<div class="dform__snippets-list">
+								{#each snippets as snippet (snippet.label)}
+									<button
+										class="dform__snippet"
+										type="button"
+										onclick={() => applySnippet(snippet)}
+										disabled={saving}
+									>
+										<Plus size={11} />
+										{snippet.label}
+									</button>
+								{/each}
+							</div>
+						</div>
+					</div>
 				{/if}
 			</div>
 
-			<!-- Custom CSS editor -->
-			<div class="admin-label">
-				Custom CSS
-				<div class="admin-css-editor" bind:this={cssEditorEl}></div>
-				<span class="admin-hint"
-					>Target with [data-deck-id], .deck-card--selected, :hover</span
+			<!-- Right: live preview -->
+			<aside class="dform__preview-col">
+				<div class="dform__preview-label">Preview</div>
+				<div
+					class="dform__preview"
+					class:dform__preview--image={previewImage}
+					style:background-image={previewImage
+						? `url(${previewImage})`
+						: undefined}
 				>
-			</div>
+					{#if !previewImage}
+						<div
+							class="dform__preview-glow"
+							aria-hidden="true"
+						></div>
+					{/if}
+					<div class="dform__preview-top">
+						<div class="dform__preview-icon">
+							<LucideIcon
+								name={icon ?? 'Layers'}
+								iconNode={previewIconNode}
+								size={22}
+								aria-hidden="true"
+							/>
+						</div>
+						<span class="dform__preview-pill mono">
+							{cardCount || 0} kort
+						</span>
+					</div>
+				</div>
 
-			<div class="admin-form-actions">
-				<button
-					class="admin-btn admin-btn--primary"
-					type="submit"
-					disabled={saving}
-				>
-					{saving
-						? 'Saving…'
-						: isEdit
-							? 'Save changes'
-							: 'Create deck'}
-				</button>
-				<a
-					class="admin-btn"
-					href="/admin/decks"
-					style="text-decoration: none">Cancel</a
-				>
-			</div>
-		</form>
+				<dl class="dform__meta">
+					<div class="dform__meta-row">
+						<dt>Cards</dt>
+						<dd class="mono">{cardCount || 0}</dd>
+					</div>
+					<div class="dform__meta-row">
+						<dt>Created</dt>
+						<dd>{relativeTime(createdAt)}</dd>
+					</div>
+					<div class="dform__meta-row">
+						<dt>Custom CSS</dt>
+						<dd
+							class="mono"
+							class:dform__meta-ok={css}
+							class:dform__meta-faint={!css}
+						>
+							{css ? `${cssLineCount} lines` : 'none'}
+						</dd>
+					</div>
+				</dl>
+			</aside>
+		</div>
 	{/if}
 </div>
 
+<Dialog
+	open={confirmDiscardOpen}
+	onclose={() => (confirmDiscardOpen = false)}
+	title="Discard your changes?"
+	description="Anything you've edited since opening this deck will be lost."
+	danger
+	confirmLabel="Discard"
+	onconfirm={confirmDiscard}
+/>
+
 <style>
-	.admin-css-editor {
-		border: 1px solid hsl(0 0% 100% / 0.15);
-		border-radius: 0.375rem;
-		min-height: 5rem;
-		overflow: auto;
+	/* ─── Header ───────────────────────────────────────────────── */
+
+	.dform__header {
+		display: flex;
+		margin: -24px -24px 0;
+		padding: 14px 24px;
+		align-items: center;
+		min-height: 60px;
+
+		background: lch(4.4% 1.7 290 / 0.65);
+		border-bottom: 1px solid var(--border);
+		backdrop-filter: blur(8px);
+
+		gap: 14px;
 	}
 
-	.admin-css-editor :global(.prism-code-editor) {
-		font-size: 0.8125rem;
-		text-transform: none;
+	.dform__back {
+		display: inline-flex;
+		align-items: center;
+		height: 30px;
+		padding: 0 10px;
+
+		font-size: 13px;
+
+		color: var(--fg-mute);
+		border-radius: var(--r-2);
+
+		transition:
+			background 80ms ease,
+			color 80ms ease;
+
+		gap: 4px;
+	}
+
+	.dform__back:hover {
+		color: var(--fg);
+		background: var(--surface);
+	}
+
+	.dform__title-area {
+		display: flex;
+		min-width: 0;
+
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.dform__breadcrumb {
+		font-size: 11.5px;
+
+		color: var(--fg-faint);
+	}
+
+	.dform__title-text {
+		overflow: hidden;
+
+		font-size: 15px;
+		font-weight: 500;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.dform__spacer {
+		flex: 1;
+	}
+
+	.dform__dirty {
+		display: inline-flex;
+		align-items: center;
+
+		font-size: 12px;
+
+		color: var(--accent-2);
+
+		gap: 6px;
+	}
+
+	.dform__dirty-dot {
+		width: 6px;
+		height: 6px;
+
+		background: var(--accent-2);
+		border-radius: 50%;
+	}
+
+	.dform__error {
+		font-size: 12px;
+
+		color: var(--danger);
+	}
+
+	.dform__btn {
+		display: inline-flex;
+		align-items: center;
+		height: var(--h-button);
+		padding: 0 14px;
+
+		font-size: 13px;
+		font-weight: 500;
+		white-space: nowrap;
+
+		border-radius: var(--r-2);
+
+		transition:
+			background 80ms ease,
+			border-color 80ms ease;
+
+		gap: 6px;
+	}
+
+	.dform__btn:disabled {
+		cursor: default;
+		opacity: 0.5;
+	}
+
+	.dform__btn--ghost {
+		color: var(--fg);
+		background: transparent;
+		border: 1px solid var(--border);
+	}
+
+	.dform__btn--ghost:not(:disabled):hover {
+		background: var(--surface);
+		border-color: var(--border-strong);
+	}
+
+	.dform__btn--primary {
+		font-weight: 600;
+
+		color: var(--accent-fg);
+		background: var(--accent);
+	}
+
+	.dform__btn--primary:not(:disabled):hover {
+		background: var(--accent-hover);
+	}
+
+	/* ─── Body layout ──────────────────────────────────────────── */
+
+	.dform__loading {
+		padding: 48px 24px;
+
+		font-size: 13px;
+		text-align: center;
+
+		color: var(--fg-mute);
+	}
+
+	.dform__body {
+		display: grid;
+		padding-top: 24px;
+		align-items: start;
+
+		grid-template-columns: 1fr 320px;
+		gap: 28px;
+	}
+
+	.dform__main {
+		display: flex;
+		min-width: 0;
+
+		flex-direction: column;
+		gap: 22px;
+	}
+
+	.dform__fields {
+		display: grid;
+
+		grid-template-columns: 1.4fr 1fr;
+		gap: 16px;
+	}
+
+	.dform__input {
+		width: 100%;
+		height: var(--h-button);
+		padding: 0 12px;
+
+		font-size: 13.5px;
+
+		color: var(--fg);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--r-2);
+
+		transition: border-color 80ms ease;
+	}
+
+	.dform__input:focus {
+		border-color: var(--border-strong);
+		outline: none;
+	}
+
+	.dform__input::placeholder {
+		color: var(--fg-faint);
+	}
+
+	/* ─── Tabs ─────────────────────────────────────────────────── */
+
+	.dform__tabs {
+		display: flex;
+		align-items: center;
+
+		border-bottom: 1px solid var(--border);
+	}
+
+	.dform__tab {
+		display: inline-flex;
+		align-items: center;
+		height: 38px;
+		padding: 0 16px;
+		margin-bottom: -1px;
+
+		font-size: 13.5px;
+		font-weight: 500;
+
+		color: var(--fg-mute);
+		border-bottom: 2px solid transparent;
+
+		gap: 8px;
+	}
+
+	.dform__tab:hover {
+		color: var(--fg);
+	}
+
+	.dform__tab--active {
+		color: var(--fg);
+		border-bottom-color: var(--accent);
+	}
+
+	.dform__tab-hint {
+		font-size: 11px;
+
+		color: var(--fg-faint);
+	}
+
+	/* ─── Look tab ─────────────────────────────────────────────── */
+
+	.dform__look {
+		display: grid;
+
+		grid-template-columns: 1fr 1fr;
+		gap: 22px;
+	}
+
+	.dform__icon-picker {
+		display: flex;
+
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.dform__icon-search {
+		display: flex;
+		height: 34px;
+		padding: 0 10px;
+		align-items: center;
+
+		background: var(--bg-2);
+		border: 1px solid var(--border);
+		border-radius: var(--r-2);
+
+		gap: 8px;
+	}
+
+	.dform__icon-search :global(svg:first-child) {
+		color: var(--fg-faint);
+
+		flex-shrink: 0;
+	}
+
+	.dform__icon-search input {
+		min-width: 0;
+
+		font-size: 12.5px;
+
+		color: var(--fg);
+		background: transparent;
+		border: 0;
+		outline: none;
+
+		flex: 1;
+	}
+
+	.dform__icon-search input::placeholder {
+		color: var(--fg-faint);
+	}
+
+	.dform__icon-count {
+		font-size: 10.5px;
+
+		color: var(--fg-faint);
+	}
+
+	.dform__icon-clear {
+		font-size: 11.5px;
+
+		color: var(--accent-2);
+	}
+
+	.dform__icon-clear:hover {
+		color: var(--accent-2-hover);
+	}
+
+	.dform__icon-grid {
+		display: grid;
+		max-height: 240px;
+		padding: 4px;
+		overflow: auto;
+
+		background: var(--bg-2);
+		border: 1px solid var(--border);
+		border-radius: var(--r-2);
+
+		grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+		gap: 4px;
+	}
+
+	.dform__icon-btn {
+		display: grid;
+		aspect-ratio: 1;
+
+		color: var(--fg-mute);
+		border: 1px solid transparent;
+		border-radius: var(--r-1);
+
+		transition:
+			background 80ms ease,
+			color 80ms ease;
+
+		place-items: center;
+	}
+
+	.dform__icon-btn:not(:disabled):hover {
+		color: var(--fg);
+		background: var(--surface);
+	}
+
+	.dform__icon-btn--active {
+		color: var(--accent);
+		background: var(--accent-soft);
+		border-color: var(--border-accent);
+	}
+
+	.dform__icon-empty {
+		margin: 0;
+		padding: 12px;
+
+		font-size: 12px;
+
+		color: var(--fg-faint);
+
+		grid-column: 1 / -1;
+	}
+
+	.dform__image-note {
+		margin: 8px 0 0;
+
+		font-size: 11.5px;
+
+		color: var(--fg-faint);
+	}
+
+	/* ─── Custom CSS tab ───────────────────────────────────────── */
+
+	.dform__css {
+		display: grid;
+		height: 360px;
+		overflow: hidden;
+
+		background: var(--bg-2);
+		border: 1px solid var(--border);
+		border-radius: var(--r-2);
+
+		grid-template-columns: 1fr 200px;
+		grid-template-rows: minmax(0, 1fr);
+	}
+
+	.dform__css-editor {
+		display: flex;
+		min-width: 0;
+		min-height: 0;
+
+		border-right: 1px solid var(--border);
+		flex-direction: column;
+	}
+
+	.dform__css-bar {
+		display: flex;
+		padding: 8px 12px;
+		align-items: center;
+
+		font-size: 11.5px;
+
+		color: var(--fg-mute);
+		background: var(--surface);
+		border-bottom: 1px solid var(--border);
+
+		gap: 8px;
+	}
+
+	.dform__css-dot {
+		width: 8px;
+		height: 8px;
+
+		background: lch(64% 60 145);
+		border-radius: 50%;
+	}
+
+	.dform__css-target {
+		color: var(--fg-faint);
+	}
+
+	.dform__css-target-token {
+		color: var(--fg);
+	}
+
+	.dform__css-lines {
+		font-size: 11px;
+
+		color: var(--fg-faint);
+	}
+
+	.dform__css-host {
+		display: flex;
+		overflow: hidden;
+		min-height: 0;
+
+		flex: 1;
+	}
+
+	.dform__css-host :global(.prism-code-editor) {
+		height: 100%;
+
+		font-family: var(--font-mono);
+		font-size: 12.5px;
+		line-height: 20px;
+
+		background: var(--bg-2);
+
+		flex: 1;
+
+		--pce-bg: var(--bg-2);
+		--pce-line-number: var(--fg-faint);
+		--padding-inline: 14px;
+		--number-spacing: 10px;
+	}
+
+	.dform__snippets {
+		display: flex;
+		min-height: 0;
+
+		background: var(--bg-2);
+		flex-direction: column;
+	}
+
+	.dform__snippets-head {
+		padding: 8px 12px;
+
+		font-size: 11px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+
+		color: var(--fg-mute);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.dform__snippets-list {
+		display: flex;
+		padding: 8px;
+		overflow: auto;
+		min-height: 0;
+
+		flex: 1;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.dform__snippet {
+		display: flex;
+		align-items: center;
+		padding: 8px 10px;
+
+		font-size: 12px;
+		text-align: left;
+
+		color: var(--fg);
+		border-radius: var(--r-1);
+
+		transition: background 80ms ease;
+
+		gap: 6px;
+	}
+
+	.dform__snippet :global(svg) {
+		color: var(--fg-faint);
+
+		flex-shrink: 0;
+	}
+
+	.dform__snippet:not(:disabled):hover {
+		background: var(--surface);
+	}
+
+	/* ─── Live preview ─────────────────────────────────────────── */
+
+	.dform__preview-col {
+		display: flex;
+		position: sticky;
+		top: 0;
+		align-items: flex-start;
+
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.dform__preview-label {
+		font-size: 11.5px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+
+		color: var(--fg-mute);
+	}
+
+	.dform__preview {
+		display: flex;
+		position: relative;
+		overflow: hidden;
+		width: 200px;
+		height: 280px;
+		padding: 18px;
+
+		color: lch(94% 4 95);
+		background: linear-gradient(160deg, var(--surface-2) 0%, var(--bg) 70%);
+		background-position: center;
+		background-size: cover;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--r-3);
+		box-shadow: 0 20px 40px -16px lch(0% 0 0 / 0.7);
+
+		flex-direction: column;
+		justify-content: space-between;
+		flex: 0 0 200px;
+	}
+
+	.dform__preview-glow {
+		position: absolute;
+		inset: 0;
+
+		background: radial-gradient(
+			circle at 30% 20%,
+			lch(94.2% 90.2 115 / 0.08),
+			transparent 50%
+		);
+
+		pointer-events: none;
+	}
+
+	.dform__preview-top {
+		display: flex;
+		position: relative;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+
+	.dform__preview-icon {
+		display: grid;
+		width: 44px;
+		height: 44px;
+
+		color: lch(94% 4 95);
+		background: lch(100% 0 0 / 0.08);
+		border: 1px solid lch(100% 0 0 / 0.1);
+		border-radius: 10px;
+
+		backdrop-filter: blur(6px);
+		place-items: center;
+	}
+
+	.dform__preview-pill {
+		padding: 3px 8px;
+
+		font-size: 11px;
+
+		color: lch(100% 0 0 / 0.7);
+		background: lch(0% 0 0 / 0.3);
+		border: 1px solid lch(100% 0 0 / 0.1);
+		border-radius: 100px;
+	}
+
+	.dform__meta {
+		display: flex;
+		width: 200px;
+		margin: 6px 0 0;
+
+		font-size: 12px;
+
+		color: var(--fg-mute);
+
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.dform__meta-row {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.dform__meta-row dd {
+		margin: 0;
+
+		color: var(--fg);
+	}
+
+	.dform__meta-ok {
+		color: var(--ok);
+	}
+
+	.dform__meta-faint {
+		color: var(--fg-faint);
+	}
+
+	/* ─── Responsive ───────────────────────────────────────────── */
+
+	@media (max-width: 900px) {
+		.dform__body {
+			grid-template-columns: 1fr;
+			gap: 22px;
+		}
+
+		.dform__preview-col {
+			position: static;
+			align-items: center;
+			order: -1;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.dform__fields {
+			grid-template-columns: 1fr;
+		}
+
+		.dform__look {
+			grid-template-columns: 1fr;
+		}
+
+		.dform__css {
+			height: auto;
+
+			grid-template-columns: 1fr;
+		}
+
+		.dform__css-editor {
+			border-right: 0;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.dform__css-host {
+			height: 260px;
+		}
+
+		.dform__title-text {
+			display: none;
+		}
 	}
 </style>
