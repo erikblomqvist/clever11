@@ -31,7 +31,7 @@
 		padding: 0 8px;
 
 		font-family: var(--font-mono);
-		font-size: 11px;
+		font-size: 0.6875rem;
 		letter-spacing: 0.04em;
 		text-transform: uppercase;
 
@@ -72,7 +72,7 @@
 	.sp--info {
 		color: var(--info);
 		background: var(--info-soft);
-		border-color: lch(70.8% 45.3 266 / 0.25);
+		border-color: var(--info-soft-2);
 	}
 
 	.sp--ready {
@@ -88,7 +88,7 @@
 	.sp--danger {
 		color: var(--danger);
 		background: var(--danger-soft);
-		border-color: lch(63.3% 63.5 19 / 0.25);
+		border-color: var(--danger-soft-2);
 	}
 
 	.sp--danger .sp__led {
@@ -98,7 +98,7 @@
 	.sp--ok {
 		color: var(--ok);
 		background: var(--ok-soft);
-		border-color: lch(86.6% 57.6 150 / 0.25);
+		border-color: var(--ok-soft-2);
 	}
 
 	.sp--ok .sp__led {

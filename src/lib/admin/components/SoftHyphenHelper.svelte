@@ -59,10 +59,10 @@
 	.shy {
 		padding: 10px 12px;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		background: var(--warn-soft);
-		border: 1px solid lch(78.9% 66.4 75 / 0.22);
+		border: 1px solid var(--warn-soft-2);
 		border-radius: var(--r-2);
 	}
 
@@ -89,7 +89,7 @@
 		align-items: center;
 
 		background: var(--surface);
-		border: 1px solid lch(78.9% 66.4 75 / 0.22);
+		border: 1px solid var(--warn-soft-2);
 		border-radius: var(--r-2);
 	}
 
@@ -102,7 +102,7 @@
 		padding: 6px 2px;
 
 		font-family: var(--font-mono);
-		font-size: 15px;
+		font-size: 1rem;
 		line-height: 1;
 
 		color: var(--fg-mute);

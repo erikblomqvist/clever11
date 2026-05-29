@@ -59,7 +59,7 @@
 		padding: 0 8px;
 
 		font-family: var(--font-mono);
-		font-size: 10.5px;
+		font-size: 0.625rem;
 		letter-spacing: 0.06em;
 
 		border: 1px solid var(--border);
@@ -75,7 +75,7 @@
 	.type-badge--info {
 		color: var(--info);
 		background: var(--info-soft);
-		border-color: lch(70.8% 45.3 266 / 0.25);
+		border-color: var(--info-soft-2);
 	}
 
 	.type-badge--lime {

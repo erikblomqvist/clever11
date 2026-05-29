@@ -295,7 +295,8 @@
 	.decks__title {
 		margin: 0;
 
-		font-size: 24px;
+		font-size: 1.5rem;
+		text-wrap: balance;
 		font-weight: 600;
 		letter-spacing: -0.02em;
 	}
@@ -303,7 +304,7 @@
 	.decks__subtitle {
 		margin: 4px 0 0;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -327,7 +328,7 @@
 		height: var(--h-button);
 		padding: 0 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 		text-decoration: none;
 		white-space: nowrap;
@@ -397,7 +398,7 @@
 	.decks__search input {
 		min-width: 0;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 		background: transparent;
@@ -437,7 +438,7 @@
 		align-items: center;
 		padding: 0 4px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-mute);
 
@@ -457,7 +458,7 @@
 	.decks__status {
 		padding: 48px 24px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: center;
 
 		color: var(--fg-mute);
@@ -487,7 +488,7 @@
 	}
 
 	.decks__col-label {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -519,7 +520,7 @@
 	}
 
 	.decks__row-name {
-		font-size: 14px;
+		font-size: 0.875rem;
 		font-weight: 500;
 
 		color: var(--fg);
@@ -529,7 +530,7 @@
 		overflow: hidden;
 		margin-top: 2px;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -537,13 +538,13 @@
 	}
 
 	.decks__row-count {
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 	}
 
 	.decks__row-created {
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -595,7 +596,7 @@
 	}
 
 	.decks__card-name {
-		font-size: 14px;
+		font-size: 0.875rem;
 		font-weight: 500;
 
 		color: var(--fg);
@@ -605,7 +606,7 @@
 		overflow: hidden;
 		margin-top: 2px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -617,13 +618,13 @@
 	}
 
 	.decks__card-count-num {
-		font-size: 16px;
+		font-size: 1rem;
 
 		color: var(--fg);
 	}
 
 	.decks__card-count-label {
-		font-size: 10.5px;
+		font-size: 0.625rem;
 
 		color: var(--fg-faint);
 	}

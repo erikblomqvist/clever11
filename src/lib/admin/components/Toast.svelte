@@ -78,7 +78,7 @@
 		gap: 10px;
 		padding: 10px 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		white-space: nowrap;
 
 		background: var(--surface-2);
@@ -105,7 +105,7 @@
 	.toast__undo {
 		padding: 2px 8px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 		font-weight: 500;
 
 		color: var(--accent);

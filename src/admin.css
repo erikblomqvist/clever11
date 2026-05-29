@@ -34,15 +34,23 @@
 	--accent-2-soft: lch(66.4% 63.9 41 / 0.1);
 	--accent-2-soft-2: lch(66.4% 63.9 41 / 0.22);
 
+	/* Accent glow */
+	--accent-ring: lch(94.2% 90.2 115 / 0.25);
+	--accent-glow: lch(94.2% 90.2 115 / 0.35);
+
 	/* Status */
 	--danger: lch(63.3% 63.5 19);
 	--danger-soft: lch(63.3% 63.5 19 / 0.12);
+	--danger-soft-2: lch(63.3% 63.5 19 / 0.25);
 	--warn: lch(78.9% 66.4 75);
 	--warn-soft: lch(78.9% 66.4 75 / 0.12);
+	--warn-soft-2: lch(78.9% 66.4 75 / 0.22);
 	--ok: lch(86.6% 57.6 150);
 	--ok-soft: lch(86.6% 57.6 150 / 0.12);
+	--ok-soft-2: lch(86.6% 57.6 150 / 0.25);
 	--info: lch(70.8% 45.3 266);
 	--info-soft: lch(70.8% 45.3 266 / 0.12);
+	--info-soft-2: lch(70.8% 45.3 266 / 0.25);
 
 	/* Typography */
 	--font-sans:
@@ -70,6 +78,14 @@
 		0 8px 24px lch(0% 0 0 / 0.5), 0 1px 0 lch(100% 0 0 / 0.03) inset;
 	--shadow-pop:
 		0 18px 48px lch(0% 0 0 / 0.65), 0 0 0 1px var(--border-strong);
+
+	/* Glass / overlay */
+	--glass-bg: lch(4.4% 1.7 290 / 0.65);
+	--glass-border: lch(100% 0 0 / 0.1);
+	--glass-inset: lch(100% 0 0 / 0.04);
+	--glass-fg: lch(94% 4 95);
+	--backdrop: lch(3% 2 280 / 0.6);
+	--scrim: lch(0% 0 0 / 0.3);
 
 	/* Effects */
 	--blur: 12px;
@@ -173,7 +189,7 @@ select {
 	display: grid;
 	height: 100dvh;
 
-	font-size: 13px;
+	font-size: 0.75rem;
 
 	color: var(--fg-mute);
 

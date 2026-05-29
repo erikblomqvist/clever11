@@ -32,14 +32,14 @@
 	}
 
 	.field__label {
-		font-size: 12.5px;
+		font-size: 0.75rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
 	}
 
 	.field__optional {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -49,7 +49,7 @@
 	}
 
 	.field__hint {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}

@@ -41,14 +41,14 @@
 	}
 
 	.empty-state__title {
-		font-size: 15px;
+		font-size: 1rem;
 		font-weight: 500;
 	}
 
 	.empty-state__body {
 		max-width: 360px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		line-height: 1.55;
 
 		color: var(--fg-mute);

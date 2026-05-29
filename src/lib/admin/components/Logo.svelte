@@ -25,7 +25,7 @@
 		width: 24px;
 		height: 24px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 		font-weight: 700;
 		letter-spacing: -0.04em;
 
@@ -44,7 +44,7 @@
 	}
 
 	.logo__title {
-		font-size: 14px;
+		font-size: 0.875rem;
 		font-weight: 600;
 		letter-spacing: -0.015em;
 
@@ -52,7 +52,7 @@
 	}
 
 	.logo__subtitle {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-mute);
 	}

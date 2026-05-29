@@ -234,7 +234,7 @@
 	}
 
 	.master__label {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		letter-spacing: 0.06em;
 
@@ -242,7 +242,7 @@
 	}
 
 	.master__count {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -252,7 +252,7 @@
 	}
 
 	.master__hint {
-		font-size: 10.5px;
+		font-size: 0.625rem;
 
 		color: var(--fg-faint);
 	}
@@ -321,7 +321,7 @@
 		width: 32px;
 		height: 32px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		background: var(--surface-2);
@@ -356,7 +356,7 @@
 	.row__label {
 		overflow: hidden;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -376,7 +376,7 @@
 		align-items: center;
 
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: 0.625rem;
 		letter-spacing: 0.04em;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -393,13 +393,13 @@
 	.row__chip--ok {
 		color: var(--ok);
 		background: var(--ok-soft);
-		border-color: lch(86.6% 57.6 150 / 0.25);
+		border-color: var(--ok-soft-2);
 	}
 
 	.row__chip--danger {
 		color: var(--danger);
 		background: var(--danger-soft);
-		border-color: lch(63.3% 63.5 19 / 0.25);
+		border-color: var(--danger-soft-2);
 	}
 
 	.row__chip--accent {
@@ -411,7 +411,7 @@
 	.row__chip--info {
 		color: var(--info);
 		background: var(--info-soft);
-		border-color: lch(70.8% 45.3 266 / 0.25);
+		border-color: var(--info-soft-2);
 	}
 
 	.row__chip--default {
@@ -423,7 +423,7 @@
 		align-items: center;
 
 		font-family: var(--font-mono);
-		font-size: 10.5px;
+		font-size: 0.625rem;
 
 		color: var(--fg-mute);
 		border: none;
@@ -475,7 +475,7 @@
 	}
 
 	.chips__label {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		letter-spacing: 0.06em;
 
@@ -490,7 +490,7 @@
 		padding: 0 12px;
 		align-items: center;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		background: var(--surface);
@@ -508,7 +508,7 @@
 	}
 
 	.chip__num {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}

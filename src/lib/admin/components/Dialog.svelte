@@ -101,7 +101,7 @@
 	}
 
 	.dialog::backdrop {
-		background: lch(3% 2 280 / 0.6);
+		background: var(--backdrop);
 		backdrop-filter: blur(4px);
 
 		animation: fade-in var(--dur-fade-in) ease;
@@ -135,7 +135,7 @@
 	.dialog--danger .dialog__icon {
 		color: var(--danger);
 		background: var(--danger-soft);
-		border-color: lch(63.3% 63.5 19 / 0.25);
+		border-color: var(--danger-soft-2);
 	}
 
 	.dialog:not(.dialog--danger) .dialog__icon {
@@ -146,7 +146,7 @@
 	.dialog__title {
 		margin: 0;
 
-		font-size: 17px;
+		font-size: 1.0625rem;
 		font-weight: 600;
 		letter-spacing: -0.01em;
 	}
@@ -154,7 +154,7 @@
 	.dialog__description {
 		margin: 6px 0 0;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		line-height: 1.55;
 
 		color: var(--fg-mute);
@@ -177,7 +177,7 @@
 		height: var(--h-button);
 		padding: 0 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 		white-space: nowrap;
 
@@ -206,8 +206,8 @@
 		background: var(--accent);
 		border: 1px solid transparent;
 		box-shadow:
-			0 0 0 1px lch(94.2% 90.2 115 / 0.25),
-			0 8px 24px -8px lch(94.2% 90.2 115 / 0.35);
+			0 0 0 1px var(--accent-ring),
+			0 8px 24px -8px var(--accent-glow);
 	}
 
 	.dialog__btn--primary:hover {

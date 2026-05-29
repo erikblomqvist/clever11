@@ -654,7 +654,8 @@
 	.qv__title {
 		margin: 0;
 
-		font-size: 24px;
+		font-size: 1.5rem;
+		text-wrap: balance;
 		font-weight: 600;
 		letter-spacing: -0.02em;
 	}
@@ -662,7 +663,7 @@
 	.qv__subtitle {
 		margin: 4px 0 0;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -682,7 +683,7 @@
 		height: var(--h-button);
 		padding: 0 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 		text-decoration: none;
 		white-space: nowrap;
@@ -722,7 +723,7 @@
 		height: 30px;
 		padding: 0 10px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 	}
 
 	/* ─── Filter bar ───────────────────────────────────────────── */
@@ -770,7 +771,7 @@
 	.qv__search input {
 		min-width: 0;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 		background: transparent;
@@ -811,7 +812,7 @@
 		align-items: center;
 		padding: 0 4px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-mute);
 
@@ -831,7 +832,7 @@
 	.qv__status {
 		padding: 48px 24px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: center;
 
 		color: var(--fg-mute);
@@ -861,7 +862,7 @@
 	}
 
 	.qv__col-label {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -893,7 +894,7 @@
 	}
 
 	.qv__row-num {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -909,7 +910,7 @@
 	.qv__row-text {
 		overflow: hidden;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -917,13 +918,13 @@
 	}
 
 	.qv__row-archived-hint {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
 
 	.qv__row-deck {
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -975,7 +976,7 @@
 	}
 
 	.qv__card-num {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-mute);
 	}
@@ -987,7 +988,7 @@
 	.qv__card-text {
 		margin-bottom: 8px;
 
-		font-size: 14px;
+		font-size: 0.875rem;
 		line-height: 1.4;
 
 		color: var(--fg);
@@ -997,7 +998,7 @@
 		display: flex;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 
@@ -1015,7 +1016,7 @@
 	.qv__card-archived {
 		margin-top: 8px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -1025,7 +1026,7 @@
 	.qv__confirm-preview {
 		padding: 12px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: var(--bg-2);
@@ -1034,7 +1035,7 @@
 	}
 
 	.qv__confirm-num {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}

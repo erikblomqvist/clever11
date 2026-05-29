@@ -236,7 +236,7 @@
 		height: var(--h-button);
 		padding: 0 12px;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -246,7 +246,7 @@
 		transition: border-color 80ms ease;
 	}
 
-	.ca-input:focus {
+	.ca-input:focus-visible {
 		border-color: var(--border-strong);
 	}
 
@@ -272,7 +272,7 @@
 		align-items: center;
 		justify-content: center;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
@@ -348,7 +348,7 @@
 		display: block;
 		margin-top: 8px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -376,7 +376,7 @@
 
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-2);
-		box-shadow: inset 0 0 0 1px lch(100% 0 0 / 0.04);
+		box-shadow: inset 0 0 0 1px var(--glass-inset);
 		cursor: pointer;
 
 		flex: 0 0 56px;
@@ -407,7 +407,7 @@
 	.slider-label {
 		width: 14px;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -457,7 +457,7 @@
 	.slider-value {
 		width: 36px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		text-align: right;
 
 		color: var(--fg-mute);

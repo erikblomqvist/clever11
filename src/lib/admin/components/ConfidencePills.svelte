@@ -57,7 +57,7 @@
 		align-items: center;
 		gap: 6px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--ok);
 	}
@@ -76,7 +76,7 @@
 		height: 22px;
 		padding: 0 8px;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		border: 1px solid var(--border);
 		border-radius: 100px;
@@ -91,7 +91,7 @@
 	.cp__pill--danger {
 		color: var(--danger);
 		background: var(--danger-soft);
-		border-color: lch(63.3% 63.5 19 / 0.25);
+		border-color: var(--danger-soft-2);
 	}
 
 	.cp__pill--warn {

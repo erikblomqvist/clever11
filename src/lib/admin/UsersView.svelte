@@ -121,7 +121,8 @@
 	.uv__title {
 		margin: 0;
 
-		font-size: 24px;
+		font-size: 1.5rem;
+		text-wrap: balance;
 		font-weight: 600;
 		letter-spacing: -0.02em;
 	}
@@ -129,7 +130,7 @@
 	.uv__subtitle {
 		margin: 4px 0 0;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -139,7 +140,7 @@
 	.uv__status {
 		padding: 48px 24px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: center;
 
 		color: var(--fg-mute);
@@ -169,7 +170,7 @@
 	}
 
 	.uv__col-label {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -198,7 +199,7 @@
 	.uv__row-email {
 		overflow: hidden;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -208,7 +209,7 @@
 	.uv__row-name {
 		overflow: hidden;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -255,7 +256,7 @@
 	.uv__card-email {
 		overflow: hidden;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 
@@ -263,7 +264,7 @@
 	}
 
 	.uv__card-name {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}

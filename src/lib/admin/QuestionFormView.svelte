@@ -819,7 +819,7 @@
 
 	.editor {
 		display: flex;
-		height: calc(100vh - var(--h-topbar));
+		height: calc(100dvh - var(--h-topbar));
 		margin: -24px;
 
 		flex-direction: column;
@@ -829,7 +829,7 @@
 		display: grid;
 		height: 200px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 
@@ -848,7 +848,7 @@
 		padding: 14px 22px;
 		align-items: center;
 
-		background: lch(4.4% 1.7 290 / 0.65);
+		background: var(--glass-bg);
 		border-bottom: 1px solid var(--border);
 		backdrop-filter: blur(8px);
 
@@ -862,7 +862,7 @@
 		padding: 0 10px;
 		align-items: center;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 		text-decoration: none;
 
 		color: var(--fg-mute);
@@ -895,7 +895,7 @@
 	}
 
 	.editor__breadcrumb {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -904,7 +904,7 @@
 		overflow: hidden;
 		max-width: 600px;
 
-		font-size: 15px;
+		font-size: 1rem;
 		font-weight: 500;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -916,7 +916,7 @@
 		display: inline-flex;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--accent-2);
 
@@ -935,7 +935,7 @@
 		max-width: 300px;
 		padding: 4px 10px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--danger);
 		background: var(--danger-soft);
@@ -948,7 +948,7 @@
 		padding: 0 14px;
 		align-items: center;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 
 		border-radius: var(--r-2);
@@ -1023,7 +1023,7 @@
 		height: var(--h-button);
 		padding: 0 12px;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -1033,7 +1033,7 @@
 		transition: border-color 80ms ease;
 	}
 
-	.editor__input:focus {
+	.editor__input:focus-visible {
 		border-color: var(--border-strong);
 	}
 
@@ -1051,7 +1051,7 @@
 		padding: 10px 12px;
 
 		font-family: var(--font-sans);
-		font-size: 14px;
+		font-size: 0.875rem;
 		line-height: 1.5;
 
 		color: var(--fg);
@@ -1064,7 +1064,7 @@
 		resize: vertical;
 	}
 
-	.editor__textarea:focus {
+	.editor__textarea:focus-visible {
 		border-color: var(--border-strong);
 	}
 
@@ -1087,7 +1087,7 @@
 		align-items: center;
 		justify-content: center;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
@@ -1137,14 +1137,14 @@
 	}
 
 	.editor__detail-label {
-		font-size: 12px;
+		font-size: 0.75rem;
 		letter-spacing: 0.04em;
 
 		color: var(--fg-faint);
 	}
 
 	.editor__detail-num {
-		font-size: 22px;
+		font-size: 1.375rem;
 		font-weight: 500;
 		letter-spacing: -0.02em;
 
@@ -1152,7 +1152,7 @@
 	}
 
 	.editor__detail-num .faint {
-		font-size: 16px;
+		font-size: 1rem;
 	}
 
 	.editor__detail-btn {
@@ -1184,7 +1184,7 @@
 		padding: 0 10px;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		gap: 4px;
 	}
@@ -1232,7 +1232,7 @@
 	}
 
 	.editor__optional-image summary {
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		cursor: pointer;
@@ -1259,7 +1259,7 @@
 		}
 
 		.editor__breadcrumb {
-			font-size: 11px;
+			font-size: 0.6875rem;
 			white-space: nowrap;
 			overflow: clip;
 			text-overflow: ellipsis;
@@ -1268,7 +1268,7 @@
 		.editor__title-text {
 			max-width: none;
 
-			font-size: 13.5px;
+			font-size: 0.875rem;
 		}
 
 		.editor__dirty {
@@ -1298,7 +1298,7 @@
 			height: 32px;
 			padding: 0 12px;
 
-			font-size: 12px;
+			font-size: 0.75rem;
 		}
 
 		.editor__fields {

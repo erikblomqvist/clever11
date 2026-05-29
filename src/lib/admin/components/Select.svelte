@@ -120,7 +120,7 @@
 		min-width: 140px;
 		padding: 0 10px 0 12px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -135,7 +135,7 @@
 	}
 
 	.select__label {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-faint);
 	}
@@ -213,7 +213,7 @@
 		width: 100%;
 		padding: 8px 10px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: left;
 
 		color: var(--fg);
@@ -235,7 +235,7 @@
 	}
 
 	.select__option-hint {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}

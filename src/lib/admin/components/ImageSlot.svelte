@@ -91,7 +91,7 @@
 		height: 30px;
 		padding: 0 10px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		background: var(--surface-2);
@@ -128,7 +128,7 @@
 		align-items: center;
 		justify-content: center;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		background: transparent;

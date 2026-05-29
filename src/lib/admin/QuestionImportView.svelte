@@ -1309,7 +1309,7 @@
 		display: grid;
 		height: 200px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 
@@ -1329,7 +1329,8 @@
 	.qi__title {
 		margin: 0;
 
-		font-size: 24px;
+		font-size: 1.5rem;
+		text-wrap: balance;
 		font-weight: 600;
 		letter-spacing: -0.02em;
 	}
@@ -1337,7 +1338,7 @@
 	.qi__subtitle {
 		margin: 4px 0 0;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -1353,7 +1354,7 @@
 		display: inline-flex;
 		align-items: center;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 
@@ -1375,11 +1376,11 @@
 		padding: 10px 14px;
 		margin: 8px 0;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--danger);
 		background: var(--danger-soft);
-		border: 1px solid lch(63.3% 63.5 19 / 0.25);
+		border: 1px solid var(--danger-soft-2);
 		border-radius: var(--r-2);
 	}
 
@@ -1413,7 +1414,7 @@
 	}
 
 	.qi__toolbar-errors {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--danger);
 	}
@@ -1426,7 +1427,7 @@
 		height: var(--h-button);
 		padding: 0 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 		white-space: nowrap;
 
@@ -1469,8 +1470,8 @@
 		background: var(--accent);
 		border-color: transparent;
 		box-shadow:
-			0 0 0 1px lch(94.2% 90.2 115 / 0.25),
-			0 8px 24px -8px lch(94.2% 90.2 115 / 0.35);
+			0 0 0 1px var(--accent-ring),
+			0 8px 24px -8px var(--accent-glow);
 	}
 
 	.qi__btn--primary:hover {
@@ -1481,7 +1482,7 @@
 		height: 28px;
 		padding: 0 10px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		border-radius: var(--r-1);
 	}
@@ -1502,7 +1503,7 @@
 		padding: 10px 24px;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--accent);
 		background: var(--accent-soft);
@@ -1569,7 +1570,7 @@
 	}
 
 	.qi__card--error {
-		border-color: lch(63.3% 63.5 19 / 0.25);
+		border-color: var(--danger-soft-2);
 	}
 
 	.qi__card--extracting {
@@ -1683,7 +1684,7 @@
 	}
 
 	.qi__card-id {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -1706,7 +1707,7 @@
 		overflow: hidden;
 		max-width: 600px;
 
-		font-size: 14.5px;
+		font-size: 0.875rem;
 		font-weight: 500;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -1716,7 +1717,7 @@
 		display: inline-flex;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 
@@ -1757,7 +1758,7 @@
 	.qi__banner {
 		padding: 10px 14px;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 	}
 
 	.qi__banner--error {
@@ -1788,7 +1789,7 @@
 		width: 12px;
 		height: 12px;
 
-		font-size: 9px;
+		font-size: 0.5625rem;
 		font-weight: 700;
 
 		place-items: center;
@@ -1839,7 +1840,7 @@
 		width: 100%;
 		padding: 0 12px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 	}
 
 	.qi__input::placeholder {
@@ -1855,7 +1856,7 @@
 		align-items: center;
 		margin-top: 8px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		cursor: pointer;
@@ -1880,14 +1881,14 @@
 	}
 
 	.qi__options-label {
-		font-size: 11px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
 	}
 
 	.qi__options-count {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -1905,7 +1906,7 @@
 	}
 
 	.qi__option-num {
-		font-size: 11px;
+		font-size: 0.6875rem;
 		text-align: right;
 
 		color: var(--fg-faint);
@@ -1915,14 +1916,14 @@
 		min-width: 0;
 		padding: 4px 8px;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		border-radius: var(--r-1);
 
 		transition: background 80ms ease;
 	}
 
-	.qi__option-label:focus {
+	.qi__option-label:focus-visible {
 		background: var(--surface-2);
 	}
 
@@ -1935,7 +1936,7 @@
 	}
 
 	.qi__option-arrow {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-faint);
 	}
@@ -1944,7 +1945,7 @@
 		min-width: 0;
 		padding: 4px 8px;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		border-radius: var(--r-1);
 
@@ -1953,7 +1954,7 @@
 		transition: background 80ms ease;
 	}
 
-	.qi__option-answer:focus {
+	.qi__option-answer:focus-visible {
 		background: var(--surface-2);
 	}
 
@@ -1962,7 +1963,7 @@
 		padding: 0 8px;
 
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -1982,7 +1983,7 @@
 		height: 24px;
 		padding: 0 10px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
@@ -2048,13 +2049,13 @@
 	}
 
 	.qi__option-image-empty {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
 
 	.qi__option-image-warn {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--warn);
 	}
@@ -2073,7 +2074,7 @@
 	}
 
 	.qi__card-footer-hint {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 
@@ -2116,7 +2117,7 @@
 		.qi__card-text {
 			max-width: 240px;
 
-			font-size: 13.5px;
+			font-size: 0.875rem;
 		}
 
 		.qi__fields-grid {

@@ -320,7 +320,7 @@
 	.cmdk {
 		overflow: visible;
 		width: min(770px, calc(100% - 64px));
-		margin: 12vh auto auto;
+		margin: 12dvh auto auto;
 		padding: 0;
 
 		color: var(--fg);
@@ -331,7 +331,7 @@
 	}
 
 	.cmdk::backdrop {
-		background: lch(3% 2 280 / 0.6);
+		background: var(--backdrop);
 		backdrop-filter: blur(4px);
 
 		animation: fade-in var(--dur-fade-in) ease;
@@ -360,7 +360,7 @@
 	.cmdk__input {
 		width: 0;
 
-		font-size: 14.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 		background: transparent;
@@ -383,7 +383,7 @@
 	.cmdk__empty {
 		padding: 40px 16px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: center;
 
 		color: var(--fg-mute);
@@ -392,7 +392,7 @@
 	.cmdk__group-label {
 		padding: 12px 14px 6px;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -406,7 +406,7 @@
 		padding: 8px 14px;
 		align-items: center;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		text-align: left;
 
 		color: var(--fg);
@@ -450,13 +450,13 @@
 	}
 
 	.cmdk__item-meta {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
 
 	.cmdk__question-num {
-		font-size: 10px;
+		font-size: 0.625rem;
 	}
 
 	.cmdk__pill {
@@ -465,7 +465,7 @@
 		padding: 0 8px;
 		align-items: center;
 
-		font-size: 10.5px;
+		font-size: 0.625rem;
 
 		color: var(--fg-faint);
 		background: var(--surface-2);
@@ -481,7 +481,7 @@
 		justify-content: center;
 
 		font-family: var(--font-sans);
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 		background: var(--bg-2);
@@ -494,7 +494,7 @@
 		padding: 10px 14px;
 		align-items: center;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 		background: var(--bg-2);

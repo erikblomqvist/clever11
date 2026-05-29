@@ -219,7 +219,8 @@
 	.login__title {
 		margin: 0 0 24px;
 
-		font-size: 26px;
+		font-size: 1.625rem;
+		text-wrap: balance;
 		font-weight: 600;
 		letter-spacing: -0.02em;
 	}
@@ -247,14 +248,14 @@
 	}
 
 	.login__label {
-		font-size: 12.5px;
+		font-size: 0.75rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
 	}
 
 	.login__forgot {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--accent-2);
 
@@ -296,7 +297,7 @@
 	.login__input input {
 		width: 100%;
 
-		font-size: 14px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 	}
@@ -309,7 +310,7 @@
 		margin: 0;
 		padding: 9px 12px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		border-radius: var(--r-2);
 	}
@@ -317,13 +318,13 @@
 	.login__alert--error {
 		color: var(--danger);
 		background: var(--danger-soft);
-		border: 1px solid lch(63.3% 63.5 19 / 0.25);
+		border: 1px solid var(--danger-soft-2);
 	}
 
 	.login__alert--ok {
 		color: var(--ok);
 		background: var(--ok-soft);
-		border: 1px solid lch(86.6% 57.6 150 / 0.25);
+		border: 1px solid var(--ok-soft-2);
 	}
 
 	.login__submit {
@@ -333,7 +334,7 @@
 		align-items: center;
 		justify-content: center;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 600;
 
 		color: var(--accent-fg);
@@ -341,8 +342,8 @@
 		border: 1px solid transparent;
 		border-radius: var(--r-2);
 		box-shadow:
-			0 0 0 1px lch(94.2% 90.2 115 / 0.25),
-			0 8px 24px -8px lch(94.2% 90.2 115 / 0.35);
+			0 0 0 1px var(--accent-ring),
+			0 8px 24px -8px var(--accent-glow);
 		cursor: pointer;
 
 		transition: background 80ms ease;
@@ -369,7 +370,7 @@
 		width: 14px;
 		height: 14px;
 
-		border: 2px solid lch(0% 0 0 / 0.3);
+		border: 2px solid var(--scrim);
 		border-top-color: var(--accent-fg);
 		border-radius: 50%;
 
@@ -392,7 +393,7 @@
 		}
 
 		.login__title {
-			font-size: 22px;
+			font-size: 1.375rem;
 		}
 	}
 </style>

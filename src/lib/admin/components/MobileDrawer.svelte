@@ -134,7 +134,7 @@
 		padding: 0 12px;
 		align-items: center;
 
-		font-size: 14px;
+		font-size: 0.875rem;
 		text-decoration: none;
 
 		color: var(--fg-mute);
@@ -183,13 +183,13 @@
 	}
 
 	.drawer__user-name {
-		font-size: 13.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 	}
 
 	.drawer__user-email {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -198,7 +198,7 @@
 		display: inline-flex;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 

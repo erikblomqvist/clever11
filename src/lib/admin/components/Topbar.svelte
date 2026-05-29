@@ -83,7 +83,7 @@
 		display: flex;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-faint);
 

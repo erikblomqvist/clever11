@@ -79,7 +79,7 @@
 		padding: 0 10px;
 		align-items: center;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-decoration: none;
 
 		color: var(--fg-mute);
@@ -143,13 +143,13 @@
 	}
 
 	.sidebar__user-name {
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 	}
 
 	.sidebar__user-email {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -160,7 +160,7 @@
 		padding: 0 8px;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		border-radius: var(--r-1);

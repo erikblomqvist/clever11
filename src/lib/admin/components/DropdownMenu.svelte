@@ -114,7 +114,7 @@
 		width: 100%;
 		padding: 8px 10px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: left;
 
 		color: var(--fg);

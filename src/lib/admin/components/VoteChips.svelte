@@ -65,7 +65,7 @@
 		gap: 10px;
 
 		font-family: var(--font-mono);
-		font-size: 12px;
+		font-size: 0.75rem;
 	}
 
 	.vote-chips--compact {
@@ -89,6 +89,6 @@
 	}
 
 	.vote-chips__net {
-		font-size: 11px;
+		font-size: 0.6875rem;
 	}
 </style>

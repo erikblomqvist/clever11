@@ -63,7 +63,7 @@
 		background-position: center;
 		background-size: cover;
 		border: 1px solid var(--border-strong);
-		box-shadow: inset 0 0 0 1px lch(100% 0 0 / 0.04);
+		box-shadow: inset 0 0 0 1px var(--glass-inset);
 	}
 
 	.deck-badge__overlay {

@@ -13,7 +13,7 @@
 	.spinner {
 		display: inline-block;
 
-		border: 2px solid lch(100% 0 0 / 0.1);
+		border: 2px solid var(--glass-border);
 		border-top-color: var(--fg-mute);
 		border-radius: 50%;
 

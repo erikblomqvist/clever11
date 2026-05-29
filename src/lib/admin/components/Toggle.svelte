@@ -20,7 +20,7 @@
 		height: var(--h-button);
 		padding: 0 12px 0 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -35,7 +35,7 @@
 	}
 
 	.toggle__hint {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}

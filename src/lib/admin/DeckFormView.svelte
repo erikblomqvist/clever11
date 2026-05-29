@@ -647,7 +647,7 @@
 		align-items: center;
 		min-height: 60px;
 
-		background: lch(4.4% 1.7 290 / 0.65);
+		background: var(--glass-bg);
 		border-bottom: 1px solid var(--border);
 		backdrop-filter: blur(8px);
 
@@ -660,7 +660,7 @@
 		height: 30px;
 		padding: 0 10px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 		border-radius: var(--r-2);
@@ -686,7 +686,7 @@
 	}
 
 	.dform__breadcrumb {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -694,7 +694,7 @@
 	.dform__title-text {
 		overflow: hidden;
 
-		font-size: 15px;
+		font-size: 1rem;
 		font-weight: 500;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -708,7 +708,7 @@
 		display: inline-flex;
 		align-items: center;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--accent-2);
 
@@ -724,7 +724,7 @@
 	}
 
 	.dform__error {
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--danger);
 	}
@@ -735,7 +735,7 @@
 		height: var(--h-button);
 		padding: 0 14px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 		white-space: nowrap;
 
@@ -780,7 +780,7 @@
 	.dform__loading {
 		padding: 48px 24px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: center;
 
 		color: var(--fg-mute);
@@ -815,7 +815,7 @@
 		height: var(--h-button);
 		padding: 0 12px;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -825,7 +825,7 @@
 		transition: border-color 80ms ease;
 	}
 
-	.dform__input:focus {
+	.dform__input:focus-visible {
 		border-color: var(--border-strong);
 		outline: none;
 	}
@@ -850,7 +850,7 @@
 		padding: 0 16px;
 		margin-bottom: -1px;
 
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		font-weight: 500;
 
 		color: var(--fg-mute);
@@ -869,7 +869,7 @@
 	}
 
 	.dform__tab-hint {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -912,7 +912,7 @@
 	.dform__icon-search input {
 		min-width: 0;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: transparent;
@@ -927,13 +927,13 @@
 	}
 
 	.dform__icon-count {
-		font-size: 10.5px;
+		font-size: 0.625rem;
 
 		color: var(--fg-faint);
 	}
 
 	.dform__icon-clear {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--accent-2);
 	}
@@ -986,7 +986,7 @@
 		margin: 0;
 		padding: 12px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-faint);
 
@@ -996,7 +996,7 @@
 	.dform__image-note {
 		margin: 8px 0 0;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -1030,7 +1030,7 @@
 		padding: 8px 12px;
 		align-items: center;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-mute);
 		background: var(--surface);
@@ -1056,7 +1056,7 @@
 	}
 
 	.dform__css-lines {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -1073,7 +1073,7 @@
 		height: 100%;
 
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: 0.75rem;
 		line-height: 20px;
 
 		background: var(--bg-2);
@@ -1097,7 +1097,7 @@
 	.dform__snippets-head {
 		padding: 8px 12px;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -1122,7 +1122,7 @@
 		align-items: center;
 		padding: 8px 10px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 		text-align: left;
 
 		color: var(--fg);
@@ -1156,7 +1156,7 @@
 	}
 
 	.dform__preview-label {
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
@@ -1172,7 +1172,7 @@
 		height: 280px;
 		padding: 18px;
 
-		color: lch(94% 4 95);
+		color: var(--glass-fg);
 		background: linear-gradient(160deg, var(--surface-2) 0%, var(--bg) 70%);
 		background-position: center;
 		background-size: cover;
@@ -1210,9 +1210,9 @@
 		width: 44px;
 		height: 44px;
 
-		color: lch(94% 4 95);
+		color: var(--glass-fg);
 		background: lch(100% 0 0 / 0.08);
-		border: 1px solid lch(100% 0 0 / 0.1);
+		border: 1px solid var(--glass-border);
 		border-radius: 10px;
 
 		backdrop-filter: blur(6px);
@@ -1222,11 +1222,11 @@
 	.dform__preview-pill {
 		padding: 3px 8px;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: lch(100% 0 0 / 0.7);
-		background: lch(0% 0 0 / 0.3);
-		border: 1px solid lch(100% 0 0 / 0.1);
+		background: var(--scrim);
+		border: 1px solid var(--glass-border);
 		border-radius: 100px;
 	}
 
@@ -1235,7 +1235,7 @@
 		width: 200px;
 		margin: 6px 0 0;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 

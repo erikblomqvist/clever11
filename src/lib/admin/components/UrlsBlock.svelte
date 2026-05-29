@@ -66,7 +66,7 @@
 		height: 34px;
 
 		font-family: var(--font-mono);
-		font-size: 10px;
+		font-size: 0.625rem;
 		letter-spacing: 0.04em;
 
 		background: var(--surface-2);
@@ -83,7 +83,7 @@
 		padding: 0 10px;
 
 		font-family: var(--font-mono);
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -97,7 +97,7 @@
 		color: var(--fg-faint);
 	}
 
-	.urls-block__input:focus {
+	.urls-block__input:focus-visible {
 		border-color: var(--border-strong);
 	}
 </style>

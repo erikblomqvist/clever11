@@ -369,7 +369,8 @@
 	.dash__title {
 		margin: 0;
 
-		font-size: 26px;
+		font-size: 1.625rem;
+		text-wrap: balance;
 		font-weight: 600;
 		letter-spacing: -0.02em;
 	}
@@ -473,7 +474,7 @@
 	.entry-card__count {
 		position: relative;
 
-		font-size: 40px;
+		font-size: 2.5rem;
 		font-weight: 500;
 		letter-spacing: -0.04em;
 		line-height: 1;
@@ -486,12 +487,12 @@
 	.entry-card__name {
 		margin-bottom: 3px;
 
-		font-size: 15px;
+		font-size: 1rem;
 		font-weight: 500;
 	}
 
 	.entry-card__hint {
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -524,14 +525,14 @@
 	}
 
 	.activity-card__title {
-		font-size: 14.5px;
+		font-size: 0.875rem;
 		font-weight: 500;
 	}
 
 	.activity-card__subtitle {
 		margin-top: 2px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-faint);
 	}
@@ -549,7 +550,7 @@
 		padding: 12px 16px;
 		align-items: center;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		border-top: 1px solid var(--border);
 
@@ -608,7 +609,7 @@
 		display: flex;
 		align-items: center;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 
@@ -633,7 +634,7 @@
 	.activity-row--compact {
 		padding: 10px 12px;
 
-		font-size: 12.5px;
+		font-size: 0.75rem;
 
 		grid-template-columns: 24px 1fr auto;
 		gap: 10px;
@@ -653,7 +654,7 @@
 	}
 
 	.activity-row__time {
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
 	}
@@ -661,7 +662,7 @@
 	.activity-feed__empty {
 		padding: 24px 16px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 		text-align: center;
 
 		color: var(--fg-faint);
@@ -719,14 +720,14 @@
 	}
 
 	.users-tile__name {
-		font-size: 13.5px;
+		font-size: 0.875rem;
 		font-weight: 500;
 	}
 
 	.users-tile__hint {
 		margin-top: 2px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -756,7 +757,7 @@
 	}
 
 	.dev-panel__title {
-		font-size: 13px;
+		font-size: 0.75rem;
 		font-weight: 500;
 
 		color: var(--fg);
@@ -765,7 +766,7 @@
 	.dev-panel__badge {
 		margin-left: auto;
 
-		font-size: 10.5px;
+		font-size: 0.625rem;
 
 		color: var(--fg-faint);
 	}
@@ -773,7 +774,7 @@
 	.dev-panel__desc {
 		margin-bottom: 12px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -785,7 +786,7 @@
 		margin-bottom: 10px;
 		padding: 0 10px;
 
-		font-size: 13px;
+		font-size: 0.75rem;
 
 		color: var(--fg);
 		background: var(--surface);
@@ -808,7 +809,7 @@
 		height: 30px;
 		padding: 0 12px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		border-radius: var(--r-2);
 		cursor: pointer;
@@ -856,7 +857,7 @@
 		padding: 3px 8px;
 		align-items: center;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 
 		color: var(--accent-2);
 		background: var(--accent-2-soft);
@@ -878,7 +879,7 @@
 	.dev-panel__status {
 		margin-top: 8px;
 
-		font-size: 12px;
+		font-size: 0.75rem;
 
 		color: var(--fg-mute);
 	}
@@ -899,7 +900,7 @@
 	.dash__section-label {
 		margin-bottom: 10px;
 
-		font-size: 11px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		letter-spacing: 0.06em;
 
@@ -914,7 +915,7 @@
 
 	@media (max-width: 768px) {
 		.dash__title {
-			font-size: 22px;
+			font-size: 1.375rem;
 		}
 
 		.dash__cards {
@@ -948,7 +949,7 @@
 		}
 
 		.entry-card__count {
-			font-size: 22px;
+			font-size: 1.375rem;
 			text-align: right;
 
 			order: 3;
@@ -961,11 +962,11 @@
 		}
 
 		.entry-card__name {
-			font-size: 14px;
+			font-size: 0.875rem;
 		}
 
 		.entry-card__hint {
-			font-size: 12px;
+			font-size: 0.75rem;
 		}
 
 		.dash__bottom {

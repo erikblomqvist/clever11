@@ -52,7 +52,7 @@
 		height: 26px;
 		padding: 0 4px;
 
-		font-size: 11.5px;
+		font-size: 0.6875rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
