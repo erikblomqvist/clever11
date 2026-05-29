@@ -213,7 +213,7 @@
 				{#if filteredRoutes.length > 0}
 					<div class="cmdk__group">
 						<div class="cmdk__group-label">routes</div>
-						{#each filteredRoutes as item, i}
+						{#each filteredRoutes as item, i (item.path)}
 							{@const idx = groupStartIndex('route') + i}
 							<button
 								class="cmdk__item"
@@ -242,7 +242,7 @@
 				{#if filteredActions.length > 0}
 					<div class="cmdk__group">
 						<div class="cmdk__group-label">actions</div>
-						{#each filteredActions as item, i}
+						{#each filteredActions as item, i (item.label)}
 							{@const idx = groupStartIndex('action') + i}
 							<button
 								class="cmdk__item"
@@ -271,7 +271,7 @@
 				{#if questions.length > 0}
 					<div class="cmdk__group">
 						<div class="cmdk__group-label">questions</div>
-						{#each questions as item, i}
+						{#each questions as item, i (item.id)}
 							{@const idx = groupStartIndex('question') + i}
 							<button
 								class="cmdk__item"

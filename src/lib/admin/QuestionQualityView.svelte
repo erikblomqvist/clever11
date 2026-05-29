@@ -119,7 +119,7 @@
 
 	const sorted = $derived(
 		[...filtered].sort((a, b) => {
-			let cmp = 0;
+			let cmp;
 			if (sortField === 'question_number') {
 				cmp = (a.question_number ?? 0) - (b.question_number ?? 0);
 			} else if (sortField === 'net') {
