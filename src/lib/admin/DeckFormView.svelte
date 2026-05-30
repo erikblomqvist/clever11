@@ -319,7 +319,7 @@
 	}
 
 	function relativeTime(/** @type {string|null} */ iso) {
-		if (!iso) return 'never';
+		if (!iso) return '-';
 		const then = new Date(iso).getTime();
 		if (Number.isNaN(then)) return '—';
 		const diff = Date.now() - then;
@@ -485,11 +485,11 @@
 			<span>Back</span>
 		</button>
 		<div class="dform__title-area">
-			<span class="dform__breadcrumb mono">
-				/admin/decks/{id ?? 'new'}
-			</span>
 			<span class="dform__title-text">
 				{name || (isEdit ? 'Untitled' : 'New deck')}
+			</span>
+			<span class="dform__breadcrumb dform__breadcrumb--inline mono">
+				/admin/decks/{id ?? 'new'}
 			</span>
 		</div>
 		<span class="dform__spacer"></span>
@@ -525,6 +525,9 @@
 		<div class="dform__loading">Loading…</div>
 	{:else}
 		<div class="dform__body">
+			<span class="dform__breadcrumb dform__breadcrumb--body mono">
+				/admin/decks/{id ?? '<id>'}
+			</span>
 			<!-- Left: form -->
 			<div class="dform__main">
 				<div class="dform__fields">
@@ -767,7 +770,6 @@
 
 			<!-- Right: live preview -->
 			<aside class="dform__preview-col">
-				<div class="dform__preview-label">Preview</div>
 				<div
 					class="dform__preview"
 					class:dform__preview--image={previewImage}
@@ -864,11 +866,11 @@
 			color 80ms ease;
 
 		gap: 4px;
-	}
 
-	.dform__back:hover {
-		color: var(--fg);
-		background: var(--surface);
+		&:hover {
+			color: var(--fg);
+			background: var(--surface);
+		}
 	}
 
 	.dform__title-area {
@@ -883,6 +885,10 @@
 		font-size: 0.6875rem;
 
 		color: var(--fg-faint);
+	}
+
+	.dform__breadcrumb--body {
+		display: none;
 	}
 
 	.dform__title-text {
@@ -940,22 +946,22 @@
 			border-color 80ms ease;
 
 		gap: 6px;
-	}
 
-	.dform__btn:disabled {
-		cursor: default;
-		opacity: 0.5;
+		&:disabled {
+			cursor: default;
+			opacity: 0.5;
+		}
 	}
 
 	.dform__btn--ghost {
 		color: var(--fg);
 		background: transparent;
 		border: 1px solid var(--border);
-	}
 
-	.dform__btn--ghost:not(:disabled):hover {
-		background: var(--surface);
-		border-color: var(--border-strong);
+		&:not(:disabled):hover {
+			background: var(--surface);
+			border-color: var(--border-strong);
+		}
 	}
 
 	.dform__btn--primary {
@@ -963,10 +969,10 @@
 
 		color: var(--accent-fg);
 		background: var(--accent);
-	}
 
-	.dform__btn--primary:not(:disabled):hover {
-		background: var(--accent-hover);
+		&:not(:disabled):hover {
+			background: var(--accent-hover);
+		}
 	}
 
 	/* ─── Body layout ──────────────────────────────────────────── */
@@ -1017,15 +1023,15 @@
 		border-radius: var(--r-2);
 
 		transition: border-color 80ms ease;
-	}
 
-	.dform__input:focus-visible {
-		border-color: var(--border-strong);
-		outline: none;
-	}
+		&:focus-visible {
+			border-color: var(--border-strong);
+			outline: none;
+		}
 
-	.dform__input::placeholder {
-		color: var(--fg-faint);
+		&::placeholder {
+			color: var(--fg-faint);
+		}
 	}
 
 	/* ─── Tabs ─────────────────────────────────────────────────── */
@@ -1051,10 +1057,10 @@
 		border-bottom: 2px solid transparent;
 
 		gap: 8px;
-	}
 
-	.dform__tab:hover {
-		color: var(--fg);
+		&:hover {
+			color: var(--fg);
+		}
 	}
 
 	.dform__tab--active {
@@ -1095,29 +1101,29 @@
 		border-radius: var(--r-2);
 
 		gap: 8px;
+
+		input {
+			min-width: 0;
+
+			font-size: 0.75rem;
+
+			color: var(--fg);
+			background: transparent;
+			border: 0;
+			outline: none;
+
+			flex: 1;
+
+			&::placeholder {
+				color: var(--fg-faint);
+			}
+		}
 	}
 
 	.dform__icon-search :global(svg:first-child) {
 		color: var(--fg-faint);
 
 		flex-shrink: 0;
-	}
-
-	.dform__icon-search input {
-		min-width: 0;
-
-		font-size: 0.75rem;
-
-		color: var(--fg);
-		background: transparent;
-		border: 0;
-		outline: none;
-
-		flex: 1;
-	}
-
-	.dform__icon-search input::placeholder {
-		color: var(--fg-faint);
 	}
 
 	.dform__icon-count {
@@ -1130,10 +1136,9 @@
 		font-size: 0.6875rem;
 
 		color: var(--accent-2);
-	}
-
-	.dform__icon-clear:hover {
-		color: var(--accent-2-hover);
+		&:hover {
+			color: var(--accent-2-hover);
+		}
 	}
 
 	.dform__icon-grid {
@@ -1163,11 +1168,11 @@
 			color 80ms ease;
 
 		place-items: center;
-	}
 
-	.dform__icon-btn:not(:disabled):hover {
-		color: var(--fg);
-		background: var(--surface);
+		&:not(:disabled):hover {
+			color: var(--fg);
+			background: var(--surface);
+		}
 	}
 
 	.dform__icon-btn--active {
@@ -1403,16 +1408,16 @@
 		transition: background 80ms ease;
 
 		gap: 6px;
+
+		&:not(:disabled):hover {
+			background: var(--surface);
+		}
 	}
 
 	.dform__snippet :global(svg) {
 		color: var(--fg-faint);
 
 		flex-shrink: 0;
-	}
-
-	.dform__snippet:not(:disabled):hover {
-		background: var(--surface);
 	}
 
 	/* ─── Live preview ─────────────────────────────────────────── */
@@ -1425,15 +1430,6 @@
 
 		flex-direction: column;
 		gap: 10px;
-	}
-
-	.dform__preview-label {
-		font-size: 0.6875rem;
-		font-weight: 500;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-
-		color: var(--fg-mute);
 	}
 
 	.dform__preview {
@@ -1550,6 +1546,53 @@
 	}
 
 	@media (max-width: 768px) {
+		.dform__breadcrumb--inline {
+			display: none;
+		}
+
+		.dform__breadcrumb--body {
+			display: block;
+			order: -2;
+			overflow: hidden;
+
+			grid-column: 1 / -1;
+
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.dform__back span {
+			display: none;
+		}
+
+		.dform__title-text {
+			font-size: 0.875rem;
+		}
+
+		.dform__dirty {
+			width: 8px;
+			height: 8px;
+			overflow: hidden;
+
+			font-size: 0;
+
+			background: var(--accent-2);
+			border-radius: 50%;
+		}
+
+		.dform__dirty-dot {
+			display: none;
+		}
+
+		.dform__btn--ghost {
+			display: none;
+		}
+
+		.dform__btn--primary {
+			height: 32px;
+			padding: 0 12px;
+		}
+
 		.dform__fields {
 			grid-template-columns: 1fr;
 		}
@@ -1571,10 +1614,6 @@
 
 		.dform__css-host {
 			height: 260px;
-		}
-
-		.dform__title-text {
-			display: none;
 		}
 	}
 </style>
