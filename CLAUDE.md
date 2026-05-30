@@ -12,6 +12,10 @@ Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-h
 
 Single-context repo — one `CONTEXT.md` and `docs/adr/` at the root. See `docs/agents/domain.md`.
 
+### Commit messages
+
+When asked to create, amend, squash, or draft a commit, use the local Conventional Commits guidance in `docs/agents/commit-messages.md`.
+
 ## Testing
 
 Run `bun run test` after any logic change and before committing. Fix all failures before pushing.

@@ -1,0 +1,10 @@
+---
+description: Use when the user asks to create, amend, squash, or draft a git commit message.
+alwaysApply: false
+---
+
+# Commit Messages
+
+When the user asks you to create, amend, squash, or draft a commit message, read and follow `docs/agents/commit-messages.md`.
+
+Use the local guidance instead of fetching the external Conventional Commits spec unless the user explicitly asks for the upstream document.
