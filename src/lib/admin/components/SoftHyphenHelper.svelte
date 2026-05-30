@@ -190,9 +190,11 @@
 						{/each}
 					</div>
 				{:else}
-					<div
+					<button
+						type="button"
 						class="shy__word shy__word--touch"
 						class:shy__word--done={word.text.includes(SOFT_HYPHEN)}
+						{disabled}
 						onpointerdown={(e) => onWordPointerDown(word, e)}
 						onpointermove={onWordPointerMove}
 						onpointerup={onWordPointerUp}
@@ -205,7 +207,7 @@
 								></span>
 							{/if}
 						{/each}
-					</div>
+					</button>
 				{/if}
 			{/each}
 		</div>
@@ -291,11 +293,22 @@
 	.shy__word--touch {
 		padding: 6px 8px;
 		min-height: 2.25rem;
+		margin: 0;
 
+		font: inherit;
+		color: inherit;
+		text-align: inherit;
+
+		appearance: none;
 		touch-action: none;
 		cursor: default;
 		user-select: none;
 		-webkit-tap-highlight-color: transparent;
+	}
+
+	.shy__word--touch:disabled {
+		cursor: default;
+		pointer-events: none;
 	}
 
 	.shy__letter-static {
