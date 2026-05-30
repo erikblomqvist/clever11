@@ -100,6 +100,7 @@
 		const context = canvas.getContext('2d');
 		if (!context) return;
 		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+		triggerFlash();
 		canvas.toBlob(
 			(blob) => {
 				if (!blob) return;
@@ -110,7 +111,6 @@
 				);
 				const thumbUrl = URL.createObjectURL(blob);
 				shots = [...shots, { thumbUrl }];
-				triggerFlash();
 				oncapture?.(file);
 			},
 			'image/jpeg',
