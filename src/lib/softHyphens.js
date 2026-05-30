@@ -16,6 +16,30 @@ export const SOFT_HYPHEN_THRESHOLD_OPTION = 13;
 /** @typedef {'question' | 'options' | 'either'} BreakHintsFilterScope */
 
 /**
+ * @param {string} wordText
+ * @returns {{ chars: string[], shyAfter: Record<number, true> }}
+ */
+export function parseWordBreaks(wordText) {
+	/** @type {string[]} */
+	const chars = [];
+	/** @type {Record<number, true>} */
+	const shyAfter = {};
+	for (const c of wordText) {
+		if (c === SOFT_HYPHEN) {
+			if (chars.length > 0) shyAfter[chars.length - 1] = true;
+		} else {
+			chars.push(c);
+		}
+	}
+	return { chars, shyAfter };
+}
+
+/** Last index that may have a break after it (none after the final letter). */
+export function maxBreakCharIndex(/** @type {string[]} */ chars) {
+	return chars.length >= 2 ? chars.length - 2 : -1;
+}
+
+/**
  * @param {string} segment
  * @param {number} threshold
  */

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
 	SOFT_HYPHEN,
+	parseWordBreaks,
+	maxBreakCharIndex,
 	textNeedsBreakHints,
 	findLongTokens,
 	findTokensNeedingBreakHints,
@@ -8,6 +10,46 @@ import {
 	SOFT_HYPHEN_THRESHOLD_QUESTION_TEXT,
 	SOFT_HYPHEN_THRESHOLD_OPTION,
 } from './softHyphens.js';
+
+describe('parseWordBreaks', () => {
+	it('splits letters and records no breaks for a plain word', () => {
+		const { chars, shyAfter } = parseWordBreaks('korv');
+		expect(chars).toEqual(['k', 'o', 'r', 'v']);
+		expect(shyAfter).toEqual({});
+	});
+
+	it('records a break after the letter preceding each soft hyphen', () => {
+		const { chars, shyAfter } = parseWordBreaks(`ab${SOFT_HYPHEN}cd`);
+		expect(chars).toEqual(['a', 'b', 'c', 'd']);
+		expect(shyAfter).toEqual({ 1: true });
+	});
+
+	it('handles multiple soft hyphens', () => {
+		const { chars, shyAfter } = parseWordBreaks(
+			`a${SOFT_HYPHEN}b${SOFT_HYPHEN}c`,
+		);
+		expect(chars).toEqual(['a', 'b', 'c']);
+		expect(shyAfter).toEqual({ 0: true, 1: true });
+	});
+
+	it('ignores a leading soft hyphen with no preceding letter', () => {
+		const { chars, shyAfter } = parseWordBreaks(`${SOFT_HYPHEN}ab`);
+		expect(chars).toEqual(['a', 'b']);
+		expect(shyAfter).toEqual({});
+	});
+});
+
+describe('maxBreakCharIndex', () => {
+	it('returns -1 when there is no room for a break', () => {
+		expect(maxBreakCharIndex([])).toBe(-1);
+		expect(maxBreakCharIndex(['a'])).toBe(-1);
+	});
+
+	it('excludes the final letter (no break after the last char)', () => {
+		expect(maxBreakCharIndex(['a', 'b'])).toBe(0);
+		expect(maxBreakCharIndex(['a', 'b', 'c', 'd'])).toBe(2);
+	});
+});
 
 describe('textNeedsBreakHints', () => {
 	it('ignores short tokens', () => {
