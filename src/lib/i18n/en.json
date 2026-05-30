@@ -51,6 +51,7 @@
 		"choose_decks_title": "Choose decks",
 		"loading_decks": "Loading decks…",
 		"no_decks": "No decks available yet.",
+		"deck_questions": "{n} questions",
 		"who_goes_first_title": "Who goes first?",
 		"randomize": "Randomize",
 		"start_game": "Start game",

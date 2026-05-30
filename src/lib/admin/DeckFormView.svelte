@@ -40,13 +40,21 @@
 
 	const isEdit = $derived(id !== null);
 
-	// Snippet inserted at the cursor. The selector is scoped to this deck's id
-	// once saved; new decks fall back to the generic attribute selector.
+	// Snippets inserted at the cursor. Selectors are scoped to this deck's id
+	// once saved; new decks fall back to the generic attribute selector. They
+	// target the setup deck-grid markup: a selected card is `.deck.is-selected`
+	// with `.deck__face` (the top face), `.deck__icon`, `.deck__name`, and the
+	// `--accent` custom property (drives the fanned cards + check badge).
 	const snippets = $derived.by(() => {
 		const target = id ? `[data-deck-id="${id}"]` : '[data-deck-id]';
-		const head = `.deck-card--selected${target} {\n  `;
+		const sel = `.deck.is-selected${target}`;
+		/** @param {string} head */
+		const block = (head) => ({ code: `${head}\n}`, caret: head.length });
 		return [
-			{ label: 'Selected card', code: `${head}\n}`, caret: head.length },
+			{ label: 'Selected face', ...block(`${sel} .deck__face {\n  `) },
+			{ label: 'Accent', ...block(`${sel} {\n  --accent: `) },
+			{ label: 'Icon', ...block(`${sel} .deck__icon {\n  `) },
+			{ label: 'Name', ...block(`${sel} .deck__name {\n  `) },
 		];
 	});
 

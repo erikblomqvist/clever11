@@ -7,6 +7,7 @@
       "dependencies": {
         "@fontsource/bricolage-grotesque": "^5.2.10",
         "@fontsource/erica-one": "^5.2.7",
+        "@fontsource/im-fell-english-sc": "^5.2.6",
         "@fontsource/inter": "^5.2.8",
         "@fontsource/nunito": "^5.2.7",
         "@fontsource/sometype-mono": "^5.2.7",
@@ -119,6 +120,8 @@
     "@fontsource/bricolage-grotesque": ["@fontsource/bricolage-grotesque@5.2.10", "", {}, "sha512-V2xS+1P7C8IrSypXLUx/bLtX/LsTlYtV2k2CsU+S/0t8qepZ2hvKSlyJIx7Ub/iY8Bbnj+IjAuUF9nvFz+BbIg=="],
 
     "@fontsource/erica-one": ["@fontsource/erica-one@5.2.7", "", {}, "sha512-nDyudfxfY6YNhj1ntkr93EaiscNGZ6iIg3Q7To35SgOPfQMFMHWs6ibm7iAOx4DZeNPFG7yKSkNGT+/xqAZXQQ=="],
+
+    "@fontsource/im-fell-english-sc": ["@fontsource/im-fell-english-sc@5.2.6", "", {}, "sha512-+uVXYFiAURkyvKKbkN/DyOs2PNIVt+/pIyax8FpVppxgpU676gRFp7eAUxdKBTPCT0zhM8UFaZ+IhCza0Vpl7w=="],
 
     "@fontsource/inter": ["@fontsource/inter@5.2.8", "", {}, "sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg=="],
 

@@ -185,7 +185,7 @@
 
 	// --- Decks step ---
 	/**
-	 * @typedef {{ id: string, name: string, description: string|null, icon: string|null, css: string|null }} Deck
+	 * @typedef {{ id: string, name: string, description: string|null, icon: string|null, css: string|null, questionCount: number }} Deck
 	 */
 	/** @type {Deck[]} */
 	let decks = $state([]);
@@ -201,6 +201,7 @@
 					description: 'A bit of everything',
 					icon: null,
 					css: null,
+					questionCount: 42,
 				},
 				{
 					id: 'mock-2',
@@ -208,6 +209,7 @@
 					description: 'Artists, albums, and songs',
 					icon: null,
 					css: null,
+					questionCount: 18,
 				},
 				{
 					id: 'mock-3',
@@ -215,19 +217,33 @@
 					description: 'Journey through time',
 					icon: null,
 					css: null,
+					questionCount: 27,
 				},
 			];
 			decksLoading = false;
 			return;
 		}
-		supabase
-			.from('decks')
-			.select('id, name, description, icon, css')
-			.order('name')
-			.then(({ data }) => {
-				decks = data ?? [];
-				decksLoading = false;
-			});
+		Promise.all([
+			supabase
+				.from('decks')
+				.select('id, name, description, icon, css')
+				.order('name'),
+			supabase
+				.from('questions')
+				.select('deck_id')
+				.is('archived_at', null),
+		]).then(([decksRes, countsRes]) => {
+			/** @type {Record<string, number>} */
+			const counts = {};
+			for (const row of countsRes.data ?? []) {
+				counts[row.deck_id] = (counts[row.deck_id] ?? 0) + 1;
+			}
+			decks = (decksRes.data ?? []).map((d) => ({
+				...d,
+				questionCount: counts[d.id] ?? 0,
+			}));
+			decksLoading = false;
+		});
 	});
 
 	function toggleDeck(/** @type {string} */ id) {

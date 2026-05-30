@@ -31,6 +31,7 @@
   "dependencies": {
     "@fontsource/bricolage-grotesque": "^5.2.10",
     "@fontsource/erica-one": "^5.2.7",
+    "@fontsource/im-fell-english-sc": "^5.2.6",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/sometype-mono": "^5.2.7",

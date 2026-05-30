@@ -51,6 +51,7 @@
 		"choose_decks_title": "Välj kortlekar",
 		"loading_decks": "Laddar kortlekar…",
 		"no_decks": "Inga kortlekar tillgängliga ännu.",
+		"deck_questions": "{n} frågor",
 		"who_goes_first_title": "Vem börjar?",
 		"randomize": "Slumpa",
 		"start_game": "Starta spel",

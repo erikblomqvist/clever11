@@ -10,6 +10,7 @@
 	import '@fontsource/inter/latin.css';
 	import '@fontsource/nunito/latin.css';
 	import '@fontsource/sometype-mono/latin.css';
+	import '@fontsource/im-fell-english-sc/latin-400.css';
 
 	import '../app.css';
 
