@@ -42,6 +42,7 @@
 	// Start the camera on mount, tear it down on unmount.
 	$effect(() => {
 		let cancelled = false;
+		prepareCameraShutterSound();
 		(async () => {
 			try {
 				if (!navigator.mediaDevices?.getUserMedia) {
