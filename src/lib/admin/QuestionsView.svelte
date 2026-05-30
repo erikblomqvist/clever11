@@ -8,6 +8,7 @@
 		QUESTIONS_LIST_SCROLL_Y_KEY,
 	} from '$lib/admin/questionsListScroll.js';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
+	import { questionMatchesBreakHintsFilter } from '$lib/softHyphens.js';
 	import { Search, X, Upload, Plus } from 'lucide-svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import TypeBadge from './components/TypeBadge.svelte';
@@ -46,6 +47,12 @@
 					typeof o.filterType === 'string' ? o.filterType : '',
 				filterText:
 					typeof o.filterText === 'string' ? o.filterText : '',
+				filterBreakHints:
+					o.filterBreakHints === 'question' ||
+					o.filterBreakHints === 'options' ||
+					o.filterBreakHints === 'either'
+						? o.filterBreakHints
+						: '',
 				showArchived: Boolean(o.showArchived),
 				sortField: sf,
 				sortAsc: typeof o.sortAsc === 'boolean' ? o.sortAsc : true,
@@ -56,7 +63,7 @@
 	}
 
 	function writePersistedFilters(
-		/** @type {{ filterDeckId: string, filterType: string, filterText: string, showArchived: boolean, sortField: string, sortAsc: boolean }} */ snapshot,
+		/** @type {{ filterDeckId: string, filterType: string, filterText: string, filterBreakHints: string, showArchived: boolean, sortField: string, sortAsc: boolean }} */ snapshot,
 	) {
 		if (typeof sessionStorage === 'undefined') return;
 		try {
@@ -71,13 +78,14 @@
 
 	const persisted = readPersistedFilters();
 
-	/** @type {{ id: string, question_text: string, type: string, question_number: number|null, archived_at: string|null, created_at: string, decks: { name: string }|null }[]} */
+	/** @type {{ id: string, question_text: string, options_json: string[]|null, type: string, question_number: number|null, archived_at: string|null, created_at: string, decks: { name: string }|null }[]} */
 	let questions = $state([]);
 	let loading = $state(true);
 	let error = $state('');
 	let filterDeckId = $state(persisted?.filterDeckId ?? '');
 	let filterType = $state(persisted?.filterType ?? '');
 	let filterText = $state(persisted?.filterText ?? '');
+	let filterBreakHints = $state(persisted?.filterBreakHints ?? '');
 	let showArchived = $state(persisted?.showArchived ?? false);
 	let sortField = $state(persisted?.sortField ?? 'question_text');
 	let sortAsc = $state(persisted?.sortAsc ?? true);
@@ -126,6 +134,7 @@
 			filterDeckId,
 			filterType,
 			filterText,
+			filterBreakHints,
 			showArchived,
 			sortField,
 			sortAsc,
@@ -203,7 +212,7 @@
 		let query = supabase
 			.from('questions')
 			.select(
-				'id, question_text, type, question_number, archived_at, created_at, decks(name)',
+				'id, question_text, options_json, type, question_number, archived_at, created_at, decks(name)',
 			)
 			.order('created_at', { ascending: false });
 		if (!showArchived) query = query.is('archived_at', null);
@@ -236,6 +245,17 @@
 				!q.question_text
 					.toLowerCase()
 					.includes(filterText.toLowerCase())
+			)
+				return false;
+			if (
+				filterBreakHints &&
+				!questionMatchesBreakHintsFilter(
+					q.question_text,
+					q.options_json,
+					/** @type {'question'|'options'|'either'} */ (
+						filterBreakHints
+					),
+				)
 			)
 				return false;
 			return true;
@@ -309,13 +329,26 @@
 		filterText = '';
 		filterDeckId = '';
 		filterType = '';
+		filterBreakHints = '';
 		showArchived = false;
 		applyFilter();
 	}
 
 	let hasActiveFilters = $derived(
-		!!(filterText || filterDeckId || filterType || showArchived),
+		!!(
+			filterText ||
+			filterDeckId ||
+			filterType ||
+			filterBreakHints ||
+			showArchived
+		),
 	);
+
+	const breakHintsOptions = [
+		{ value: 'question', label: 'Question text' },
+		{ value: 'options', label: 'Options' },
+		{ value: 'either', label: 'Either' },
+	];
 
 	function askArchive(/** @type {any} */ q) {
 		confirmTarget = q;
@@ -490,6 +523,13 @@
 			value={filterType || null}
 			options={typeOptions}
 			onchange={handleTypeChange}
+			allowClear
+		/>
+		<Select
+			label="Break hints"
+			value={filterBreakHints || null}
+			options={breakHintsOptions}
+			onchange={(val) => (filterBreakHints = val ?? '')}
 			allowClear
 		/>
 		<Toggle

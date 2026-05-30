@@ -11,6 +11,11 @@
 	import ImageSlot from './components/ImageSlot.svelte';
 	import UrlsBlock from './components/UrlsBlock.svelte';
 	import SoftHyphenHelper from './components/SoftHyphenHelper.svelte';
+	import {
+		SOFT_HYPHEN,
+		SOFT_HYPHEN_THRESHOLD_QUESTION_TEXT,
+		findLongTokens,
+	} from '$lib/softHyphens.js';
 	import Dialog from './components/Dialog.svelte';
 	import CorrectAnswerEditor from './components/CorrectAnswerEditor.svelte';
 	import OptionMasterList from './components/OptionMasterList.svelte';
@@ -252,30 +257,16 @@
 	}
 
 	// --- Soft-hyphen ---
-	const SHY = '­';
-	const LONG_WORD_THRESHOLD = 11;
-
-	let longWords = $derived.by(() => {
-		if (!questionText) return [];
-		/** @type {{ text: string, offset: number }[]} */
-		const result = [];
-		const regex = /\S+/g;
-		let match;
-		while ((match = regex.exec(questionText)) !== null) {
-			const cleanLen = match[0].replaceAll(SHY, '').length;
-			if (cleanLen >= LONG_WORD_THRESHOLD) {
-				result.push({ text: match[0], offset: match.index });
-			}
-		}
-		return result;
-	});
+	let longWords = $derived(
+		findLongTokens(questionText, SOFT_HYPHEN_THRESHOLD_QUESTION_TEXT),
+	);
 
 	/** @param {number} offset @param {string} wordText @param {number} charIndex */
 	function toggleShy(offset, wordText, charIndex) {
 		const chars = [];
 		const shyAfter = {};
 		for (const c of wordText) {
-			if (c === SHY) {
+			if (c === SOFT_HYPHEN) {
 				if (chars.length > 0) shyAfter[chars.length - 1] = true;
 			} else {
 				chars.push(c);
@@ -286,7 +277,7 @@
 		let rebuilt = '';
 		for (let i = 0; i < chars.length; i++) {
 			rebuilt += chars[i];
-			if (shyAfter[i]) rebuilt += SHY;
+			if (shyAfter[i]) rebuilt += SOFT_HYPHEN;
 		}
 		questionText =
 			questionText.substring(0, offset) +

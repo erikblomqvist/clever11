@@ -1,9 +1,8 @@
 <script>
 	import AdminIcon from './AdminIcon.svelte';
+	import { SOFT_HYPHEN } from '$lib/softHyphens.js';
 
 	let { words = [], disabled = false, ontoggle } = $props();
-
-	const SHY = '­';
 
 	/** @param {string} wordText */
 	function parseWordChars(wordText) {
@@ -12,7 +11,7 @@
 		/** @type {Record<number, true>} */
 		const shyAfter = {};
 		for (const c of wordText) {
-			if (c === SHY) {
+			if (c === SOFT_HYPHEN) {
 				if (chars.length > 0) shyAfter[chars.length - 1] = true;
 			} else {
 				chars.push(c);
@@ -27,7 +26,7 @@
 		<div class="shy__header">
 			<AdminIcon name="bolt" size={12} />
 			<span>
-				{words.some((w) => !w.text.includes(SHY))
+				{words.some((w) => !w.text.includes(SOFT_HYPHEN))
 					? 'Long word detected — tap between letters to add break hints'
 					: 'Break points set'}
 			</span>
@@ -37,7 +36,7 @@
 				{@const parsed = parseWordChars(word.text)}
 				<div
 					class="shy__word"
-					class:shy__word--done={word.text.includes(SHY)}
+					class:shy__word--done={word.text.includes(SOFT_HYPHEN)}
 				>
 					{#each parsed.chars as char, i (i)}
 						<button

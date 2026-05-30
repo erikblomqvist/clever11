@@ -27,14 +27,14 @@ gotchas. This SKILL.md is the trigger + decision record, not a duplicate.
 
 ## Locked-in decisions (don't relitigate)
 
-| Decision        | Choice                                                         | Why                                                                                                                                                          |
-| --------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Scope           | `questions.options_json` only                                  | That's what `.answer-text` renders. `question_text` has more room and hasn't been a problem.                                                                 |
-| Word definition | Maximal run of `[[:alpha:]]`                                   | Locale-aware (covers `å ä ö`). Breaks on digits, spaces, hyphens, and existing U+00AD → makes the pipeline idempotent.                                       |
-| Threshold       | `char_length(word) >= 13`                                      | Empirically the point at which a single word stops fitting two-line clamp on a 10-option wheel.                                                              |
-| Archive filter  | `WHERE archived_at IS NULL`                                    | Don't waste review effort on dead questions.                                                                                                                 |
-| Hyphen density  | Compound boundaries + syllable breaks (multiple per long word) | Soft hyphens are invisible until used; more breakpoints = more wrap flexibility, no visual cost.                                                             |
-| Confidence axis | `{high, medium, low}` in `proposals.csv`                       | `medium` for non-compound syllable judgement calls (Latin/Greek roots, foreign proper nouns). `low` for words I can't confidently break — flag for the user. |
+| Decision        | Choice                                                          | Why                                                                                                                                                                     |
+| --------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scope           | `questions.options_json` only                                   | That's what `.answer-text` renders. `question_text` has more room and hasn't been a problem.                                                                            |
+| Word definition | Maximal run of `[[:alpha:]]`                                    | Locale-aware (covers `å ä ö`). Breaks on digits, spaces, hyphens, and existing U+00AD → makes the pipeline idempotent.                                                  |
+| Threshold       | `SOFT_HYPHEN_THRESHOLD_OPTION` (13) in `src/lib/softHyphens.js` | Empirically the point at which a single word stops fitting two-line clamp on a 10-option wheel. Question text uses `SOFT_HYPHEN_THRESHOLD_QUESTION_TEXT` (11) in admin. |
+| Archive filter  | `WHERE archived_at IS NULL`                                     | Don't waste review effort on dead questions.                                                                                                                            |
+| Hyphen density  | Compound boundaries + syllable breaks (multiple per long word)  | Soft hyphens are invisible until used; more breakpoints = more wrap flexibility, no visual cost.                                                                        |
+| Confidence axis | `{high, medium, low}` in `proposals.csv`                        | `medium` for non-compound syllable judgement calls (Latin/Greek roots, foreign proper nouns). `low` for words I can't confidently break — flag for the user.            |
 
 If the user wants to change any of these (e.g. lower the threshold to 11,
 or extend scope to `question_text`), update the decision table here and the

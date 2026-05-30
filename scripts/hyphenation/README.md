@@ -33,7 +33,7 @@ wrap.
         regexp_matches(t.elem #>> '{}', '[[:alpha:]]+', 'g') AS m
       WHERE q.archived_at IS NULL
         AND jsonb_typeof(t.elem) = 'string'
-        AND char_length(m[1]) >= 13
+        AND char_length(m[1]) >= 13  -- keep in sync with SOFT_HYPHEN_THRESHOLD_OPTION in src/lib/softHyphens.js
     )
     SELECT long_word, count(*) AS occurrences,
            (array_agg(DISTINCT option_text))[1] AS sample_option
