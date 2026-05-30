@@ -5,8 +5,10 @@
 	// divs render as in-flow static blocks and balloon the editor's scrollHeight.
 	import 'prism-code-editor/guides.css';
 
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import LucideIcon from '$lib/components/LucideIcon.svelte';
 	import { supabase } from '$lib/supabase.js';
 	import { logActivity } from './activityLog.js';
@@ -16,7 +18,19 @@
 		uploadDeckImage,
 		deleteDeckImage,
 	} from '$lib/storage.js';
-	import { Search, Zap, ChevronLeft, Plus } from 'lucide-svelte';
+	import {
+		Search,
+		Zap,
+		ChevronLeft,
+		Plus,
+		Sparkles,
+		Circle,
+		Heart,
+		Square,
+		Triangle,
+		Star,
+		Hexagon,
+	} from 'lucide-svelte';
 	import LabelledField from './components/LabelledField.svelte';
 	import ImageSlot from './components/ImageSlot.svelte';
 	import Dialog from './components/Dialog.svelte';
@@ -114,6 +128,113 @@
 		return DECK_ICONS.filter((item) =>
 			tokens.every((token) => item.searchText.includes(token)),
 		);
+	});
+
+	// ─── AI icon-suggestion fallback ───────────────────────────────
+	// When the substring filter finds nothing, ask the model for the
+	// closest Lucide icons (Raycast-style). Guaranteed-valid results are
+	// returned by the endpoint; we just render them as normal picks.
+
+	const LOADER_SHAPES = [Circle, Heart, Square, Triangle, Star, Hexagon];
+
+	/** @type {'idle'|'loading'|'done'|'empty'|'error'} */
+	let aiStatus = $state('idle');
+	let aiSuggestions = $state(
+		/** @type {{ id: string, label: string }[]} */ ([]),
+	);
+	let aiQuery = $state('');
+	let loaderIndex = $state(0);
+	/** @type {SvelteMap<string, { id: string, label: string }[]>} */
+	const suggestionCache = new SvelteMap();
+	/** @type {AbortController|null} */
+	let aiController = null;
+	/** @type {ReturnType<typeof setTimeout>|undefined} */
+	let aiTimer;
+
+	function resetAi() {
+		aiController?.abort();
+		aiController = null;
+		aiStatus = 'idle';
+		aiSuggestions = [];
+		aiQuery = '';
+	}
+
+	/** @param {string} query */
+	async function fetchSuggestions(query) {
+		const cacheKey = query.toLowerCase();
+		const cached = suggestionCache.get(cacheKey);
+		if (cached) {
+			aiController?.abort();
+			aiController = null;
+			aiQuery = query;
+			aiSuggestions = cached;
+			aiStatus = cached.length ? 'done' : 'empty';
+			return;
+		}
+
+		aiController?.abort();
+		const controller = new AbortController();
+		aiController = controller;
+		aiQuery = query;
+		aiStatus = 'loading';
+
+		try {
+			const headers = new Headers({ 'Content-Type': 'application/json' });
+			const { data: sessionData } = await supabase.auth.getSession();
+			const token = sessionData.session?.access_token;
+			if (token) headers.set('Authorization', `Bearer ${token}`);
+
+			const response = await fetch(`${base}/api/suggest-icons`, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify({ query }),
+				signal: controller.signal,
+			});
+			const data = await response.json();
+			if (!response.ok)
+				throw new Error(data?.error ?? 'Failed to suggest icons.');
+			if (controller.signal.aborted) return;
+
+			const icons = Array.isArray(data.icons) ? data.icons : [];
+			suggestionCache.set(cacheKey, icons);
+			aiSuggestions = icons;
+			aiStatus = icons.length ? 'done' : 'empty';
+		} catch (/** @type {any} */ err) {
+			if (controller.signal.aborted || err?.name === 'AbortError') return;
+			aiSuggestions = [];
+			aiStatus = 'error';
+		}
+	}
+
+	// Debounced trigger: fire only on a genuine zero-match query (≥2 chars),
+	// 350ms after typing settles. Re-runs are guarded so it won't re-fire for
+	// a query already loading or resolved.
+	$effect(() => {
+		const query = iconQuery.trim();
+		const noMatches = filteredDeckIcons.length === 0;
+		clearTimeout(aiTimer);
+
+		if (!noMatches || query.length < 2) {
+			untrack(() => {
+				if (aiStatus !== 'idle') resetAi();
+			});
+			return;
+		}
+
+		const settled = untrack(() => aiQuery === query && aiStatus !== 'idle');
+		if (settled) return;
+
+		aiTimer = setTimeout(() => fetchSuggestions(query), 350);
+		return () => clearTimeout(aiTimer);
+	});
+
+	// Cycle the loader shapes while a suggestion call is in flight.
+	$effect(() => {
+		if (aiStatus !== 'loading') return;
+		const interval = setInterval(() => {
+			loaderIndex = (loaderIndex + 1) % LOADER_SHAPES.length;
+		}, 420);
+		return () => clearInterval(interval);
 	});
 
 	onMount(() => {
@@ -503,9 +624,82 @@
 										</button>
 									{/each}
 									{#if filteredDeckIcons.length === 0}
-										<p class="dform__icon-empty">
-											No icons match "{iconQuery}".
-										</p>
+										<div class="dform__ai">
+											{#if aiStatus === 'loading'}
+												{@const Shape =
+													LOADER_SHAPES[loaderIndex]}
+												<div class="dform__ai-loader">
+													{#key loaderIndex}
+														<span
+															class="dform__ai-shape"
+														>
+															<Shape size={20} />
+														</span>
+													{/key}
+													<span>
+														Finding icons for "{aiQuery}"…
+													</span>
+												</div>
+											{:else if aiStatus === 'done'}
+												<div class="dform__ai-head">
+													<Sparkles size={11} />
+													<span>Suggested by AI</span>
+												</div>
+												<div class="dform__ai-grid">
+													{#each aiSuggestions as item (item.id)}
+														<button
+															class="dform__icon-btn"
+															class:dform__icon-btn--active={icon ===
+																item.id}
+															type="button"
+															onclick={() =>
+																(icon =
+																	icon ===
+																	item.id
+																		? null
+																		: item.id)}
+															title={item.label}
+															aria-pressed={icon ===
+																item.id}
+															disabled={saving}
+														>
+															<LucideIcon
+																name={item.id}
+																iconNode={getDeckIconNode(
+																	item.id,
+																)}
+																size={18}
+																aria-hidden="true"
+															/>
+														</button>
+													{/each}
+												</div>
+											{:else if aiStatus === 'empty'}
+												<p class="dform__icon-empty">
+													No close matches for "{aiQuery}".
+												</p>
+											{:else if aiStatus === 'error'}
+												<p
+													class="dform__icon-empty dform__ai-error"
+												>
+													Couldn't reach suggestions.
+													<button
+														type="button"
+														class="dform__icon-clear"
+														onclick={() =>
+															fetchSuggestions(
+																iconQuery.trim(),
+															)}
+													>
+														Retry
+													</button>
+												</p>
+											{:else}
+												<p class="dform__icon-empty">
+													No icons match "{iconQuery}".
+												</p>
+											{/if}
+										</div>
 									{/if}
 								</div>
 							</div>
@@ -991,6 +1185,84 @@
 		color: var(--fg-faint);
 
 		grid-column: 1 / -1;
+	}
+
+	/* ─── AI icon suggestions ──────────────────────────────────── */
+
+	.dform__ai {
+		grid-column: 1 / -1;
+	}
+
+	.dform__ai-loader {
+		display: flex;
+		padding: 12px;
+		align-items: center;
+
+		font-size: 0.75rem;
+
+		color: var(--fg-mute);
+
+		gap: 10px;
+	}
+
+	.dform__ai-shape {
+		display: inline-grid;
+
+		color: var(--accent-2);
+
+		place-items: center;
+
+		animation: dform-pop 420ms ease;
+	}
+
+	@keyframes dform-pop {
+		from {
+			opacity: 0.55;
+
+			transform: scale(0.92);
+		}
+
+		to {
+			opacity: 1;
+
+			transform: scale(1);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.dform__ai-shape {
+			animation: none;
+		}
+	}
+
+	.dform__ai-head {
+		display: flex;
+		padding: 8px 12px 6px;
+		align-items: center;
+
+		font-size: 0.625rem;
+		font-weight: 500;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+
+		color: var(--accent-2);
+
+		gap: 6px;
+	}
+
+	.dform__ai-grid {
+		display: grid;
+		padding: 0 4px 4px;
+
+		grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+		gap: 4px;
+	}
+
+	.dform__ai-error {
+		display: flex;
+		align-items: center;
+
+		gap: 8px;
 	}
 
 	.dform__image-note {

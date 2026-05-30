@@ -51,3 +51,33 @@ export const DECK_ICONS = Object.entries(iconNodes)
 export function getDeckIconNode(id) {
 	return iconNodes[toIconKey(id)] ?? iconNodes[FALLBACK_ICON_KEY];
 }
+
+/**
+ * Map AI-suggested icon names to real DECK_ICONS entries.
+ *
+ * The model can return names in any casing/spacing (e.g. "alarm clock",
+ * "AlarmClock", "alarm-clock") and may hallucinate icons that don't exist.
+ * We normalize each name to a kebab key, keep only keys present in the Lucide
+ * set, dedupe, and trim to `limit` — so every returned id is guaranteed to
+ * render. Over-requesting upstream absorbs the dropped hallucinations.
+ *
+ * @param {unknown} names
+ * @param {number} [limit]
+ * @returns {{ id: string, label: string }[]}
+ */
+export function resolveSuggestedIcons(names, limit = 6) {
+	if (!Array.isArray(names)) return [];
+	const seen = new Set();
+	const result = [];
+	for (const name of names) {
+		if (typeof name !== 'string') continue;
+		const cleaned = name.trim().replace(/[\s_]+/g, '-');
+		if (!cleaned) continue;
+		const key = toIconKey(cleaned);
+		if (!iconNodes[key] || seen.has(key)) continue;
+		seen.add(key);
+		result.push({ id: kebabToPascal(key), label: getLabel(key) });
+		if (result.length >= limit) break;
+	}
+	return result;
+}
