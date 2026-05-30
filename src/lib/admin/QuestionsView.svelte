@@ -21,7 +21,12 @@
 	import DropdownMenu from './components/DropdownMenu.svelte';
 
 	const QUESTIONS_FILTERS_KEY = 'clever11-admin-questions-filters';
-	const SORT_FIELDS = new Set(['question_text', 'question_number', 'votes']);
+	const SORT_FIELDS = new Set([
+		'question_text',
+		'question_number',
+		'votes',
+		'created_at',
+	]);
 
 	function readPersistedFilters() {
 		if (typeof sessionStorage === 'undefined') return null;
@@ -66,7 +71,7 @@
 
 	const persisted = readPersistedFilters();
 
-	/** @type {{ id: string, question_text: string, type: string, question_number: number|null, archived_at: string|null, decks: { name: string }|null }[]} */
+	/** @type {{ id: string, question_text: string, type: string, question_number: number|null, archived_at: string|null, created_at: string, decks: { name: string }|null }[]} */
 	let questions = $state([]);
 	let loading = $state(true);
 	let error = $state('');
@@ -198,7 +203,7 @@
 		let query = supabase
 			.from('questions')
 			.select(
-				'id, question_text, type, question_number, archived_at, decks(name)',
+				'id, question_text, type, question_number, archived_at, created_at, decks(name)',
 			)
 			.order('created_at', { ascending: false });
 		if (!showArchived) query = query.is('archived_at', null);
@@ -242,6 +247,15 @@
 		return v ? v.up - v.down : 0;
 	}
 
+	function formatCreatedAt(/** @type {string} */ iso) {
+		const d = new Date(iso);
+		if (Number.isNaN(d.getTime())) return '—';
+		/** @type {Intl.DateTimeFormatOptions} */
+		const opts = { month: 'short', day: 'numeric' };
+		if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+		return new Intl.DateTimeFormat('en-US', opts).format(d);
+	}
+
 	const sorted = $derived(
 		[...filtered].sort((a, b) => {
 			const cmp =
@@ -249,7 +263,13 @@
 					? (a.question_number ?? 0) - (b.question_number ?? 0)
 					: sortField === 'votes'
 						? netVotes(a.id) - netVotes(b.id)
-						: a.question_text.localeCompare(b.question_text, 'sv');
+						: sortField === 'created_at'
+							? new Date(a.created_at).getTime() -
+								new Date(b.created_at).getTime()
+							: a.question_text.localeCompare(
+									b.question_text,
+									'sv',
+								);
 			return sortAsc ? cmp : -cmp;
 		}),
 	);
@@ -266,7 +286,7 @@
 			sortAsc = !sortAsc;
 		} else {
 			sortField = key;
-			sortAsc = key === 'question_number';
+			sortAsc = key === 'question_number' || key === 'question_text';
 		}
 	}
 
@@ -529,6 +549,13 @@
 				/>
 				<span class="qv__col-label">Deck</span>
 				<SortHeader
+					label="Created at"
+					sortKey="created_at"
+					current={sortField}
+					dir={sortAsc ? 'asc' : 'desc'}
+					onsort={handleSort}
+				/>
+				<SortHeader
 					label="Votes"
 					sortKey="votes"
 					current={sortField}
@@ -562,6 +589,9 @@
 					</div>
 					<span class="qv__row-deck">
 						{q.decks?.name ?? '—'}
+					</span>
+					<span class="qv__row-created mono">
+						{formatCreatedAt(q.created_at)}
 					</span>
 					<VoteChips up={votes?.up ?? 0} down={votes?.down ?? 0} />
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -602,6 +632,9 @@
 					<div class="qv__card-text">{q.question_text}</div>
 					<div class="qv__card-meta">
 						<span>{q.decks?.name ?? '—'}</span>
+						<span class="qv__card-dot"></span>
+						<span class="mono">{formatCreatedAt(q.created_at)}</span
+						>
 						<span class="qv__card-dot"></span>
 						<VoteChips
 							up={votes?.up ?? 0}
@@ -857,7 +890,7 @@
 		border-bottom: 1px solid var(--border);
 		background: var(--bg-2);
 
-		grid-template-columns: 64px 88px 1fr 140px 124px 80px;
+		grid-template-columns: 64px 88px 1fr 140px 100px 124px 80px;
 		gap: 16px;
 	}
 
@@ -881,7 +914,7 @@
 
 		transition: background 80ms ease;
 
-		grid-template-columns: 64px 88px 1fr 140px 124px 80px;
+		grid-template-columns: 64px 88px 1fr 140px 100px 124px 80px;
 		gap: 16px;
 	}
 
@@ -924,6 +957,12 @@
 	}
 
 	.qv__row-deck {
+		font-size: 0.75rem;
+
+		color: var(--fg-mute);
+	}
+
+	.qv__row-created {
 		font-size: 0.75rem;
 
 		color: var(--fg-mute);

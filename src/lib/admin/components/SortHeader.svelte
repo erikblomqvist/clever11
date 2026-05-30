@@ -50,7 +50,7 @@
 		align-items: center;
 		gap: 6px;
 		height: 26px;
-		padding: 0 4px;
+		padding: 0;
 
 		font-size: 0.6875rem;
 		font-weight: 500;
