@@ -251,7 +251,7 @@
 
 		/* Card silhouette: large radius left corners, smaller right */
 		border: 2px solid lch(100% 0 0 / 0.85);
-		border-radius: 24% 8% 8% 24%;
+		border-radius: 30% 5% 5% 30%;
 		box-shadow: 0 0 0 100vmax lch(0% 0 0 / 0.32);
 
 		aspect-ratio: 1;
