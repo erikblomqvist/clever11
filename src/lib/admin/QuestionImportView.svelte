@@ -21,6 +21,7 @@
 		RotateCcw,
 	} from 'lucide-svelte';
 	import TypeBadge from './components/TypeBadge.svelte';
+	import CameraCapture from './components/CameraCapture.svelte';
 	import StatusPill from './components/StatusPill.svelte';
 	import ConfidencePills from './components/ConfidencePills.svelte';
 	import Select from './components/Select.svelte';
@@ -38,6 +39,11 @@
 	let items = $state(/** @type {ImportItem[]} */ ([]));
 	/** @type {Toast|null} */
 	let toastRef = $state(null);
+	let cameraOpen = $state(false);
+	/** @type {HTMLInputElement|null} */
+	let nativeCaptureInput = $state(null);
+	/** Ids of items captured in the current camera session, oldest → newest. */
+	let cameraSessionIds = /** @type {string[]} */ ([]);
 
 	const typeOptions = Object.entries(QUESTION_TYPES);
 
@@ -74,6 +80,27 @@
 		loading = false;
 	}
 
+	/**
+	 * @param {File} file
+	 * @param {string} id
+	 * @returns {ImportItem}
+	 */
+	function makeItem(file, id) {
+		return {
+			id,
+			fileName: file.name,
+			file,
+			previewUrl: URL.createObjectURL(file),
+			status: 'queued',
+			draft: createEmptyImportDraft(),
+			optionImages: [],
+			useOptionImages: false,
+			errors: [],
+			extractionError: '',
+			collapsed: false,
+		};
+	}
+
 	/** @param {Event} event */
 	async function handleFiles(event) {
 		const input = /** @type {HTMLInputElement} */ (event.currentTarget);
@@ -83,24 +110,55 @@
 		input.value = '';
 		if (files.length === 0) return;
 
-		const newItems = files.map((file, index) => ({
-			id: `${Date.now()}-${index}-${file.name}`,
-			fileName: file.name,
-			file,
-			previewUrl: URL.createObjectURL(file),
-			status: /** @type {ImportItem['status']} */ ('queued'),
-			draft: createEmptyImportDraft(),
-			optionImages: [],
-			useOptionImages: false,
-			errors: [],
-			extractionError: '',
-			collapsed: false,
-		}));
+		const newItems = files.map((file, index) =>
+			makeItem(file, `${Date.now()}-${index}-${file.name}`),
+		);
 
 		items = [...newItems, ...items];
 		await Promise.all(
 			newItems.map((item, index) => extractFile(item.id, files[index])),
 		);
+	}
+
+	function openCamera() {
+		// Insecure context / unsupported → fall back to the native camera
+		// while we still have the user gesture (a programmatic click after an
+		// async permission failure would be blocked).
+		if (!navigator.mediaDevices?.getUserMedia) {
+			nativeCaptureInput?.click();
+			return;
+		}
+		cameraOpen = true;
+	}
+
+	/** @param {File} file */
+	async function handleCameraCapture(file) {
+		const id = `cam-${crypto.randomUUID()}`;
+		items = [makeItem(file, id), ...items];
+		cameraSessionIds = [...cameraSessionIds, id];
+		await extractFile(id, file);
+	}
+
+	function handleCameraUndo() {
+		const id = cameraSessionIds.at(-1);
+		if (!id) return;
+		cameraSessionIds = cameraSessionIds.slice(0, -1);
+		removeItem(id);
+	}
+
+	function closeCamera() {
+		cameraOpen = false;
+		cameraSessionIds = [];
+	}
+
+	/** @param {any} err */
+	function handleCameraError(err) {
+		cameraOpen = false;
+		cameraSessionIds = [];
+		error =
+			err?.name === 'NotAllowedError'
+				? 'Camera permission denied. Enable it in your browser settings, or use “Add photos”.'
+				: 'Could not start the camera. Use “Add photos” instead.';
 	}
 
 	/** @param {string} id */
@@ -670,18 +728,19 @@
 			/>
 
 			<div class="qi__toolbar-btns">
-				<label class="qi__btn">
+				<button class="qi__btn" type="button" onclick={openCamera}>
 					<Camera size={13} />
-					Take photo
-					<input
-						type="file"
-						accept="image/*"
-						capture="environment"
-						multiple
-						onchange={handleFiles}
-						class="qi__file-input"
-					/>
-				</label>
+					Take photos
+				</button>
+				<input
+					bind:this={nativeCaptureInput}
+					type="file"
+					accept="image/*"
+					capture="environment"
+					multiple
+					onchange={handleFiles}
+					class="qi__file-input"
+				/>
 				<label class="qi__btn qi__btn--ghost">
 					<ImagePlus size={13} />
 					Add photos
@@ -1301,6 +1360,16 @@
 </div>
 
 <Toast bind:this={toastRef} />
+
+{#if cameraOpen}
+	<CameraCapture
+		deckName={decks.find((d) => d.id === deckId)?.name ?? null}
+		oncapture={handleCameraCapture}
+		onundo={handleCameraUndo}
+		onclose={closeCamera}
+		onerror={handleCameraError}
+	/>
+{/if}
 
 <style>
 	/* ─── Layout ───────────────────────────────────────────────── */
