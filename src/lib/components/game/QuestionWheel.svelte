@@ -3,6 +3,7 @@
 	import AnswerTextPopover from './AnswerTextPopover.svelte';
 	import { QUESTION_TYPES } from '$lib/data/questionTypes.js';
 	import { ENABLE_STREAK_ANIMATIONS } from '$lib/streakConfig.js';
+	import { createStreakLightning } from '$lib/streakLightning.js';
 
 	/**
 	 * @type {{
@@ -70,20 +71,22 @@
 			optionImageUrls.every(Boolean),
 	);
 	const popoverIdPrefix = Math.random().toString(36).slice(2);
-	const electricFilterId = `question-wheel-electric-${popoverIdPrefix}`;
+
+	let lightningCanvas = $state(/** @type {HTMLCanvasElement|null} */ (null));
 
 	const streakIsActive = $derived(
 		ENABLE_STREAK_ANIMATIONS && streakLevel >= 3,
 	);
+
+	$effect(() => {
+		if (!(streakIsActive && lightningCanvas)) return;
+		return createStreakLightning(lightningCanvas);
+	});
+
 	const streakIntensity = $derived(Math.min(Math.max(streakLevel - 2, 0), 6));
-	const streakDisplacementScale = $derived(10 + streakIntensity * 4);
 	const streakRingWidth = $derived(`${2 + streakIntensity * 0.55}px`);
-	const streakSparkWidth = $derived(`${7 + streakIntensity * 1.4}px`);
 	const streakGlowOpacity = $derived(
 		Math.min(0.32 + streakIntensity * 0.08, 0.82),
-	);
-	const streakSparkOpacity = $derived(
-		Math.min(0.45 + streakIntensity * 0.08, 0.9),
 	);
 	const streakInnerGlowOpacity = $derived(
 		Math.min(streakGlowOpacity * 0.75, 0.62),
@@ -111,78 +114,14 @@
 	class:container--paused={paused}
 	class:container--spotlight={lastUnrevealedIndex !== null &&
 		volcanoRumbleEnabled}
-	style="--seat-rotation:{seatRotation}turn;--rotation-duration-ms:{rotationDurationMs};--rotation-easing:{rotationEasing};--streak-color:{streakColor};--streak-intensity:{streakIntensity};--streak-ring-width:{streakRingWidth};--streak-spark-width:{streakSparkWidth};--streak-glow-opacity:{streakGlowOpacity};--streak-inner-glow-opacity:{streakInnerGlowOpacity};--streak-spark-opacity:{streakSparkOpacity};--streak-outer-blur:{streakOuterBlur};--streak-glow-blur:{streakGlowBlur};--streak-inset-glow-blur:{streakInsetGlowBlur}"
+	style="--seat-rotation:{seatRotation}turn;--rotation-duration-ms:{rotationDurationMs};--rotation-easing:{rotationEasing};--streak-color:{streakColor};--streak-ring-width:{streakRingWidth};--streak-glow-opacity:{streakGlowOpacity};--streak-inner-glow-opacity:{streakInnerGlowOpacity};--streak-outer-blur:{streakOuterBlur};--streak-glow-blur:{streakGlowBlur};--streak-inset-glow-blur:{streakInsetGlowBlur}"
 >
 	{#if streakIsActive}
-		<svg class="electric-filter-svg" aria-hidden="true" focusable="false">
-			<defs>
-				<filter
-					id={electricFilterId}
-					color-interpolation-filters="sRGB"
-					x="-30%"
-					y="-30%"
-					width="160%"
-					height="160%"
-				>
-					<feTurbulence
-						type="turbulence"
-						baseFrequency="0.018"
-						numOctaves="8"
-						result="noise1"
-						seed="2"
-					/>
-					<feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
-						<animate
-							attributeName="dy"
-							values="480;0"
-							dur="5s"
-							repeatCount="indefinite"
-							calcMode="linear"
-						/>
-					</feOffset>
-
-					<feTurbulence
-						type="turbulence"
-						baseFrequency="0.028"
-						numOctaves="6"
-						result="noise2"
-						seed="7"
-					/>
-					<feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
-						<animate
-							attributeName="dx"
-							values="-260;260"
-							dur="4s"
-							repeatCount="indefinite"
-							calcMode="linear"
-						/>
-					</feOffset>
-
-					<feBlend
-						in="offsetNoise1"
-						in2="offsetNoise2"
-						mode="color-dodge"
-						result="combinedNoise"
-					/>
-					<feDisplacementMap
-						in="SourceGraphic"
-						in2="combinedNoise"
-						scale={streakDisplacementScale}
-						xChannelSelector="R"
-						yChannelSelector="B"
-					/>
-				</filter>
-			</defs>
-		</svg>
-
 		<div class="electric-field" aria-hidden="true">
 			<span class="electric-glow electric-glow--outer"></span>
 			<span class="electric-glow electric-glow--inner"></span>
-			<span
-				class="electric-ring"
-				style:filter={`url(#${electricFilterId})`}
-			></span>
-			<!-- <span class="electric-sparks"></span> -->
+			<canvas bind:this={lightningCanvas} class="streak-canvas"></canvas>
+
 			{#key streakBurstKey}
 				{#if streakBurstKey > 0}
 					<span class="electric-burst"></span>
@@ -321,13 +260,6 @@
 		transition: scale 0.5s ease;
 	}
 
-	.electric-filter-svg {
-		position: absolute;
-		overflow: hidden;
-		width: 0;
-		height: 0;
-	}
-
 	.electric-field {
 		position: absolute;
 		inset: -3.5%;
@@ -365,49 +297,16 @@
 				color-mix(in srgb, var(--streak-color), white 24%);
 	}
 
-	.electric-ring {
-		border: var(--streak-ring-width) solid
-			color-mix(in srgb, var(--streak-color), white 36%);
-		opacity: 0.94;
-		box-shadow:
-			0 0 0.3rem color-mix(in srgb, var(--streak-color), white 55%),
-			0 0 var(--streak-glow-blur) var(--streak-color);
-		mix-blend-mode: screen;
-	}
-
-	.electric-sparks {
-		opacity: var(--streak-spark-opacity);
-		background:
-			repeating-conic-gradient(
-				from 8deg,
-				transparent 0deg 7deg,
-				color-mix(in srgb, var(--streak-color), white 74%) 8deg 9deg,
-				transparent 10deg 17deg,
-				var(--streak-color) 18deg 19deg,
-				transparent 20deg 31deg
-			),
-			repeating-conic-gradient(
-				from -16deg,
-				transparent 0deg 15deg,
-				color-mix(in srgb, var(--streak-color), white 48%) 16deg 18deg,
-				transparent 19deg 36deg
-			);
-		filter: blur(0.45px);
-		mask: radial-gradient(
-			farthest-side,
-			transparent calc(100% - var(--streak-spark-width) - 2px),
-			hsl(0 0% 0%) calc(100% - var(--streak-spark-width)),
-			hsl(0 0% 0%) calc(100% - 1px),
-			transparent 100%
-		);
-		-webkit-mask: radial-gradient(
-			farthest-side,
-			transparent calc(100% - var(--streak-spark-width) - 2px),
-			hsl(0 0% 0%) calc(100% - var(--streak-spark-width)),
-			hsl(0 0% 0%) calc(100% - 1px),
-			transparent 100%
-		);
-		animation: electric-spark-spin 1.2s linear infinite;
+	/* Canvas lightning. Bolts are drawn in colour (not white) so they read over
+	   the white wheel as well as the dark rim; no blend mode. */
+	.streak-canvas {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		border-radius: inherit;
+		color: color-mix(in srgb, var(--streak-color), white 18%);
+		pointer-events: none;
 	}
 
 	.electric-burst {
@@ -419,12 +318,6 @@
 			0 0 1.6rem var(--streak-color),
 			inset 0 0 1rem color-mix(in srgb, var(--streak-color), white 45%);
 		animation: electric-burst 1s ease-out both;
-	}
-
-	@keyframes electric-spark-spin {
-		to {
-			rotate: 1turn;
-		}
 	}
 
 	@keyframes electric-burst {
