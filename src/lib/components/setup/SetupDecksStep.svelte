@@ -128,6 +128,10 @@
 		color: var(--palette-white);
 		cursor: pointer;
 		transition: transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1);
+		/* promote to its own compositing layer so WebKit (iPad Safari)
+		   GPU-composites the lift instead of repainting the subtree each
+		   frame — otherwise the icon judders at ~2 FPS while selecting */
+		will-change: transform;
 	}
 	/* selected decks paint above neighbours so a fan never z-fights */
 	.deck.is-selected {
@@ -173,14 +177,22 @@
 		transition:
 			transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1),
 			opacity 240ms ease;
+		will-change: transform;
 	}
-	/* little motif so the peeking cards read as cards */
+	/* little motif so the peeking cards read as cards. Drawn as a gradient
+	   rather than `border: dashed` — WebKit doesn't interpolate dashed
+	   borders smoothly under a transform (they snap in ~2 steps), but a
+	   gradient rasterizes into the layer and rotates/translates cleanly. */
 	.deck__pop::after {
 		content: '';
 		position: absolute;
 		inset: 12% 18% auto 18%;
-		height: 0;
-		border-top: 2px dashed hsl(0 0% 100% / 0.28);
+		height: 2px;
+		background: repeating-linear-gradient(
+			to right,
+			hsl(0 0% 100% / 0.28) 0 6px,
+			transparent 6px 12px
+		);
 	}
 
 	/* top face = where the deck's theme lives */
@@ -208,6 +220,7 @@
 		place-items: center;
 		opacity: 0.7;
 		transition: opacity 200ms ease;
+		will-change: opacity;
 	}
 	.deck__text {
 		display: flex;
