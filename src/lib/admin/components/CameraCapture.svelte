@@ -1,5 +1,9 @@
 <script>
 	import { X, Undo2 } from 'lucide-svelte';
+	import {
+		playCameraShutterSound,
+		prepareCameraShutterSound,
+	} from './cameraAudio.js';
 
 	let {
 		/** @type {string | null} */
@@ -76,9 +80,15 @@
 	});
 
 	function triggerFlash() {
+		playCameraShutterSound();
 		flashing = true;
 		clearTimeout(flashTimer);
 		flashTimer = setTimeout(() => (flashing = false), 140);
+	}
+
+	function prepareShutterFeedback() {
+		prepareCameraShutterSound();
+		navigator.vibrate?.(12);
 	}
 
 	function capture() {
@@ -159,6 +169,7 @@
 		<button
 			class="cam__shutter"
 			type="button"
+			onpointerdown={prepareShutterFeedback}
 			onclick={capture}
 			disabled={starting}
 			aria-label="Take photo"
