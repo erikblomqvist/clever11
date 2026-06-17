@@ -8,12 +8,17 @@
 		BASE_PLAYER_ICONS,
 		PANTRY_ICONS,
 		MENAGERIE_ICONS,
+		PRIDE_ICONS,
 		PLAYER_COLORS,
 		getPlayerIconComponent,
 	} from '$lib/playerIcons.js';
 	import { pinchUnlock } from '$lib/actions/pinchUnlock.js';
 	import { secretCode } from '$lib/actions/secretCode.js';
-	import { playSparkleChime, playWhooshDing } from './celebrationAudio.js';
+	import {
+		playSparkleChime,
+		playWhooshDing,
+		playRainbowGlissando,
+	} from './celebrationAudio.js';
 
 	/**
 	 * @type {{
@@ -23,6 +28,7 @@
 	 *   newColor: string,
 	 *   pantryUnlocked: boolean,
 	 *   menagerieUnlocked: boolean,
+	 *   prideUnlocked: boolean,
 	 *   canAddPlayer: boolean,
 	 *   onaddplayer: () => void,
 	 *   onremoveplayer: (id: string) => void,
@@ -35,6 +41,7 @@
 		newColor = $bindable(),
 		pantryUnlocked = $bindable(),
 		menagerieUnlocked = $bindable(),
+		prideUnlocked = $bindable(),
 		canAddPlayer,
 		onaddplayer,
 		onremoveplayer,
@@ -42,10 +49,22 @@
 
 	const MAGIC_CODE = ['Moon', 'Anchor', 'Ghost', 'IceCreamCone', 'Crown'];
 
+	// "Red and yellow and pink and green, purple and orange and blue" — tap the
+	// colour swatches in the song's order, stopping at purple (there's no orange
+	// swatch), to unlock the Pride Parade icon set.
+	const PRIDE_COLOR_CODE = [
+		'player-color-1', // red (coral)
+		'player-color-4', // yellow (amber)
+		'player-color-7', // pink (rose)
+		'player-color-3', // green (mint)
+		'player-color-5', // purple (violet)
+	];
+
 	const pickerIcons = $derived([
 		...BASE_PLAYER_ICONS,
 		...(pantryUnlocked ? PANTRY_ICONS : []),
 		...(menagerieUnlocked ? MENAGERIE_ICONS : []),
+		...(prideUnlocked ? PRIDE_ICONS : []),
 	]);
 
 	/** @type {Set<string>} */
@@ -55,14 +74,52 @@
 	/** @type {string | null} */
 	let shakeNoIconId = $state(null);
 
-	function celebrate(/** @type {'pinch' | 'magic'} */ kind) {
-		const newIds = (kind === 'pinch' ? PANTRY_ICONS : MENAGERIE_ICONS).map(
-			(i) => i.id,
-		);
+	// Each easter egg unlocks an icon set with its own glow + sound signature.
+	const CELEBRATIONS = {
+		pinch: {
+			icons: PANTRY_ICONS,
+			glow: /** @type {const} */ ('iridescent'),
+			sound: playWhooshDing,
+		},
+		magic: {
+			icons: MENAGERIE_ICONS,
+			glow: /** @type {const} */ ('gold'),
+			sound: playSparkleChime,
+		},
+		// Pride has no container glow — instead each unlocked icon cascades in
+		// carrying its own rainbow tint (see prideHue / icon-tint-fade).
+		pride: {
+			icons: PRIDE_ICONS,
+			glow: /** @type {null} */ (null),
+			sound: playRainbowGlissando,
+		},
+	};
+
+	// Cascade-in delay for a freshly-unlocked icon, staggered by its position
+	// within whichever secret set it belongs to.
+	function cascadeDelay(/** @type {string} */ id) {
+		for (const set of [PANTRY_ICONS, MENAGERIE_ICONS, PRIDE_ICONS]) {
+			const idx = set.findIndex((i) => i.id === id);
+			if (idx >= 0) return idx * 50;
+		}
+		return 0;
+	}
+
+	// Per-icon rainbow tint for the Pride Parade set: hue steps evenly from red
+	// (0°, icon #1) to violet (280°, icon #10), filling in the colours between
+	// the six rainbow-flag stripes. Returns null for non-pride icons.
+	function prideHue(/** @type {string} */ id) {
+		const idx = PRIDE_ICONS.findIndex((i) => i.id === id);
+		if (idx < 0) return null;
+		return Math.round((idx / (PRIDE_ICONS.length - 1)) * 280);
+	}
+
+	function celebrate(/** @type {'pinch' | 'magic' | 'pride'} */ kind) {
+		const { icons, glow, sound } = CELEBRATIONS[kind];
+		const newIds = icons.map((i) => i.id);
 		newIds.forEach((id) => newlyUnlockedIds.add(id));
-		pickerGlow = kind === 'pinch' ? 'iridescent' : 'gold';
-		if (kind === 'pinch') playWhooshDing();
-		else playSparkleChime();
+		pickerGlow = glow;
+		sound();
 
 		// Clear the "newly unlocked" cascade markers once the entrance
 		// animations have run.
@@ -84,6 +141,16 @@
 		if (menagerieUnlocked) return;
 		menagerieUnlocked = true;
 		celebrate('magic');
+		wiggleActivePlayer = true;
+		setTimeout(() => {
+			wiggleActivePlayer = false;
+		}, 600);
+	}
+
+	function handlePrideUnlock() {
+		if (prideUnlocked) return;
+		prideUnlocked = true;
+		celebrate('pride');
 		wiggleActivePlayer = true;
 		setTimeout(() => {
 			wiggleActivePlayer = false;
@@ -215,17 +282,19 @@
 		aria-label="Choose icon"
 	>
 		{#each pickerIcons as { id, component: IconComp } (id)}
+			{@const unlocking = newlyUnlockedIds.has(id)}
+			{@const hue = prideHue(id)}
 			<button
 				class="icon-option"
 				class:icon-option--active={activeIcon === id}
 				class:icon-option--used={usedIcons.includes(id)}
-				class:icon-option--unlocking={newlyUnlockedIds.has(id)}
+				class:icon-option--unlocking={unlocking && hue === null}
+				class:icon-option--unlocking-pride={unlocking && hue !== null}
 				class:icon-option--shake-no={shakeNoIconId === id}
-				style:--cascade-delay="{newlyUnlockedIds.has(id)
-					? PANTRY_ICONS.findIndex((p) => p.id === id) >= 0
-						? PANTRY_ICONS.findIndex((p) => p.id === id) * 50
-						: MENAGERIE_ICONS.findIndex((m) => m.id === id) * 50
-					: 0}ms"
+				style:--cascade-delay="{unlocking ? cascadeDelay(id) : 0}ms"
+				style:--unlock-tint={hue !== null
+					? `hsl(${hue} 80% 52%)`
+					: null}
 				onclick={() => selectIcon(id)}
 				type="button"
 				aria-label={id}
@@ -239,7 +308,12 @@
 	</div>
 </div>
 
-<div class="color-picker" role="group" aria-label="Choose color">
+<div
+	class="color-picker"
+	role="group"
+	aria-label="Choose color"
+	use:secretCode={{ code: PRIDE_COLOR_CODE, onmatch: handlePrideUnlock }}
+>
 	{#each PLAYER_COLORS as { id } (id)}
 		<button
 			class="color-option"
@@ -250,7 +324,8 @@
 			type="button"
 			aria-label={id}
 			aria-pressed={activeColor === id}
-			disabled={usedColors.includes(id)}
+			aria-disabled={usedColors.includes(id)}
+			data-secret-id={id}
 		></button>
 	{/each}
 </div>
@@ -432,6 +507,26 @@
 		animation-delay: var(--cascade-delay, 0ms);
 	}
 
+	/* Pride Parade: same cascade entrance, plus a tint fade from this icon's
+	   rainbow hue (--unlock-tint, red→violet across the set) back to neutral. */
+	.icon-option--unlocking-pride {
+		animation:
+			icon-cascade-in 400ms ease-out backwards,
+			icon-tint-fade 900ms ease-out backwards;
+		animation-delay: var(--cascade-delay, 0ms);
+	}
+
+	@keyframes icon-tint-fade {
+		0% {
+			background-color: var(--unlock-tint);
+			border-color: var(--unlock-tint);
+		}
+		100% {
+			background-color: var(--palette-gray-dimmed);
+			border-color: var(--palette-gray-muted);
+		}
+	}
+
 	@keyframes icon-cascade-in {
 		from {
 			opacity: 0;
@@ -507,7 +602,7 @@
 			border-color 0.1s,
 			box-shadow 0.1s;
 
-		&:hover:not(:disabled) {
+		&:hover:not([aria-disabled='true']) {
 			border-color: var(--palette-white);
 			transform: scale(1.1);
 		}

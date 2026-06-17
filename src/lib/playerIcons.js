@@ -31,6 +31,17 @@ import {
 	Magnet,
 	Joystick,
 	TrafficCone,
+	// Pride Parade (rainbow color-sequence unlock)
+	Rainbow,
+	Heart,
+	HeartHandshake,
+	VenusAndMars,
+	Venus,
+	Mars,
+	HandFist,
+	Sparkles,
+	Megaphone,
+	Palette,
 	// Legacy (retired from picker, still rendered for existing games)
 	Car,
 	Gem,
@@ -81,6 +92,20 @@ export const MENAGERIE_ICONS = [
 ];
 
 /** @type {PlayerIcon[]} */
+export const PRIDE_ICONS = [
+	{ id: 'Rainbow', component: Rainbow },
+	{ id: 'Heart', component: Heart },
+	{ id: 'HeartHandshake', component: HeartHandshake },
+	{ id: 'VenusAndMars', component: VenusAndMars },
+	{ id: 'Venus', component: Venus },
+	{ id: 'Mars', component: Mars },
+	{ id: 'HandFist', component: HandFist },
+	{ id: 'Sparkles', component: Sparkles },
+	{ id: 'Megaphone', component: Megaphone },
+	{ id: 'Palette', component: Palette },
+];
+
+/** @type {PlayerIcon[]} */
 export const LEGACY_ICONS = [
 	{ id: 'Car', component: Car },
 	{ id: 'Gem', component: Gem },
@@ -104,6 +129,7 @@ const ALL_ICONS = [
 	...BASE_PLAYER_ICONS,
 	...PANTRY_ICONS,
 	...MENAGERIE_ICONS,
+	...PRIDE_ICONS,
 	...LEGACY_ICONS,
 ];
 

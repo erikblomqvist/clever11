@@ -4,6 +4,7 @@
 		BASE_PLAYER_ICONS,
 		PANTRY_ICONS,
 		MENAGERIE_ICONS,
+		PRIDE_ICONS,
 		PLAYER_COLORS,
 	} from '$lib/playerIcons.js';
 	import { supabase } from '$lib/supabase.js';
@@ -78,10 +79,12 @@
 	// step navigation within setup.
 	let pantryUnlocked = $state(false);
 	let menagerieUnlocked = $state(false);
+	let prideUnlocked = $state(false);
 	const pickerIcons = $derived([
 		...BASE_PLAYER_ICONS,
 		...(pantryUnlocked ? PANTRY_ICONS : []),
 		...(menagerieUnlocked ? MENAGERIE_ICONS : []),
+		...(prideUnlocked ? PRIDE_ICONS : []),
 	]);
 
 	const addRowValid = $derived(
@@ -297,6 +300,7 @@
 			bind:newColor
 			bind:pantryUnlocked
 			bind:menagerieUnlocked
+			bind:prideUnlocked
 			{canAddPlayer}
 			onaddplayer={addPlayer}
 			onremoveplayer={removePlayer}

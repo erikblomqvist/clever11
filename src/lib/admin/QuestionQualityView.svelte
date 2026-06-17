@@ -1,6 +1,6 @@
 <script>
 	import { supabase } from '$lib/supabase.js';
-	import { BarChart3 } from 'lucide-svelte';
+	import { ChartColumn } from 'lucide-svelte';
 	import TypeBadge from './components/TypeBadge.svelte';
 	import VoteChips from './components/VoteChips.svelte';
 	import SortHeader from './components/SortHeader.svelte';
@@ -187,7 +187,7 @@
 			body="Questions appear here once players start voting."
 		>
 			{#snippet icon()}
-				<BarChart3 size={18} />
+				<ChartColumn size={18} />
 			{/snippet}
 		</EmptyState>
 	{:else}

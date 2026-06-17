@@ -65,6 +65,24 @@ export function playSparkleChime() {
 }
 
 /**
+ * Ascending diatonic run — C5 up through C6 (do-re-mi-fa-sol-la-ti-do,
+ * ~360ms). The Pride Parade unlock: a musical "rainbow sweep" that climbs
+ * the whole scale, echoing the colours-of-the-rainbow song that triggers it.
+ */
+export function playRainbowGlissando() {
+	const c = getCtx();
+	if (!c) return;
+	if (c.state === 'suspended') c.resume();
+	// C5 D5 E5 F5 G5 A5 B5 C6 — a full major octave
+	const notes = [
+		523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5,
+	];
+	const step = 0.045;
+	const dur = 0.1;
+	notes.forEach((f, i) => tone(c, f, i * step, dur, 0.15, 'triangle'));
+}
+
+/**
  * Descending whoosh + ding (~280ms). The pinch unlock — "you pried open
  * the cupboard and stuff tumbled out."
  */

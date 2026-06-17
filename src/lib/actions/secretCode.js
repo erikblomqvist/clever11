@@ -103,7 +103,7 @@ export function secretCode(node, params) {
 function withDefaults(p) {
 	return {
 		code: p.code,
-		tapWindow: p.tapWindow ?? 700,
+		tapWindow: p.tapWindow ?? 5000,
 		onmatch: p.onmatch,
 		ontap: p.ontap,
 	};
